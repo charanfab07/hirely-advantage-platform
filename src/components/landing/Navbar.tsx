@@ -1,0 +1,60 @@
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
+
+const links = [
+  { label: "Features", href: "#features" },
+  { label: "How it Works", href: "#how-it-works" },
+  { label: "Roadmap", href: "#roadmap" },
+  { label: "Pricing", href: "#pricing" },
+];
+
+export const Navbar = () => {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <header className="fixed top-4 left-0 right-0 z-50 px-4 animate-fade-in">
+      <nav
+        className={cn(
+          "mx-auto max-w-6xl flex items-center justify-between rounded-full px-6 py-3 transition-all duration-500",
+          scrolled ? "glass-strong" : "glass-subtle"
+        )}
+      >
+        <a href="#" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center transition-transform group-hover:scale-105">
+            <Sparkles className="w-4 h-4" />
+          </div>
+          <span className="font-display font-semibold text-lg tracking-tight text-foreground">Hirely</span>
+          <span className="text-xs font-medium text-muted-foreground/80 px-1.5 py-0.5 rounded-md bg-foreground/5">AI</span>
+        </a>
+
+        <ul className="hidden md:flex items-center gap-8">
+          {links.map((l) => (
+            <li key={l.href}>
+              <a
+                href={l.href}
+                className="text-sm text-foreground/70 hover:text-foreground transition-colors"
+              >
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+
+        <a
+          href="#cta"
+          className="text-sm font-medium text-background bg-foreground px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
+        >
+          Get Started
+        </a>
+      </nav>
+    </header>
+  );
+};
