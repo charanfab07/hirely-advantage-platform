@@ -218,6 +218,25 @@ export const Hero = () => {
             </div>
           </Reveal>
 
+          <Reveal delay={420}>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+              {[
+                { icon: Zap, label: "60-sec scan" },
+                { icon: Target, label: "ATS-proof rewrite" },
+                { icon: Brain, label: "AI mock interviews" },
+                { icon: Clock, label: "Free forever plan" },
+              ].map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/50 backdrop-blur-md border border-white/70 text-xs font-medium text-foreground/75 shadow-sm"
+                >
+                  <Icon className="w-3.5 h-3.5 text-foreground/60" />
+                  {label}
+                </div>
+              ))}
+            </div>
+          </Reveal>
+
           <Reveal delay={480}>
             <div className="pt-6 mt-2 border-t border-foreground/5 flex flex-col gap-5">
               <div className="flex items-center justify-center lg:justify-start gap-3">
