@@ -14,6 +14,7 @@ export const MeshGradient = () => {
   const waveOneRef = useRef<HTMLDivElement>(null);
   const waveTwoRef = useRef<HTMLDivElement>(null);
   const target = useRef({ x: 0.5, y: 0.3 });
+  const smoothedTarget = useRef({ x: 0.5, y: 0.3 });
   const current = useRef({ x: 0.5, y: 0.3 });
   const raf = useRef<number>(0);
 
@@ -23,6 +24,11 @@ export const MeshGradient = () => {
     if (reduce) return;
 
     const isTouch = window.matchMedia("(hover: none)").matches;
+
+    // Tuning — touch gets more inertia (lower = smoother / laggier)
+    const TARGET_SMOOTH = isTouch ? 0.18 : 1; // pre-smooth raw input on touch
+    const FOLLOW = isTouch ? 0.035 : 0.06;    // main eased follow
+    const MAX_STEP = isTouch ? 0.012 : 1;     // per-frame velocity clamp (normalized)
 
     const onPointer = (e: PointerEvent) => {
       target.current.x = e.clientX / window.innerWidth;
@@ -46,10 +52,20 @@ export const MeshGradient = () => {
       target.current.y = 0.5 + gy * 0.5;
     };
 
+    const stepToward = (from: number, to: number, factor: number, maxStep: number) => {
+      const delta = (to - from) * factor;
+      const clamped = Math.max(-maxStep, Math.min(maxStep, delta));
+      return from + clamped;
+    };
+
     const tick = () => {
-      // Eased follow (0.06 = soft lag)
-      current.current.x += (target.current.x - current.current.x) * 0.06;
-      current.current.y += (target.current.y - current.current.y) * 0.06;
+      // Stage 1: pre-smooth the raw input target (kills high-frequency jitter from gyroscope/touch)
+      smoothedTarget.current.x += (target.current.x - smoothedTarget.current.x) * TARGET_SMOOTH;
+      smoothedTarget.current.y += (target.current.y - smoothedTarget.current.y) * TARGET_SMOOTH;
+
+      // Stage 2: eased follow with per-frame velocity clamp for inertia feel
+      current.current.x = stepToward(current.current.x, smoothedTarget.current.x, FOLLOW, MAX_STEP);
+      current.current.y = stepToward(current.current.y, smoothedTarget.current.y, FOLLOW, MAX_STEP);
 
       // Normalized -0.5..0.5 offset from screen center
       const dx = current.current.x - 0.5;
