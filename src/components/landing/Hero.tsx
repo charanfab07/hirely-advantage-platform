@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Star, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Play, Star, Sparkles, CheckCircle2, TrendingUp, Zap, Target, Brain, Clock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "./Reveal";
 
