@@ -150,24 +150,24 @@
   }
 
   .aurora-ribbon-one {
-    background: linear-gradient(90deg, transparent 6%, hsl(var(--ethereal-blue) / 0.9) 23%, hsl(var(--soft-lilac) / 0.82) 50%, hsl(var(--warm-blush) / 0.72) 75%, transparent 96%);
-    opacity: 0.78;
+    background: linear-gradient(90deg, transparent 6%, hsl(var(--ethereal-blue) / 1) 23%, hsl(var(--soft-lilac) / 0.98) 50%, hsl(var(--warm-blush) / 0.92) 75%, transparent 96%);
+    opacity: 0.95;
     animation: aurora-stream-one 14s cubic-bezier(0.42, 0, 0.22, 1) infinite alternate;
   }
 
   .aurora-ribbon-two {
     width: 132vw;
     height: 28vh;
-    background: linear-gradient(90deg, transparent 4%, hsl(var(--dawn-orange) / 0.75) 22%, hsl(var(--warm-blush) / 0.74) 48%, hsl(var(--ethereal-blue) / 0.66) 76%, transparent 98%);
-    opacity: 0.66;
+    background: linear-gradient(90deg, transparent 4%, hsl(var(--dawn-orange) / 0.95) 22%, hsl(var(--warm-blush) / 0.92) 48%, hsl(var(--ethereal-blue) / 0.86) 76%, transparent 98%);
+    opacity: 0.85;
     animation: aurora-stream-two 18s cubic-bezier(0.42, 0, 0.22, 1) infinite alternate;
   }
 
   .aurora-ribbon-three {
     width: 118vw;
     height: 22vh;
-    background: linear-gradient(90deg, transparent 8%, hsl(var(--soft-lilac) / 0.82) 28%, hsl(var(--ethereal-blue) / 0.76) 58%, hsl(var(--dawn-orange) / 0.52) 82%, transparent 100%);
-    opacity: 0.58;
+    background: linear-gradient(90deg, transparent 8%, hsl(var(--soft-lilac) / 1) 28%, hsl(var(--ethereal-blue) / 0.95) 58%, hsl(var(--dawn-orange) / 0.7) 82%, transparent 100%);
+    opacity: 0.78;
     animation: aurora-stream-three 22s cubic-bezier(0.42, 0, 0.22, 1) infinite alternate;
   }
 
@@ -196,16 +196,16 @@
     height: 150vh;
     top: -25vh;
     border-radius: 999px;
-    background: linear-gradient(180deg, transparent, hsl(var(--glass-bg) / 0.62), transparent);
+    background: linear-gradient(180deg, transparent, hsl(var(--glass-bg) / 0.95), transparent);
     filter: blur(20px);
-    opacity: 0.52;
+    opacity: 0.78;
     transform: rotate(22deg);
     animation: light-sweep 9s ease-in-out infinite;
     will-change: transform, opacity;
   }
 
   .light-sweep-one { left: -32vw; }
-  .light-sweep-two { left: -52vw; animation-delay: -4.5s; animation-duration: 12s; opacity: 0.35; }
+  .light-sweep-two { left: -52vw; animation-delay: -4.5s; animation-duration: 12s; opacity: 0.55; }
 
   .spark-field {
     position: absolute;
