@@ -128,6 +128,106 @@
     opacity: 0.35; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.1  0 0 0 0 0.15  0 0 0 0.4 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
   }
+
+  .bg-aurora-base {
+    background:
+      radial-gradient(circle at 18% 12%, hsl(var(--ethereal-blue) / 0.9), transparent 30%),
+      radial-gradient(circle at 82% 10%, hsl(var(--soft-lilac) / 0.8), transparent 28%),
+      linear-gradient(135deg, hsl(var(--pearl)) 0%, hsl(var(--ethereal-blue) / 0.58) 45%, hsl(var(--warm-blush) / 0.5) 100%);
+  }
+
+  .aurora-ribbon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 150vw;
+    height: 34vh;
+    border-radius: 999px;
+    transform-origin: center;
+    filter: blur(26px) saturate(145%);
+    mix-blend-mode: multiply;
+    will-change: transform, opacity;
+  }
+
+  .aurora-ribbon-one {
+    background: linear-gradient(90deg, transparent 6%, hsl(var(--ethereal-blue) / 0.9) 23%, hsl(var(--soft-lilac) / 0.82) 50%, hsl(var(--warm-blush) / 0.72) 75%, transparent 96%);
+    opacity: 0.78;
+    animation: aurora-stream-one 14s cubic-bezier(0.42, 0, 0.22, 1) infinite alternate;
+  }
+
+  .aurora-ribbon-two {
+    width: 132vw;
+    height: 28vh;
+    background: linear-gradient(90deg, transparent 4%, hsl(var(--dawn-orange) / 0.75) 22%, hsl(var(--warm-blush) / 0.74) 48%, hsl(var(--ethereal-blue) / 0.66) 76%, transparent 98%);
+    opacity: 0.66;
+    animation: aurora-stream-two 18s cubic-bezier(0.42, 0, 0.22, 1) infinite alternate;
+  }
+
+  .aurora-ribbon-three {
+    width: 118vw;
+    height: 22vh;
+    background: linear-gradient(90deg, transparent 8%, hsl(var(--soft-lilac) / 0.82) 28%, hsl(var(--ethereal-blue) / 0.76) 58%, hsl(var(--dawn-orange) / 0.52) 82%, transparent 100%);
+    opacity: 0.58;
+    animation: aurora-stream-three 22s cubic-bezier(0.42, 0, 0.22, 1) infinite alternate;
+  }
+
+  .aurora-wave {
+    position: absolute;
+    inset: -16%;
+    background-image:
+      repeating-linear-gradient(112deg, hsl(var(--slate-ink) / 0.055) 0 1px, transparent 1px 92px),
+      repeating-linear-gradient(28deg, hsl(var(--ethereal-blue) / 0.24) 0 1px, transparent 1px 118px);
+    mask-image: radial-gradient(ellipse at center, black 20%, transparent 72%);
+    opacity: 0.52;
+    animation: aurora-grid-drift 28s linear infinite;
+    will-change: transform;
+  }
+
+  .aurora-wave-two {
+    opacity: 0.28;
+    transform: rotate(12deg) scale(1.1);
+    animation-duration: 38s;
+    animation-direction: reverse;
+  }
+
+  .light-sweep {
+    position: absolute;
+    width: 34vw;
+    height: 150vh;
+    top: -25vh;
+    border-radius: 999px;
+    background: linear-gradient(180deg, transparent, hsl(var(--glass-bg) / 0.62), transparent);
+    filter: blur(20px);
+    opacity: 0.52;
+    transform: rotate(22deg);
+    animation: light-sweep 9s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  .light-sweep-one { left: -32vw; }
+  .light-sweep-two { left: -52vw; animation-delay: -4.5s; animation-duration: 12s; opacity: 0.35; }
+
+  .spark-field {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 72%, transparent);
+  }
+
+  .spark-field span {
+    --i: 0;
+    position: absolute;
+    left: calc((var(--i) * 37) % 100 * 1%);
+    top: calc((var(--i) * 19) % 72 * 1% + 8%);
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: hsl(var(--glass-bg) / 0.9);
+    box-shadow: 0 0 18px hsl(var(--ethereal-blue) / 0.9), 0 0 42px hsl(var(--soft-lilac) / 0.5);
+    opacity: 0;
+    animation: spark-rise 7s ease-in-out infinite;
+    animation-delay: calc(var(--i) * -0.38s);
+  }
 }
 
 /* Mesh orbs */
@@ -163,8 +263,43 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes aurora-stream-one {
+  0% { transform: translate3d(-58%, -60%, 0) rotate(-18deg) scale(0.95); opacity: 0.58; }
+  45% { transform: translate3d(-49%, -51%, 0) rotate(-8deg) scale(1.08); opacity: 0.86; }
+  100% { transform: translate3d(-42%, -42%, 0) rotate(-16deg) scale(1.02); opacity: 0.7; }
+}
+@keyframes aurora-stream-two {
+  0% { transform: translate3d(-44%, -34%, 0) rotate(17deg) scale(1.05); opacity: 0.48; }
+  52% { transform: translate3d(-54%, -49%, 0) rotate(8deg) scale(0.94); opacity: 0.76; }
+  100% { transform: translate3d(-62%, -56%, 0) rotate(19deg) scale(1.12); opacity: 0.56; }
+}
+@keyframes aurora-stream-three {
+  0% { transform: translate3d(-70%, -16%, 0) rotate(-6deg) scale(0.98); opacity: 0.4; }
+  50% { transform: translate3d(-50%, -32%, 0) rotate(4deg) scale(1.18); opacity: 0.68; }
+  100% { transform: translate3d(-34%, -23%, 0) rotate(-2deg) scale(1.02); opacity: 0.5; }
+}
+@keyframes aurora-grid-drift {
+  0% { transform: translate3d(-4%, -3%, 0) rotate(0deg) scale(1.02); }
+  100% { transform: translate3d(4%, 3%, 0) rotate(1deg) scale(1.08); }
+}
+@keyframes light-sweep {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(22deg); opacity: 0; }
+  18% { opacity: 0.5; }
+  55% { opacity: 0.34; }
+  100% { transform: translate3d(155vw, 4vh, 0) rotate(22deg); }
+}
+@keyframes spark-rise {
+  0%, 100% { transform: translate3d(0, 22px, 0) scale(0.55); opacity: 0; }
+  22% { opacity: 0.72; }
+  58% { opacity: 0.28; }
+  82% { transform: translate3d(18px, -54px, 0) scale(1); opacity: 0; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
-  [class*="animate-orb"] { animation: none !important; }
+  [class*="animate-orb"],
+  .aurora-ribbon,
+  .aurora-wave,
+  .light-sweep,
+  .spark-field span { animation: none !important; }
 }
