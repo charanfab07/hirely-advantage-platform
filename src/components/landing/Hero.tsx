@@ -145,7 +145,7 @@ export const Hero = () => {
         {/* Left: copy */}
         <div className="flex flex-col gap-9 text-center lg:text-left">
           <Reveal delay={120}>
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.04] text-foreground">
+            <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-9xl">
               From Ignored to
               <br />
               <span className="relative inline-block">
