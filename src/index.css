@@ -228,6 +228,13 @@
     animation: spark-rise 7s ease-in-out infinite;
     animation-delay: calc(var(--i) * -0.38s);
   }
+
+  .parallax-layer {
+    --parallax-x: 0px;
+    --parallax-y: 0px;
+    translate: var(--parallax-x) var(--parallax-y);
+    transition: translate 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
 }
 
 /* Mesh orbs */
