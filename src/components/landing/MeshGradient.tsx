@@ -1,8 +1,51 @@
+import { useEffect, useRef } from "react";
+
 /**
- * Animated fluid mesh gradient background.
+ * Animated fluid mesh gradient background + cursor-reactive spotlight.
+ * Layer 1: Slow drifting pastel orbs (ambient, always-on)
+ * Layer 2: Soft radial glow that follows the cursor with easing (rewards interaction)
  * Fixed full-screen, sits behind all content.
  */
 export const MeshGradient = () => {
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const target = useRef({ x: 0.5, y: 0.3 });
+  const current = useRef({ x: 0.5, y: 0.3 });
+  const raf = useRef<number>(0);
+
+  useEffect(() => {
+    // Respect reduced motion
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    // Skip on touch-primary devices (no hover cursor)
+    const isTouch = window.matchMedia("(hover: none)").matches;
+    if (isTouch) return;
+
+    const onMove = (e: PointerEvent) => {
+      target.current.x = e.clientX / window.innerWidth;
+      target.current.y = e.clientY / window.innerHeight;
+    };
+
+    const tick = () => {
+      // Eased follow (0.06 = soft lag)
+      current.current.x += (target.current.x - current.current.x) * 0.06;
+      current.current.y += (target.current.y - current.current.y) * 0.06;
+      const el = spotlightRef.current;
+      if (el) {
+        el.style.transform = `translate3d(${current.current.x * 100}vw, ${current.current.y * 100}vh, 0) translate(-50%, -50%)`;
+      }
+      raf.current = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    raf.current = requestAnimationFrame(tick);
+
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(raf.current);
+    };
+  }, []);
+
   return (
     <div
       aria-hidden
@@ -45,6 +88,19 @@ export const MeshGradient = () => {
           filter: "blur(110px)",
         }}
       />
+
+      {/* Cursor-reactive spotlight — soft warm-blush + lilac tint */}
+      <div
+        ref={spotlightRef}
+        className="absolute top-0 left-0 w-[60vw] h-[60vw] rounded-full pointer-events-none will-change-transform"
+        style={{
+          background:
+            "radial-gradient(circle at center, hsl(var(--warm-blush) / 0.55) 0%, hsl(var(--soft-lilac) / 0.35) 35%, hsl(var(--soft-lilac) / 0) 70%)",
+          filter: "blur(60px)",
+          mixBlendMode: "screen",
+        }}
+      />
+
       {/* Grain */}
       <div className="grain" />
     </div>
