@@ -1,4 +1,4 @@
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 export const Hero = () => {
@@ -22,7 +22,7 @@ export const Hero = () => {
         </Reveal>
 
         <Reveal delay={360}>
-          <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="mt-10 flex items-center justify-center">
             <a
               href="#cta"
               className="group inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition-all hover:scale-[1.02]"
@@ -30,22 +30,7 @@ export const Hero = () => {
               Start Free Analysis
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
             </a>
-            <a
-              href="#features"
-              className="inline-flex items-center gap-2 glass rounded-full px-7 py-3.5 text-sm font-medium text-foreground hover:bg-white/70 transition-all"
-            >
-              <Play className="w-3.5 h-3.5 fill-foreground" />
-              Watch Demo
-            </a>
           </div>
-        </Reveal>
-
-        {/* Floating preview removed */}
-
-        <Reveal delay={680}>
-          <p className="mt-12 text-xs uppercase tracking-[0.2em] text-foreground/45">
-            Trained on 1M+ job descriptions · Trusted by candidates at FAANG, McKinsey & YC startups
-          </p>
         </Reveal>
       </div>
     </section>
