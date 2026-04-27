@@ -1,16 +1,79 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { MeshGradient } from "@/components/landing/MeshGradient";
+import { Navbar } from "@/components/landing/Navbar";
+import { Hero } from "@/components/landing/Hero";
+import { Stats } from "@/components/landing/Stats";
+import { SectionHeader } from "@/components/landing/SectionHeader";
+import { FeatureBlock } from "@/components/landing/FeatureBlock";
+import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landing/FeatureVisuals";
+import { RoadmapSection } from "@/components/landing/RoadmapSection";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { Testimonials } from "@/components/landing/Testimonials";
+import { FinalCTA } from "@/components/landing/FinalCTA";
+import { Footer } from "@/components/landing/Footer";
 
-// IMPORTANT: Fully REPLACE this with your own code
-const PlaceholderIndex = () => {
-  // PLACEHOLDER: Replace this entire return statement with the user's app.
-  // The inline background color is intentionally not part of the design system.
+const Index = () => {
   return (
-    <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: '#fcfbf8' }}>
-      <img data-lovable-blank-page-placeholder="REMOVE_THIS" src="/placeholder.svg" alt="Your app will live here!" />
-    </div>
+    <main className="relative min-h-screen overflow-x-hidden">
+      <MeshGradient />
+      <Navbar />
+      <Hero />
+      <Stats />
+
+      <section id="features" className="pt-12">
+        <SectionHeader
+          eyebrow="Core Capabilities"
+          title="Three engines, engineered for offers."
+          description="Each module is built to compress weeks of guesswork into minutes of decisive feedback."
+        />
+
+        <FeatureBlock
+          index={1}
+          eyebrow="ATS Simulator & Resume Architect"
+          title="Bypass the filter. Earn the read."
+          description="We simulate a real enterprise Applicant Tracking System and rewrite your resume with data-driven, action-oriented impact statements."
+          bullets={[
+            "Definitive 0–100 Market Readiness Score against your target role.",
+            "Side-by-side Impact Rewrites that turn duties into achievements.",
+            "Exact missing keywords required to clear automated HR filters.",
+          ]}
+          visual={<VisualATS />}
+        />
+
+        <FeatureBlock
+          index={2}
+          eyebrow="Contextual Pitch & Outreach Engine"
+          title="Cover letters are table stakes."
+          description="A complete suite for professional networking — every message tuned to the human on the other side."
+          bullets={[
+            "Hyper-personalized cover letters that reference the company's actual roadmap.",
+            "Punchy 50-word LinkedIn cold DMs tailored to the hiring manager.",
+            "Polite, persistent follow-up emails for every stage of the loop.",
+          ]}
+          visual={<VisualOutreach />}
+          reverse
+        />
+
+        <FeatureBlock
+          index={3}
+          eyebrow="Immersive Behavioral Voice Coach"
+          title="Practice under pressure. Walk in fluent."
+          description="A high-stakes, voice-first simulation that listens to your delivery — not just your words."
+          bullets={[
+            "STAR Method analyzer flags missing Situation, Task, Action, or Result.",
+            "Delivery metrics on pacing, filler words, and conversational confidence.",
+            "Curveball generation injects high-stress questions to test adaptability.",
+          ]}
+          visual={<VisualVoiceCoach />}
+        />
+      </section>
+
+      <RoadmapSection />
+      <HowItWorks />
+      <Testimonials />
+      <FinalCTA />
+      <Footer />
+    </main>
   );
 };
-
-const Index = PlaceholderIndex;
 
 export default Index;
