@@ -67,7 +67,26 @@ export const MeshGradient = () => {
       return from + clamped;
     };
 
+    // Idle drift — after no input for IDLE_DELAY ms, slowly orbit on a Lissajous path.
+    // Amplitude eases in over IDLE_RAMP ms so the transition is imperceptible.
+    const IDLE_DELAY = 2500;
+    const IDLE_RAMP = 1800;
+    const IDLE_AMP_X = 0.18; // normalized — keeps motion within a calm range
+    const IDLE_AMP_Y = 0.12;
+    const IDLE_SPEED = 0.00018; // radians per ms — slow orbit
+
     const tick = () => {
+      const now = performance.now();
+      const idleFor = now - lastInput.current;
+
+      if (idleFor > IDLE_DELAY) {
+        const ramp = Math.min(1, (idleFor - IDLE_DELAY) / IDLE_RAMP);
+        const t = (now - startTime.current) * IDLE_SPEED;
+        // Lissajous (1:1.3 ratio) for an organic, non-repeating orbit
+        target.current.x = 0.5 + Math.sin(t) * IDLE_AMP_X * ramp;
+        target.current.y = 0.4 + Math.sin(t * 1.3 + Math.PI / 3) * IDLE_AMP_Y * ramp;
+      }
+
       // Stage 1: pre-smooth the raw input target (kills high-frequency jitter from gyroscope/touch)
       smoothedTarget.current.x += (target.current.x - smoothedTarget.current.x) * TARGET_SMOOTH;
       smoothedTarget.current.y += (target.current.y - smoothedTarget.current.y) * TARGET_SMOOTH;
