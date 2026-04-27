@@ -8,6 +8,11 @@ import { useEffect, useRef } from "react";
  */
 export const MeshGradient = () => {
   const spotlightRef = useRef<HTMLDivElement>(null);
+  const ribbonOneRef = useRef<HTMLDivElement>(null);
+  const ribbonTwoRef = useRef<HTMLDivElement>(null);
+  const ribbonThreeRef = useRef<HTMLDivElement>(null);
+  const waveOneRef = useRef<HTMLDivElement>(null);
+  const waveTwoRef = useRef<HTMLDivElement>(null);
   const target = useRef({ x: 0.5, y: 0.3 });
   const current = useRef({ x: 0.5, y: 0.3 });
   const raf = useRef<number>(0);
@@ -30,10 +35,28 @@ export const MeshGradient = () => {
       // Eased follow (0.06 = soft lag)
       current.current.x += (target.current.x - current.current.x) * 0.06;
       current.current.y += (target.current.y - current.current.y) * 0.06;
-      const el = spotlightRef.current;
-      if (el) {
-        el.style.transform = `translate3d(${current.current.x * 100}vw, ${current.current.y * 100}vh, 0) translate(-50%, -50%)`;
+
+      // Normalized -0.5..0.5 offset from screen center
+      const dx = current.current.x - 0.5;
+      const dy = current.current.y - 0.5;
+
+      const spotlight = spotlightRef.current;
+      if (spotlight) {
+        spotlight.style.transform = `translate3d(${current.current.x * 100}vw, ${current.current.y * 100}vh, 0) translate(-50%, -50%)`;
       }
+
+      // Subtle parallax — different depths for layered feel
+      const apply = (el: HTMLDivElement | null, depth: number) => {
+        if (!el) return;
+        el.style.setProperty("--parallax-x", `${dx * depth}px`);
+        el.style.setProperty("--parallax-y", `${dy * depth}px`);
+      };
+      apply(ribbonOneRef.current, 36);
+      apply(ribbonTwoRef.current, 24);
+      apply(ribbonThreeRef.current, 18);
+      apply(waveOneRef.current, 12);
+      apply(waveTwoRef.current, 8);
+
       raf.current = requestAnimationFrame(tick);
     };
 
@@ -54,12 +77,12 @@ export const MeshGradient = () => {
     >
       <div className="absolute inset-0 bg-aurora-base" />
 
-      <div className="aurora-ribbon aurora-ribbon-one" />
-      <div className="aurora-ribbon aurora-ribbon-two" />
-      <div className="aurora-ribbon aurora-ribbon-three" />
+      <div ref={ribbonOneRef} className="aurora-ribbon aurora-ribbon-one parallax-layer" />
+      <div ref={ribbonTwoRef} className="aurora-ribbon aurora-ribbon-two parallax-layer" />
+      <div ref={ribbonThreeRef} className="aurora-ribbon aurora-ribbon-three parallax-layer" />
 
-      <div className="aurora-wave aurora-wave-one" />
-      <div className="aurora-wave aurora-wave-two" />
+      <div ref={waveOneRef} className="aurora-wave aurora-wave-one parallax-layer" />
+      <div ref={waveTwoRef} className="aurora-wave aurora-wave-two parallax-layer" />
 
       <div className="light-sweep light-sweep-one" />
       <div className="light-sweep light-sweep-two" />
