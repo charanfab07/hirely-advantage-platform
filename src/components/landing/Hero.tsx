@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Star, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Play, Star, Sparkles, CheckCircle2, TrendingUp, Zap, Target, Brain, Clock } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "./Reveal";
 
@@ -123,8 +123,8 @@ const MockupCard = () => {
         </div>
       </div>
 
-      {/* Floating decorative pill */}
-      <div className="absolute -bottom-5 -left-6 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-lg flex items-center gap-3 transform -rotate-3">
+      {/* Floating decorative pill — bottom-left */}
+      <div className="absolute -bottom-5 -left-6 px-4 py-3 rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-lg flex items-center gap-3 transform -rotate-3 animate-float-y">
         <div className="w-8 h-8 rounded-full bg-[hsl(var(--warm-blush))] flex items-center justify-center text-foreground font-bold text-sm">
           ↗
         </div>
@@ -132,6 +132,27 @@ const MockupCard = () => {
           Optimized for
           <br />
           <span className="text-foreground">Senior Product roles</span>
+        </div>
+      </div>
+
+      {/* Floating ATS pass badge — top-right */}
+      <div className="absolute -top-4 -right-4 px-3 py-2 rounded-2xl bg-white/80 backdrop-blur-md border border-white/80 shadow-lg flex items-center gap-2 transform rotate-6">
+        <div className="size-7 rounded-full bg-emerald-100 flex items-center justify-center">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+        </div>
+        <div className="text-[11px] font-semibold text-foreground/80 leading-tight">
+          ATS Filter
+          <br />
+          <span className="text-emerald-600">Passed ✓</span>
+        </div>
+      </div>
+
+      {/* Floating callbacks pill — middle-right */}
+      <div className="hidden sm:flex absolute top-1/2 -right-8 -translate-y-1/2 px-3 py-2.5 rounded-2xl bg-white/75 backdrop-blur-md border border-white/70 shadow-lg items-center gap-2 transform rotate-3" style={{ animation: "float-y 7s ease-in-out infinite", animationDelay: "1.2s" }}>
+        <TrendingUp className="w-4 h-4 text-foreground/70" />
+        <div className="text-[11px] font-semibold text-foreground/80 leading-tight">
+          <span className="text-foreground font-bold">3.2×</span> more
+          <br />callbacks
         </div>
       </div>
     </div>
@@ -144,6 +165,18 @@ export const Hero = () => {
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
         {/* Left: copy */}
         <div className="flex flex-col gap-9 text-center lg:text-left">
+          <Reveal delay={60}>
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-white/80 shadow-sm self-center lg:self-start">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
+              </span>
+              <span className="text-[11px] font-semibold tracking-wider uppercase text-foreground/70">
+                Live · 1,284 resumes optimized today
+              </span>
+            </div>
+          </Reveal>
+
           <Reveal delay={120}>
             <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-7xl">
               From Ignored to
@@ -182,6 +215,25 @@ export const Hero = () => {
                 </span>
                 Watch Demo
               </a>
+            </div>
+          </Reveal>
+
+          <Reveal delay={420}>
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5">
+              {[
+                { icon: Zap, label: "60-sec scan" },
+                { icon: Target, label: "ATS-proof rewrite" },
+                { icon: Brain, label: "AI mock interviews" },
+                { icon: Clock, label: "Free forever plan" },
+              ].map(({ icon: Icon, label }) => (
+                <div
+                  key={label}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/50 backdrop-blur-md border border-white/70 text-xs font-medium text-foreground/75 shadow-sm"
+                >
+                  <Icon className="w-3.5 h-3.5 text-foreground/60" />
+                  {label}
+                </div>
+              ))}
             </div>
           </Reveal>
 
