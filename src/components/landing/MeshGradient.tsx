@@ -32,9 +32,14 @@ export const MeshGradient = () => {
     const FOLLOW = isTouch ? 0.035 : 0.06;    // main eased follow
     const MAX_STEP = isTouch ? 0.012 : 1;     // per-frame velocity clamp (normalized)
 
+    const markInput = () => {
+      lastInput.current = performance.now();
+    };
+
     const onPointer = (e: PointerEvent) => {
       target.current.x = e.clientX / window.innerWidth;
       target.current.y = e.clientY / window.innerHeight;
+      markInput();
     };
 
     const onTouch = (e: TouchEvent) => {
@@ -42,6 +47,7 @@ export const MeshGradient = () => {
       if (!t) return;
       target.current.x = t.clientX / window.innerWidth;
       target.current.y = t.clientY / window.innerHeight;
+      markInput();
     };
 
     // Map device tilt to parallax target. gamma: left/right (-90..90), beta: front/back (-180..180)
@@ -52,6 +58,7 @@ export const MeshGradient = () => {
       const gy = Math.max(-25, Math.min(25, (e.beta ?? 0) - 30)) / 25; // -1..1, neutral around 30°
       target.current.x = 0.5 + gx * 0.5;
       target.current.y = 0.5 + gy * 0.5;
+      markInput();
     };
 
     const stepToward = (from: number, to: number, factor: number, maxStep: number) => {
