@@ -165,6 +165,18 @@ export const Hero = () => {
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
         {/* Left: copy */}
         <div className="flex flex-col gap-9 text-center lg:text-left">
+          <Reveal delay={60}>
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-white/80 shadow-sm self-center lg:self-start">
+              <span className="relative flex size-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
+                <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
+              </span>
+              <span className="text-[11px] font-semibold tracking-wider uppercase text-foreground/70">
+                Live · 1,284 resumes optimized today
+              </span>
+            </div>
+          </Reveal>
+
           <Reveal delay={120}>
             <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-7xl">
               From Ignored to
