@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Sparkles } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 export const Hero = () => {
