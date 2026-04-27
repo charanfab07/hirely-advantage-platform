@@ -1,19 +1,10 @@
-import { ArrowRight, Play, Sparkles } from "lucide-react";
+import { ArrowRight, Play } from "lucide-react";
 import { Reveal } from "./Reveal";
 
 export const Hero = () => {
   return (
     <section className="relative pt-40 pb-24 px-4">
       <div className="mx-auto max-w-6xl text-center">
-        <Reveal>
-          <div className="inline-flex items-center gap-2 glass-subtle rounded-full px-4 py-1.5 mb-8">
-            <Sparkles className="w-3.5 h-3.5 text-foreground/70" />
-            <span className="text-xs font-medium text-foreground/80 tracking-wide">
-              AI-Powered Career Acceleration
-            </span>
-          </div>
-        </Reveal>
-
         <Reveal delay={120}>
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-semibold leading-[1.02] text-foreground">
             Reverse-engineer
