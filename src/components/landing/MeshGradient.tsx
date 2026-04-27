@@ -22,13 +22,28 @@ export const MeshGradient = () => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
 
-    // Skip on touch-primary devices (no hover cursor)
     const isTouch = window.matchMedia("(hover: none)").matches;
-    if (isTouch) return;
 
-    const onMove = (e: PointerEvent) => {
+    const onPointer = (e: PointerEvent) => {
       target.current.x = e.clientX / window.innerWidth;
       target.current.y = e.clientY / window.innerHeight;
+    };
+
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      target.current.x = t.clientX / window.innerWidth;
+      target.current.y = t.clientY / window.innerHeight;
+    };
+
+    // Map device tilt to parallax target. gamma: left/right (-90..90), beta: front/back (-180..180)
+    const onOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma == null || e.beta == null) return;
+      // Clamp to ±25° of tilt for a subtle range, normalize to 0..1
+      const gx = Math.max(-25, Math.min(25, e.gamma)) / 25; // -1..1
+      const gy = Math.max(-25, Math.min(25, (e.beta ?? 0) - 30)) / 25; // -1..1, neutral around 30°
+      target.current.x = 0.5 + gx * 0.5;
+      target.current.y = 0.5 + gy * 0.5;
     };
 
     const tick = () => {
@@ -60,11 +75,45 @@ export const MeshGradient = () => {
       raf.current = requestAnimationFrame(tick);
     };
 
-    window.addEventListener("pointermove", onMove, { passive: true });
+    if (isTouch) {
+      // Touch fallback — finger drag drives parallax
+      window.addEventListener("touchmove", onTouch, { passive: true });
+      window.addEventListener("touchstart", onTouch, { passive: true });
+
+      // Device orientation (gyroscope) — works without finger interaction
+      // iOS 13+ requires explicit permission via a user gesture
+      const DOE = (window as unknown as {
+        DeviceOrientationEvent?: { requestPermission?: () => Promise<"granted" | "denied"> };
+      }).DeviceOrientationEvent;
+      const needsPermission = typeof DOE?.requestPermission === "function";
+
+      if (needsPermission) {
+        const requestOnce = async () => {
+          try {
+            const res = await DOE!.requestPermission!();
+            if (res === "granted") {
+              window.addEventListener("deviceorientation", onOrientation);
+            }
+          } catch {
+            // ignore
+          }
+          window.removeEventListener("touchstart", requestOnce);
+        };
+        window.addEventListener("touchstart", requestOnce, { once: true, passive: true });
+      } else {
+        window.addEventListener("deviceorientation", onOrientation);
+      }
+    } else {
+      window.addEventListener("pointermove", onPointer, { passive: true });
+    }
+
     raf.current = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("touchmove", onTouch);
+      window.removeEventListener("touchstart", onTouch);
+      window.removeEventListener("deviceorientation", onOrientation);
       cancelAnimationFrame(raf.current);
     };
   }, []);
