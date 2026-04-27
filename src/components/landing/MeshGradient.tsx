@@ -17,6 +17,8 @@ export const MeshGradient = () => {
   const smoothedTarget = useRef({ x: 0.5, y: 0.3 });
   const current = useRef({ x: 0.5, y: 0.3 });
   const raf = useRef<number>(0);
+  const lastInput = useRef<number>(performance.now());
+  const startTime = useRef<number>(performance.now());
 
   useEffect(() => {
     // Respect reduced motion
@@ -30,9 +32,14 @@ export const MeshGradient = () => {
     const FOLLOW = isTouch ? 0.035 : 0.06;    // main eased follow
     const MAX_STEP = isTouch ? 0.012 : 1;     // per-frame velocity clamp (normalized)
 
+    const markInput = () => {
+      lastInput.current = performance.now();
+    };
+
     const onPointer = (e: PointerEvent) => {
       target.current.x = e.clientX / window.innerWidth;
       target.current.y = e.clientY / window.innerHeight;
+      markInput();
     };
 
     const onTouch = (e: TouchEvent) => {
@@ -40,6 +47,7 @@ export const MeshGradient = () => {
       if (!t) return;
       target.current.x = t.clientX / window.innerWidth;
       target.current.y = t.clientY / window.innerHeight;
+      markInput();
     };
 
     // Map device tilt to parallax target. gamma: left/right (-90..90), beta: front/back (-180..180)
@@ -50,6 +58,7 @@ export const MeshGradient = () => {
       const gy = Math.max(-25, Math.min(25, (e.beta ?? 0) - 30)) / 25; // -1..1, neutral around 30°
       target.current.x = 0.5 + gx * 0.5;
       target.current.y = 0.5 + gy * 0.5;
+      markInput();
     };
 
     const stepToward = (from: number, to: number, factor: number, maxStep: number) => {
@@ -58,7 +67,26 @@ export const MeshGradient = () => {
       return from + clamped;
     };
 
+    // Idle drift — after no input for IDLE_DELAY ms, slowly orbit on a Lissajous path.
+    // Amplitude eases in over IDLE_RAMP ms so the transition is imperceptible.
+    const IDLE_DELAY = 2500;
+    const IDLE_RAMP = 1800;
+    const IDLE_AMP_X = 0.18; // normalized — keeps motion within a calm range
+    const IDLE_AMP_Y = 0.12;
+    const IDLE_SPEED = 0.00018; // radians per ms — slow orbit
+
     const tick = () => {
+      const now = performance.now();
+      const idleFor = now - lastInput.current;
+
+      if (idleFor > IDLE_DELAY) {
+        const ramp = Math.min(1, (idleFor - IDLE_DELAY) / IDLE_RAMP);
+        const t = (now - startTime.current) * IDLE_SPEED;
+        // Lissajous (1:1.3 ratio) for an organic, non-repeating orbit
+        target.current.x = 0.5 + Math.sin(t) * IDLE_AMP_X * ramp;
+        target.current.y = 0.4 + Math.sin(t * 1.3 + Math.PI / 3) * IDLE_AMP_Y * ramp;
+      }
+
       // Stage 1: pre-smooth the raw input target (kills high-frequency jitter from gyroscope/touch)
       smoothedTarget.current.x += (target.current.x - smoothedTarget.current.x) * TARGET_SMOOTH;
       smoothedTarget.current.y += (target.current.y - smoothedTarget.current.y) * TARGET_SMOOTH;
