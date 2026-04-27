@@ -92,12 +92,13 @@ export const MeshGradient = () => {
       {/* Cursor-reactive spotlight — soft warm-blush + lilac tint */}
       <div
         ref={spotlightRef}
-        className="absolute top-0 left-0 w-[60vw] h-[60vw] rounded-full pointer-events-none will-change-transform"
+        className="absolute top-0 left-0 w-[80vw] h-[80vw] rounded-full pointer-events-none will-change-transform"
         style={{
           background:
-            "radial-gradient(circle at center, hsl(var(--warm-blush) / 0.55) 0%, hsl(var(--soft-lilac) / 0.35) 35%, hsl(var(--soft-lilac) / 0) 70%)",
-          filter: "blur(60px)",
-          mixBlendMode: "screen",
+            "radial-gradient(circle at center, hsl(var(--warm-blush) / 0.95) 0%, hsl(var(--soft-lilac) / 0.6) 30%, hsl(var(--ethereal-blue) / 0.3) 55%, hsl(var(--soft-lilac) / 0) 75%)",
+          filter: "blur(40px)",
+          mixBlendMode: "multiply",
+          opacity: 0.85,
         }}
       />
 
