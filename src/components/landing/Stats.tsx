@@ -38,15 +38,33 @@ const Counter = ({ value, suffix, decimals = 0 }: { value: number; suffix: strin
 
 export const Stats = () => {
   return (
-    <section className="px-4 py-20">
-      <div className="mx-auto max-w-6xl glass-strong rounded-3xl p-10 md:p-14">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 md:gap-6">
-          {stats.map((s, i) => (
-            <div key={i} className="flex flex-col items-start text-left">
-              <Counter value={s.value} suffix={s.suffix} decimals={s.decimals} />
-              <p className="mt-3 text-sm text-foreground/60 leading-relaxed max-w-[180px]">{s.label}</p>
-            </div>
-          ))}
+    <section className="px-4 -mt-8 md:-mt-16 pb-20 relative z-10">
+      <div className="mx-auto max-w-6xl relative">
+        {/* Ambient halo */}
+        <div className="absolute -inset-x-10 -inset-y-6 -z-10 opacity-60 blur-3xl pointer-events-none">
+          <div className="absolute left-[5%] top-0 w-[40%] h-full rounded-full bg-[hsl(var(--ethereal-blue))]" />
+          <div className="absolute right-[10%] top-0 w-[35%] h-full rounded-full bg-[hsl(var(--soft-lilac))]" />
+          <div className="absolute left-[40%] top-0 w-[30%] h-full rounded-full bg-[hsl(var(--warm-blush))]" />
+        </div>
+
+        <div className="glass-strong rounded-[2rem] p-8 md:p-12 relative overflow-hidden">
+          {/* Inner sheen */}
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[60%] h-40 rounded-full bg-white/40 blur-3xl pointer-events-none" />
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-y-0 relative">
+            {stats.map((s, i) => (
+              <div
+                key={i}
+                className={`flex flex-col items-center md:items-start text-center md:text-left px-2 md:px-6 ${
+                  i > 0 ? "md:border-l md:border-foreground/10" : ""
+                }`}
+              >
+                <Counter value={s.value} suffix={s.suffix} decimals={s.decimals} />
+                <p className="mt-3 text-sm text-foreground/60 leading-relaxed max-w-[200px]">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
