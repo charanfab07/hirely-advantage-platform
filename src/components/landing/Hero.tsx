@@ -7,9 +7,9 @@ export const Hero = () => {
       <div className="mx-auto max-w-6xl text-center">
         <Reveal delay={120}>
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-[5.5rem] font-semibold leading-[1.02] text-foreground">
-            Reverse-engineer
+            From Ignored to
             <br />
-            <span className="text-gradient">the hiring process.</span>
+            <span className="text-gradient">Interviewed — In Minutes</span>
           </h1>
         </Reveal>
 
