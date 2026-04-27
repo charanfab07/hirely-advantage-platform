@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Animated fluid mesh gradient background + cursor-reactive spotlight.
- * Layer 1: Slow drifting pastel orbs (ambient, always-on)
- * Layer 2: Soft radial glow that follows the cursor with easing (rewards interaction)
+ * Premium animated landing background.
+ * Layer 1: Moving aurora ribbons and luminous glass waves.
+ * Layer 2: Cursor-reactive spotlight with eased follow.
  * Fixed full-screen, sits behind all content.
  */
 export const MeshGradient = () => {
@@ -52,53 +52,34 @@ export const MeshGradient = () => {
       className="fixed inset-0 -z-10 overflow-hidden"
       style={{ backgroundColor: "hsl(var(--pearl))" }}
     >
-      {/* Ethereal blue */}
-      <div
-        className="absolute -top-[20%] -left-[15%] w-[70vw] h-[70vw] rounded-full opacity-90 animate-orb-1"
-        style={{
-          background:
-            "radial-gradient(circle at center, hsl(var(--ethereal-blue) / 0.95) 0%, hsl(var(--ethereal-blue) / 0) 65%)",
-          filter: "blur(80px)",
-        }}
-      />
-      {/* Soft lilac */}
-      <div
-        className="absolute top-[10%] -right-[15%] w-[65vw] h-[65vw] rounded-full opacity-90 animate-orb-2"
-        style={{
-          background:
-            "radial-gradient(circle at center, hsl(var(--soft-lilac) / 0.95) 0%, hsl(var(--soft-lilac) / 0) 65%)",
-          filter: "blur(90px)",
-        }}
-      />
-      {/* Warm blush */}
-      <div
-        className="absolute top-[40%] left-[10%] w-[60vw] h-[60vw] rounded-full opacity-80 animate-orb-3"
-        style={{
-          background:
-            "radial-gradient(circle at center, hsl(var(--warm-blush) / 0.9) 0%, hsl(var(--warm-blush) / 0) 65%)",
-          filter: "blur(100px)",
-        }}
-      />
-      {/* Dawn orange */}
-      <div
-        className="absolute bottom-[-20%] right-[5%] w-[70vw] h-[70vw] rounded-full opacity-85 animate-orb-4"
-        style={{
-          background:
-            "radial-gradient(circle at center, hsl(var(--dawn-orange) / 0.95) 0%, hsl(var(--dawn-orange) / 0) 65%)",
-          filter: "blur(110px)",
-        }}
-      />
+      <div className="absolute inset-0 bg-aurora-base" />
 
-      {/* Cursor-reactive spotlight — soft warm-blush + lilac tint */}
+      <div className="aurora-ribbon aurora-ribbon-one" />
+      <div className="aurora-ribbon aurora-ribbon-two" />
+      <div className="aurora-ribbon aurora-ribbon-three" />
+
+      <div className="aurora-wave aurora-wave-one" />
+      <div className="aurora-wave aurora-wave-two" />
+
+      <div className="light-sweep light-sweep-one" />
+      <div className="light-sweep light-sweep-two" />
+
+      <div className="spark-field">
+        {Array.from({ length: 18 }).map((_, index) => (
+          <span key={index} style={{ "--i": index } as React.CSSProperties} />
+        ))}
+      </div>
+
+      {/* Cursor-reactive spotlight — visibly rewards movement */}
       <div
         ref={spotlightRef}
-        className="absolute top-0 left-0 w-[80vw] h-[80vw] rounded-full pointer-events-none will-change-transform"
+        className="absolute top-0 left-0 w-[58vw] h-[58vw] rounded-full pointer-events-none will-change-transform"
         style={{
           background:
-            "radial-gradient(circle at center, hsl(var(--warm-blush) / 0.95) 0%, hsl(var(--soft-lilac) / 0.6) 30%, hsl(var(--ethereal-blue) / 0.3) 55%, hsl(var(--soft-lilac) / 0) 75%)",
-          filter: "blur(40px)",
+            "radial-gradient(circle at center, hsl(var(--ethereal-blue) / 0.95) 0%, hsl(var(--soft-lilac) / 0.62) 34%, hsl(var(--warm-blush) / 0.32) 56%, hsl(var(--soft-lilac) / 0) 74%)",
+          filter: "blur(24px)",
           mixBlendMode: "multiply",
-          opacity: 0.85,
+          opacity: 0.9,
         }}
       />
 
