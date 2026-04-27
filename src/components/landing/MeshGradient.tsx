@@ -17,6 +17,8 @@ export const MeshGradient = () => {
   const smoothedTarget = useRef({ x: 0.5, y: 0.3 });
   const current = useRef({ x: 0.5, y: 0.3 });
   const raf = useRef<number>(0);
+  const lastInput = useRef<number>(performance.now());
+  const startTime = useRef<number>(performance.now());
 
   useEffect(() => {
     // Respect reduced motion
