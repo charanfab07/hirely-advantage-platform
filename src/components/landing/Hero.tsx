@@ -123,8 +123,8 @@ const MockupCard = () => {
         </div>
       </div>
 
-      {/* Floating decorative pill */}
-      <div className="absolute -bottom-5 -left-6 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-lg flex items-center gap-3 transform -rotate-3">
+      {/* Floating decorative pill — bottom-left */}
+      <div className="absolute -bottom-5 -left-6 px-4 py-3 rounded-2xl bg-white/70 backdrop-blur-md border border-white/70 shadow-lg flex items-center gap-3 transform -rotate-3 animate-float-y">
         <div className="w-8 h-8 rounded-full bg-[hsl(var(--warm-blush))] flex items-center justify-center text-foreground font-bold text-sm">
           ↗
         </div>
@@ -132,6 +132,27 @@ const MockupCard = () => {
           Optimized for
           <br />
           <span className="text-foreground">Senior Product roles</span>
+        </div>
+      </div>
+
+      {/* Floating ATS pass badge — top-right */}
+      <div className="absolute -top-4 -right-4 px-3 py-2 rounded-2xl bg-white/80 backdrop-blur-md border border-white/80 shadow-lg flex items-center gap-2 transform rotate-6">
+        <div className="size-7 rounded-full bg-emerald-100 flex items-center justify-center">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+        </div>
+        <div className="text-[11px] font-semibold text-foreground/80 leading-tight">
+          ATS Filter
+          <br />
+          <span className="text-emerald-600">Passed ✓</span>
+        </div>
+      </div>
+
+      {/* Floating callbacks pill — middle-right */}
+      <div className="hidden sm:flex absolute top-1/2 -right-8 -translate-y-1/2 px-3 py-2.5 rounded-2xl bg-white/75 backdrop-blur-md border border-white/70 shadow-lg items-center gap-2 transform rotate-3" style={{ animation: "float-y 7s ease-in-out infinite", animationDelay: "1.2s" }}>
+        <TrendingUp className="w-4 h-4 text-foreground/70" />
+        <div className="text-[11px] font-semibold text-foreground/80 leading-tight">
+          <span className="text-foreground font-bold">3.2×</span> more
+          <br />callbacks
         </div>
       </div>
     </div>
