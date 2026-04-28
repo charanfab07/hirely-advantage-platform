@@ -91,66 +91,125 @@ export default function DashboardLayout() {
       />
 
       <div
-        className="relative mx-auto grid min-h-screen max-w-[1480px] grid-cols-[248px_1fr_336px]"
+        className="relative mx-auto grid min-h-screen max-w-[1480px] grid-cols-[232px_1fr_336px]"
         style={{ ["--ink" as any]: INK, ["--sky" as any]: SKY, ["--sky-deep" as any]: SKY_DEEP, ["--sky-soft" as any]: SKY_SOFT }}
       >
-        {/* ============== Sidebar ============== */}
-        <aside className="flex flex-col px-5 py-7 border-r border-black/[0.06]">
-          <div className="px-3 mb-9 flex items-center gap-2.5">
-            <div
-              className="size-7 rounded-lg grid place-items-center border border-white shadow-[0_4px_12px_-4px_rgba(0,0,0,0.15)]"
-              style={{
-                background: `linear-gradient(135deg, hsl(${SKY}), hsl(${SKY_DEEP}))`,
-              }}
+        {/* ============== Sidebar (Jira-style) ============== */}
+        <aside className="flex flex-col px-2.5 py-3 border-r border-black/[0.06]">
+          {/* Top row: app switcher + brand + collapse */}
+          <div className="flex items-center justify-between px-1.5 mb-3">
+            <div className="flex items-center gap-1.5">
+              <button
+                aria-label="App switcher"
+                className="size-7 grid place-items-center rounded-md text-black/55 hover:text-black hover:bg-black/[0.04] transition-colors"
+              >
+                <LayoutGrid className="size-[15px]" />
+              </button>
+              <div className="flex items-center gap-1.5 px-1">
+                <div
+                  className="size-[22px] rounded-[6px] grid place-items-center shadow-[0_2px_6px_-2px_rgba(0,0,0,0.18)]"
+                  style={{
+                    background: `linear-gradient(135deg, hsl(${SKY}), hsl(${SKY_DEEP}))`,
+                  }}
+                >
+                  <div className="size-1.5 rounded-full bg-white" />
+                </div>
+                <span className="text-[13.5px] font-semibold tracking-tight text-black">
+                  Hirely
+                </span>
+              </div>
+            </div>
+            <button
+              aria-label="Collapse sidebar"
+              className="size-7 grid place-items-center rounded-md text-black/45 hover:text-black hover:bg-black/[0.04] transition-colors"
             >
-              <div className="size-2 rounded-full bg-white" />
-            </div>
-            <span className="font-display text-[15px] font-semibold tracking-tight text-black">
-              Hirely
-            </span>
-          </div>
-
-          <div className="px-3 mb-2.5 text-[10px] font-medium uppercase tracking-[0.18em] text-black/40">
-            Workspace
-          </div>
-          <nav className="flex flex-col gap-0.5">
-            {primaryNav.map((item) => (
-              <NavItem key={item.to} {...item} />
-            ))}
-          </nav>
-
-          <div className="px-3 mt-8 mb-2.5 text-[10px] font-medium uppercase tracking-[0.18em] text-black/40">
-            Tools
-          </div>
-          <nav className="flex flex-col gap-0.5">
-            {secondaryNav.map((item) => (
-              <NavItem key={item.to} {...item} />
-            ))}
-          </nav>
-
-          {/* Upgrade card — sky glass */}
-          <div
-            className="mt-auto relative overflow-hidden rounded-2xl p-4 border border-white"
-            style={{
-              background: `linear-gradient(135deg, hsl(${SKY} / 0.85), hsl(${SKY_SOFT} / 0.95))`,
-              boxShadow:
-                "0 1px 0 rgba(255,255,255,0.85) inset, 0 18px 40px -22px rgba(0,0,0,0.18)",
-            }}
-          >
-            <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-black/55">
-              Pro
-            </div>
-            <div className="mt-1.5 font-display text-[15px] font-semibold leading-snug text-black">
-              Unlock unlimited rewrites
-            </div>
-            <button className="mt-3.5 w-full rounded-lg bg-black text-white py-2 text-[12px] font-semibold hover:bg-black/85 transition-colors">
-              Upgrade — $19/mo
+              <PanelLeft className="size-[15px]" />
             </button>
           </div>
 
-          <div className="mt-5 flex items-center gap-3 px-1">
+          {/* Top-level nav rows */}
+          <nav className="flex flex-col gap-px">
+            {topNav.map((item) => (
+              <SideRow
+                key={item.to}
+                to={item.to}
+                label={item.label}
+                icon={item.icon}
+                chevron={(item as any).chevron}
+                trailing={(item as any).trailing}
+              />
+            ))}
+          </nav>
+
+          {/* Spaces → Recent group */}
+          <div className="mt-2.5 px-2 mb-1 text-[11px] font-medium text-black/45">
+            Recent
+          </div>
+          <nav className="flex flex-col gap-px">
+            {spacesRecent.map((item) => (
+              <SpaceRow
+                key={item.to}
+                to={item.to}
+                label={item.label}
+                forceActive={item.active}
+              />
+            ))}
+            <SideRow
+              to="/app/more-spaces"
+              label="More spaces"
+              icon={MoreHorizontal}
+              chevron
+              indent
+            />
+          </nav>
+
+          {/* Recommended group */}
+          <div className="mt-2.5 px-2 mb-1 text-[11px] font-medium text-black/45">
+            Recommended
+          </div>
+          <nav className="flex flex-col gap-px">
+            {recommended.map((item) => (
+              <SideRow
+                key={item.to}
+                to={item.to}
+                label={item.label}
+                icon={item.icon}
+                badge={(item as any).badge}
+              />
+            ))}
+          </nav>
+
+          {/* Footer rows */}
+          <nav className="mt-2.5 flex flex-col gap-px">
+            {footerNav.map((item) => (
+              <SideRow
+                key={item.to}
+                to={item.to}
+                label={item.label}
+                icon={item.icon}
+              />
+            ))}
+          </nav>
+
+          {/* Teams pinned */}
+          <div className="mt-3 pt-3 border-t border-black/[0.05]">
+            <SideRow
+              to={teamsRow.to}
+              label={teamsRow.label}
+              icon={teamsRow.icon}
+              external
+              emphasized
+            />
+            <button className="mt-1 flex items-center gap-2 w-full rounded-md px-2 py-1.5 text-[13px] text-black/55 hover:text-black hover:bg-black/[0.04] transition-colors">
+              <MoreHorizontal className="size-[15px] shrink-0" />
+              <span>More</span>
+            </button>
+          </div>
+
+          {/* Profile pinned bottom */}
+          <div className="mt-auto pt-3 flex items-center gap-2 px-1">
             <div
-              className="size-8 rounded-full grid place-items-center text-[10px] font-semibold text-white border border-white/80"
+              className="size-7 rounded-full grid place-items-center text-[10px] font-semibold text-white border border-white/80"
               style={{
                 background: `linear-gradient(135deg, hsl(${SKY}), hsl(${SKY_DEEP}))`,
               }}
@@ -158,9 +217,10 @@ export default function DashboardLayout() {
               ER
             </div>
             <div className="flex flex-col leading-tight min-w-0">
-              <span className="text-[12.5px] font-semibold truncate text-black">Elena Rostova</span>
-              <span className="text-[11px] text-black/45 truncate">elena@hirely.ai</span>
+              <span className="text-[12px] font-semibold truncate text-black">Elena Rostova</span>
+              <span className="text-[10.5px] text-black/45 truncate">elena@hirely.ai</span>
             </div>
+            <Settings className="size-3.5 ml-auto text-black/40" />
           </div>
         </aside>
 
