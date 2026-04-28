@@ -307,18 +307,27 @@ function KeywordsCard() {
       </p>
 
       <div className="mt-5 flex flex-wrap gap-1.5">
-        {missingKeywords.map((k) => (
-          <span
-            key={k.word}
-            className="group inline-flex items-center gap-1 rounded-full bg-foreground text-background px-2.5 py-1 text-[11.5px] font-medium hover:scale-105 transition-transform cursor-pointer"
-          >
-            <span className="text-background/55">+</span>
-            {k.word}
-            {k.impact === "high" && (
-              <span className="ml-0.5 size-1 rounded-full bg-amber-400" />
-            )}
-          </span>
-        ))}
+        {missingKeywords.map((k, i) => {
+          const tints = [
+            "linear-gradient(135deg, hsl(var(--ethereal-blue)), hsl(var(--soft-lilac)))",
+            "linear-gradient(135deg, hsl(var(--soft-lilac)), hsl(var(--warm-blush)))",
+            "linear-gradient(135deg, hsl(var(--warm-blush)), hsl(var(--dawn-orange)))",
+            "linear-gradient(135deg, hsl(var(--dawn-orange)), hsl(var(--ethereal-blue)))",
+          ];
+          return (
+            <span
+              key={k.word}
+              className="group inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-foreground border border-white hover:scale-105 transition-transform cursor-pointer shadow-[0_1px_2px_hsl(var(--slate-ink)/0.04)]"
+              style={{ background: tints[i % tints.length] }}
+            >
+              <span className="text-foreground/45">+</span>
+              {k.word}
+              {k.impact === "high" && (
+                <span className="ml-0.5 size-1 rounded-full bg-amber-500" />
+              )}
+            </span>
+          );
+        })}
       </div>
 
       <div className="mt-5 pt-4 border-t border-foreground/[0.08] flex items-center justify-between text-[11px]">
