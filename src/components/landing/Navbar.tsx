@@ -28,7 +28,7 @@ export const Navbar = () => {
         )}
       >
         <a href="#" className="group">
-          <LogoLockup size={32} />
+          <LogoLockup size="text-xl" />
         </a>
 
         <ul className="hidden md:flex items-center gap-8">
