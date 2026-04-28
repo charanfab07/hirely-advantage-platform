@@ -4,7 +4,8 @@ import { Reveal } from "./Reveal";
 
 const MockupCard = () => {
   return (
-    <div className="relative w-full max-w-[560px] mx-auto lg:mx-0 lg:ml-auto lg:translate-x-8 transform lg:rotate-[1.5deg] hover:rotate-0 hover:-translate-y-2 transition-transform duration-700 ease-out [animation:float-y_6s_ease-in-out_infinite] motion-reduce:animate-none">
+    <div className="relative w-full max-w-[560px] mx-auto lg:mx-0 lg:ml-auto lg:translate-x-8 transform lg:rotate-[4deg] hover:rotate-[2deg] transition-transform duration-700 ease-out">
+      <div className="[animation:float-y_6s_ease-in-out_infinite] motion-reduce:animate-none">
       <div className="backdrop-blur-2xl bg-white/55 border border-white/70 shadow-[0_32px_64px_-16px_hsl(var(--slate-ink)/0.18),inset_0_1px_0_rgba(255,255,255,1)] rounded-[2rem] p-9 relative overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
@@ -97,6 +98,7 @@ const MockupCard = () => {
             <span className="text-foreground/65 font-medium">in one rewrite</span>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
