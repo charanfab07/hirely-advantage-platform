@@ -70,7 +70,7 @@ const allNav = [...topNav, ...spacesRecent.map((s) => ({ ...s, icon: FileText })
 export default function DashboardLayout() {
   const { pathname } = useLocation();
   const active =
-    [...primaryNav, ...secondaryNav].find((n) => pathname.startsWith(n.to))?.label ?? "Resume";
+    allNav.find((n: any) => n.to && pathname.startsWith(n.to))?.label ?? "Resume";
 
   return (
     <div
