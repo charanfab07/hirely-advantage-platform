@@ -23,8 +23,8 @@ const MockupCard = () => {
         {/* BEFORE card */}
         <div className="relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] uppercase tracking-[0.2em] text-foreground/45 font-medium">Before</span>
-            <span className="text-[11px] font-mono text-foreground/45">42 / 100</span>
+            <span className="text-[11px] uppercase tracking-[0.2em] text-foreground font-bold px-2 py-0.5 rounded-md bg-foreground/10">Before</span>
+            <span className="text-[11px] font-mono text-foreground/70 font-semibold">42 / 100</span>
           </div>
           <div className="rounded-2xl bg-white/50 border border-white/60 p-4">
             <p className="text-xs font-semibold text-foreground/85">Senior Product Manager</p>
