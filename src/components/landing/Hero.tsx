@@ -124,9 +124,7 @@ export const Hero = () => {
 
           <Reveal delay={240}>
             <p className="text-lg lg:text-xl text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
-              Stop sending applications into the void. Hirely AI reverse-engineers
-              hiring algorithms — aligning your story with live market data, dynamic
-              resume architecture, and immersive interview simulations.
+              Upload your resume and instantly get your ATS score, missing keywords, and exact fixes to get more interviews.
             </p>
           </Reveal>
 
