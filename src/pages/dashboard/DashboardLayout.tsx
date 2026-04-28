@@ -126,7 +126,6 @@ export default function DashboardLayout() {
 
         {/* ============== Right rail ============== */}
         <aside className="border-l border-[#0F0F0E]/[0.06] px-6 py-7 flex flex-col gap-4 overflow-y-auto">
-          <Outlet context={{ rail: true }} />
           <RightRail />
         </aside>
       </div>
