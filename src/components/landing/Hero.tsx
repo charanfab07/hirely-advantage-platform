@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Star, Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Play, Star, Sparkles, ArrowDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "./Reveal";
 
@@ -78,47 +78,82 @@ const ScoreGauge = () => {
 const MockupCard = () => {
   return (
     <div className="relative w-full max-w-[460px] mx-auto lg:mx-0 lg:ml-auto lg:translate-x-8 transform lg:rotate-[1.5deg] hover:rotate-0 hover:-translate-y-2 transition-transform duration-700 ease-out">
-      <div className="backdrop-blur-2xl bg-white/50 border border-white/70 shadow-[0_32px_64px_-16px_hsl(var(--slate-ink)/0.18),inset_0_1px_0_rgba(255,255,255,1)] rounded-[2rem] p-8 relative overflow-hidden">
+      <div className="backdrop-blur-2xl bg-white/55 border border-white/70 shadow-[0_32px_64px_-16px_hsl(var(--slate-ink)/0.18),inset_0_1px_0_rgba(255,255,255,1)] rounded-[2rem] p-7 relative overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="size-10 rounded-full bg-gradient-to-br from-[hsl(var(--ethereal-blue))] to-[hsl(var(--soft-lilac))] p-[2px]">
-              <div className="w-full h-full bg-white/80 rounded-full flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-foreground/60" />
-              </div>
-            </div>
-            <div>
-              <h3 className="font-display font-semibold text-lg tracking-tight leading-none mb-1">
-                Market Readiness
-              </h3>
-              <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-wider">
-                Real-time algorithm check
-              </p>
-            </div>
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-[0.18em]">
+              Resume rewrite
+            </p>
+            <h3 className="font-display font-semibold text-lg tracking-tight leading-none mt-1.5">
+              47 minutes apart
+            </h3>
           </div>
-          <div className="size-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+          <div className="size-2 rounded-full bg-foreground/70 animate-pulse" />
         </div>
 
-        <ScoreGauge />
-
-        {/* Keywords */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <div className="text-xs font-semibold text-foreground/60">
-              High-Impact Keywords
-            </div>
-            <div className="text-[11px] font-bold text-emerald-600">+14 found</div>
+        {/* BEFORE card */}
+        <div className="relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-foreground/45 font-medium">Before</span>
+            <span className="text-[11px] font-mono text-foreground/45">42 / 100</span>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {["Strategic Vision", "Enterprise SaaS", "Cross-functional"].map((k) => (
-              <div
-                key={k}
-                className="px-3 py-2 rounded-2xl bg-white/70 border border-white shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)] text-xs font-semibold text-foreground backdrop-blur-md flex items-center gap-2"
-              >
-                <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                {k}
-              </div>
-            ))}
+          <div className="rounded-2xl bg-white/50 border border-white/60 p-4 opacity-75">
+            <p className="text-xs font-semibold text-foreground/70">Senior Product Manager</p>
+            <ul className="mt-2 space-y-1.5">
+              <li className="text-[12px] text-foreground/55 leading-snug flex gap-2">
+                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground/30 shrink-0" />
+                Worked on improving onboarding metrics.
+              </li>
+              <li className="text-[12px] text-foreground/55 leading-snug flex gap-2">
+                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground/30 shrink-0" />
+                Helped the team with product decisions.
+              </li>
+            </ul>
+          </div>
+          <div className="mt-2 h-1 rounded-full bg-foreground/5 overflow-hidden">
+            <div className="h-full bg-foreground/30 rounded-full" style={{ width: "42%" }} />
+          </div>
+        </div>
+
+        {/* Arrow */}
+        <div className="flex justify-center my-3">
+          <div className="size-9 rounded-full bg-foreground text-background flex items-center justify-center shadow-md">
+            <ArrowDown className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* AFTER card */}
+        <div className="relative">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-foreground font-medium flex items-center gap-1.5">
+              <Sparkles className="w-2.5 h-2.5" /> After
+            </span>
+            <span className="text-[11px] font-mono text-foreground font-medium">94 / 100</span>
+          </div>
+          <div className="rounded-2xl bg-white/85 border border-white p-4 shadow-[0_8px_24px_-12px_hsl(var(--slate-ink)/0.18)]">
+            <p className="text-xs font-semibold text-foreground">Senior Product Manager</p>
+            <ul className="mt-2 space-y-1.5">
+              <li className="text-[12px] text-foreground leading-snug flex gap-2">
+                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground shrink-0" />
+                <span>
+                  Drove{" "}
+                  <span className="font-semibold border-b border-foreground/40">38% activation lift</span>{" "}
+                  across 6 A/B tests.
+                </span>
+              </li>
+              <li className="text-[12px] text-foreground leading-snug flex gap-2">
+                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground shrink-0" />
+                <span>
+                  Led{" "}
+                  <span className="font-semibold border-b border-foreground/40">$4.2M roadmap</span>{" "}
+                  across 3 squads.
+                </span>
+              </li>
+            </ul>
+          </div>
+          <div className="mt-2 h-1 rounded-full bg-foreground/5 overflow-hidden">
+            <div className="h-full bg-foreground rounded-full" style={{ width: "94%" }} />
           </div>
         </div>
       </div>
@@ -129,9 +164,9 @@ const MockupCard = () => {
           ↗
         </div>
         <div className="text-xs font-semibold text-foreground/80 leading-tight">
-          Optimized for
+          +52 ATS pts
           <br />
-          <span className="text-foreground">Senior Product roles</span>
+          <span className="text-foreground/60 font-medium">in one rewrite</span>
         </div>
       </div>
     </div>
