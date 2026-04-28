@@ -23,7 +23,9 @@ const MockupCard = () => {
         {/* BEFORE card */}
         <div className="relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-foreground font-bold px-2 py-0.5 rounded-md bg-foreground/10">Before</span>
+            <span className="text-[11px] uppercase tracking-[0.18em] text-foreground font-bold px-2 py-0.5 rounded-md bg-foreground/10 flex items-center gap-1.5">
+              <span className="text-[13px] leading-none">❌</span> Before <span className="normal-case tracking-normal font-medium text-foreground/60">— Weak resume</span>
+            </span>
             <span className="text-base font-mono tracking-tight text-foreground/80 font-semibold">42 / 100</span>
           </div>
           <div className="rounded-2xl bg-white/50 border border-white/60 p-4">
@@ -54,8 +56,8 @@ const MockupCard = () => {
         {/* AFTER card */}
         <div className="relative">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-background font-bold px-2 py-0.5 rounded-md bg-foreground flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3" /> After
+            <span className="text-[11px] uppercase tracking-[0.18em] text-background font-bold px-2 py-0.5 rounded-md bg-foreground flex items-center gap-1.5">
+              <span className="text-[13px] leading-none">✅</span> After <span className="normal-case tracking-normal font-medium text-background/70">— Optimized</span>
             </span>
             <span className="text-base font-mono tracking-tight text-foreground font-bold">94 / 100</span>
           </div>
