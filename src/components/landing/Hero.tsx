@@ -99,6 +99,7 @@ const MockupCard = () => {
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 };
