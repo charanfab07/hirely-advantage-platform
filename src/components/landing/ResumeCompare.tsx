@@ -1,25 +1,23 @@
 import { Reveal } from "./Reveal";
 import { SectionHeader } from "./SectionHeader";
-import { Check, X, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 const beforeBullets = [
   "Worked on improving onboarding for new users.",
   "Helped the team with product decisions.",
   "Was responsible for various analytics tasks.",
-  "Collaborated with engineering on features.",
 ];
 
 const afterBullets = [
   { text: "Drove ", highlight: "38% activation lift", tail: " across 6 A/B tests on onboarding." },
   { text: "Led ", highlight: "$4.2M roadmap", tail: " across 3 squads, shipping 2 quarters early." },
   { text: "Built ", highlight: "SQL dashboards", tail: " adopted by 40+ stakeholders weekly." },
-  { text: "Partnered with eng to ship ", highlight: "12 OKR-aligned features", tail: " in H1." },
 ];
 
 const wins = [
-  { value: "+52", label: "ATS score points" },
+  { value: "+52", label: "ATS score" },
   { value: "12", label: "Keywords added" },
-  { value: "4×", label: "Callback rate" },
+  { value: "4×", label: "Callbacks" },
 ];
 
 export const ResumeCompare = () => {
@@ -28,108 +26,93 @@ export const ResumeCompare = () => {
       <SectionHeader
         eyebrow="Proof, not promises"
         title="The same resume. 47 minutes apart."
-        description="Every bullet rewritten with quantified impact. Every missing keyword surfaced. The ATS reads you the way a hiring manager wishes recruiters did."
+        description="Vague duties become quantified impact. Missing keywords get surfaced. The ATS reads you the way a hiring manager wishes recruiters did."
       />
 
       <div className="mx-auto max-w-6xl">
         <Reveal>
-          <div className="glass-strong rounded-[2rem] p-6 md:p-10 relative overflow-hidden">
-            {/* Aurora wash on the After side */}
-            <div className="absolute right-0 top-0 bottom-0 w-1/2 opacity-50 pointer-events-none -z-0">
-              <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-[hsl(var(--soft-lilac))] blur-3xl" />
-              <div className="absolute bottom-10 right-20 w-72 h-72 rounded-full bg-[hsl(var(--ethereal-blue))] blur-3xl" />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6 md:gap-10 relative">
+          <div className="glass-strong rounded-[2rem] p-6 md:p-10 relative">
+            <div className="grid md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-8 items-stretch">
               {/* BEFORE */}
-              <div className="relative">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-red-500" />
-                    <span className="text-xs uppercase tracking-[0.18em] text-foreground/50 font-medium">Before</span>
-                  </div>
-                  <div className="glass rounded-full px-3 py-1 text-xs text-foreground/70 flex items-center gap-1.5">
-                    <X className="w-3 h-3 text-red-500" />
-                    ATS Score: 42 / 100
-                  </div>
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/45 font-medium">Before</span>
+                  <span className="text-xs font-mono text-foreground/45">42 / 100</span>
                 </div>
 
-                <div className="glass rounded-2xl p-6 space-y-4 grayscale-[35%] opacity-90">
-                  <div>
-                    <p className="font-display font-semibold text-foreground/80">Senior Product Manager</p>
-                    <p className="text-xs text-foreground/45 mt-0.5">Acme Corp · 2021 – Present</p>
-                  </div>
-                  <ul className="space-y-2.5">
+                <div className="glass rounded-2xl p-6 flex-1 opacity-75">
+                  <p className="font-display font-semibold text-foreground/70 text-sm">Senior Product Manager</p>
+                  <p className="text-[11px] text-foreground/40 mt-0.5 mb-4">Acme Corp · 2021 – Present</p>
+
+                  <ul className="space-y-3">
                     {beforeBullets.map((b, i) => (
-                      <li key={i} className="text-sm text-foreground/55 leading-relaxed flex gap-2">
-                        <span className="text-foreground/30 mt-1.5 w-1 h-1 rounded-full bg-foreground/30 shrink-0" />
+                      <li key={i} className="text-sm text-foreground/55 leading-relaxed flex gap-2.5">
+                        <span className="mt-2 w-1 h-1 rounded-full bg-foreground/30 shrink-0" />
                         <span>{b}</span>
                       </li>
                     ))}
                   </ul>
-                  <div className="pt-3 border-t border-foreground/10 flex flex-wrap gap-1.5">
-                    {["managed", "responsible", "helped"].map((k) => (
-                      <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-red-500/10 text-red-700 line-through">
-                        {k}
-                      </span>
-                    ))}
-                  </div>
+                </div>
+
+                <div className="mt-4 h-1 rounded-full bg-foreground/5 overflow-hidden">
+                  <div className="h-full bg-foreground/30 rounded-full" style={{ width: "42%" }} />
+                </div>
+              </div>
+
+              {/* Arrow divider */}
+              <div className="hidden md:flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center shadow-[var(--shadow-float)]">
+                  <ArrowRight className="w-5 h-5" />
+                </div>
+              </div>
+              <div className="md:hidden flex items-center justify-center -my-2">
+                <div className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center rotate-90">
+                  <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
 
               {/* AFTER */}
-              <div className="relative">
-                <div className="flex items-center justify-between mb-5">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-xs uppercase tracking-[0.18em] text-foreground/70 font-medium">After Hirely</span>
-                  </div>
-                  <div className="glass-strong rounded-full px-3 py-1 text-xs text-foreground flex items-center gap-1.5 font-medium">
-                    <Check className="w-3 h-3 text-emerald-600" />
-                    ATS Score: 94 / 100
-                  </div>
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[11px] uppercase tracking-[0.2em] text-foreground font-medium flex items-center gap-1.5">
+                    <Sparkles className="w-3 h-3" /> After
+                  </span>
+                  <span className="text-xs font-mono text-foreground font-medium">94 / 100</span>
                 </div>
 
-                <div className="glass-strong rounded-2xl p-6 space-y-4 shadow-[var(--shadow-float)]">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="font-display font-semibold text-foreground">Senior Product Manager</p>
-                      <p className="text-xs text-foreground/55 mt-0.5">Acme Corp · 2021 – Present</p>
-                    </div>
-                    <Sparkles className="w-4 h-4 text-foreground/60" />
-                  </div>
-                  <ul className="space-y-2.5">
+                <div className="glass-strong rounded-2xl p-6 flex-1">
+                  <p className="font-display font-semibold text-foreground text-sm">Senior Product Manager</p>
+                  <p className="text-[11px] text-foreground/55 mt-0.5 mb-4">Acme Corp · 2021 – Present</p>
+
+                  <ul className="space-y-3">
                     {afterBullets.map((b, i) => (
-                      <li key={i} className="text-sm text-foreground leading-relaxed flex gap-2">
+                      <li key={i} className="text-sm text-foreground leading-relaxed flex gap-2.5">
                         <span className="mt-2 w-1 h-1 rounded-full bg-foreground shrink-0" />
                         <span>
                           {b.text}
-                          <mark className="bg-[hsl(var(--soft-lilac))] text-foreground rounded px-1 font-medium">
+                          <span className="font-semibold text-foreground border-b border-foreground/40">
                             {b.highlight}
-                          </mark>
+                          </span>
                           {b.tail}
                         </span>
                       </li>
                     ))}
                   </ul>
-                  <div className="pt-3 border-t border-foreground/10 flex flex-wrap gap-1.5">
-                    {["+roadmap", "+OKRs", "+stakeholders", "+SQL", "+A/B testing"].map((k) => (
-                      <span key={k} className="text-[10px] px-2 py-0.5 rounded-full bg-foreground text-background font-medium">
-                        {k}
-                      </span>
-                    ))}
-                  </div>
+                </div>
+
+                <div className="mt-4 h-1 rounded-full bg-foreground/5 overflow-hidden">
+                  <div className="h-full bg-foreground rounded-full" style={{ width: "94%" }} />
                 </div>
               </div>
             </div>
 
-            {/* Win chips */}
+            {/* Win stats */}
             <Reveal delay={200}>
-              <div className="mt-8 grid grid-cols-3 gap-3 md:gap-4 max-w-2xl mx-auto">
+              <div className="mt-10 pt-8 border-t border-foreground/10 grid grid-cols-3 gap-4 max-w-2xl mx-auto">
                 {wins.map((w) => (
-                  <div key={w.label} className="glass rounded-2xl py-4 px-3 text-center">
-                    <p className="font-display text-2xl md:text-3xl font-semibold text-foreground">{w.value}</p>
-                    <p className="text-[11px] text-foreground/55 mt-1 leading-tight">{w.label}</p>
+                  <div key={w.label} className="text-center">
+                    <p className="font-display text-3xl md:text-4xl font-semibold text-foreground tracking-tight">{w.value}</p>
+                    <p className="text-xs text-foreground/55 mt-1.5">{w.label}</p>
                   </div>
                 ))}
               </div>
