@@ -136,7 +136,7 @@ export const Hero = () => {
                 href="#cta"
                 className="group inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_hsl(var(--slate-ink)/0.4)]"
               >
-                Start Free Analysis
+                Get My Resume Score
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
               </a>
               <a
