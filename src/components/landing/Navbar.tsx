@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
+import { LogoLockup } from "./Logo";
 
 const links = [
   { label: "Features", href: "#features" },
@@ -27,12 +27,8 @@ export const Navbar = () => {
           scrolled ? "glass-strong" : "glass-subtle"
         )}
       >
-        <a href="#" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center transition-transform group-hover:scale-105">
-            <Sparkles className="w-4 h-4" />
-          </div>
-          <span className="font-display font-semibold text-lg tracking-tight text-foreground">Hirely</span>
-          <span className="text-xs font-medium text-muted-foreground/80 px-1.5 py-0.5 rounded-md bg-foreground/5">AI</span>
+        <a href="#" className="group">
+          <LogoLockup size={32} />
         </a>
 
         <ul className="hidden md:flex items-center gap-8">
