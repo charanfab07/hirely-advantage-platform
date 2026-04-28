@@ -37,7 +37,7 @@ export const ResumeCompare = () => {
               <div className="flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-display text-[13px] text-foreground font-bold px-2.5 py-1 rounded-md bg-foreground/10 flex items-center gap-1.5">
-                    <span className="text-[14px] leading-none">❌</span> Before <span className="font-medium text-foreground/55">— Weak resume</span>
+                    Before <span className="font-medium text-foreground/55">— Weak resume</span>
                   </span>
                   <span className="text-sm font-serif tracking-tight text-foreground/70">42 / 100</span>
                 </div>
@@ -77,7 +77,7 @@ export const ResumeCompare = () => {
               <div className="flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <span className="font-display text-[13px] text-background font-bold px-2.5 py-1 rounded-md bg-foreground flex items-center gap-1.5">
-                    <span className="text-[14px] leading-none">✅</span> After <span className="font-medium text-background/70">— Optimized</span>
+                    After <span className="font-medium text-background/70">— Optimized</span>
                   </span>
                   <span className="text-sm font-serif tracking-tight text-foreground font-semibold">94 / 100</span>
                 </div>
