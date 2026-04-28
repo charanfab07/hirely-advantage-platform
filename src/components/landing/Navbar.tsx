@@ -5,7 +5,6 @@ import { LogoLockup } from "./Logo";
 const links = [
   { label: "Features", href: "#features" },
   { label: "How it Works", href: "#how-it-works" },
-  { label: "Roadmap", href: "#roadmap" },
   { label: "Pricing", href: "#pricing" },
 ];
 

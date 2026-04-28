@@ -81,7 +81,6 @@ const Index = () => {
       </section>
 
       <ResumeCompare />
-      <RoadmapSection />
       <HowItWorks />
       <ProductShowcase />
       <Testimonials />
