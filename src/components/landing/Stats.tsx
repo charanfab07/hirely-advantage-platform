@@ -51,9 +51,12 @@ export const Stats = ({ embedded = false }: { embedded?: boolean }) => {
               i % 2 === 1 ? "border-l border-foreground/10" : ""
             }`}
           >
-            <span className="font-display text-3xl md:text-4xl font-semibold text-foreground tracking-tight">
-              <Counter value={s.value} suffix={s.suffix} decimals={s.decimals} />
-            </span>
+            <Counter
+              value={s.value}
+              suffix={s.suffix}
+              decimals={s.decimals}
+              className="font-display text-3xl md:text-4xl font-semibold text-foreground tracking-tight"
+            />
             <p className="mt-2 text-xs text-foreground/60 leading-relaxed max-w-[180px]">{s.label}</p>
           </div>
         ))}
