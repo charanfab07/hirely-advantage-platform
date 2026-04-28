@@ -11,6 +11,7 @@ import { Testimonials } from "@/components/landing/Testimonials";
 import { ResumeCompare } from "@/components/landing/ResumeCompare";
 import { ProductShowcase } from "@/components/landing/ProductShowcase";
 import { HiredWall } from "@/components/landing/HiredWall";
+import { ProofQuote } from "@/components/landing/ProofQuote";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 
@@ -21,6 +22,7 @@ const Index = () => {
       <Navbar />
       <Hero />
       <Stats />
+      <ProofQuote />
 
       <section id="features" className="pt-12">
         <SectionHeader
