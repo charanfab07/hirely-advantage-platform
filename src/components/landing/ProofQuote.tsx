@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 
 export const ProofQuote = ({ embedded = false }: { embedded?: boolean }) => {
   const card = (
-    <figure className="glass-strong rounded-3xl px-6 py-7 md:px-8 md:py-8 text-center relative h-full flex flex-col justify-center">
+    <figure className="glass-strong rounded-3xl px-6 py-4 md:px-8 md:py-5 text-center relative h-full flex flex-col justify-center">
       {/* Stars */}
       <div className="flex items-center justify-center gap-1 mb-4">
         {Array.from({ length: 5 }).map((_, i) => (
