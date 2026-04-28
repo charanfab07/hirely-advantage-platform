@@ -124,7 +124,11 @@ export const Hero = () => {
 
           <Reveal delay={240}>
             <p className="text-lg lg:text-xl text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
-              Upload your resume and instantly get your ATS score, missing keywords, and exact fixes to get more interviews.
+              Upload your resume and instantly get your ATS score, missing keywords, and exact fixes to get{" "}
+              <span className="relative inline-block font-semibold text-foreground">
+                more interviews
+                <span className="absolute bottom-0.5 left-0 w-full h-2.5 bg-[hsl(213_100%_75%/0.55)] -z-10 rounded-full transform -rotate-1" />
+              </span>.
             </p>
           </Reveal>
 
