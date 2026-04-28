@@ -5,7 +5,7 @@ import { Stats } from "@/components/landing/Stats";
 import { SectionHeader } from "@/components/landing/SectionHeader";
 import { FeatureBlock } from "@/components/landing/FeatureBlock";
 import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landing/FeatureVisuals";
-import { RoadmapSection } from "@/components/landing/RoadmapSection";
+
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Testimonials } from "@/components/landing/Testimonials";
 import { ResumeCompare } from "@/components/landing/ResumeCompare";
