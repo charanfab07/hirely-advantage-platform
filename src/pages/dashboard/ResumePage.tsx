@@ -1,9 +1,9 @@
 import { Sparkles, Search, ArrowRight, Check, FileText, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const SKY = "199 95% 74%";
-const SKY_DEEP = "205 90% 62%";
-const SKY_SOFT = "200 100% 92%";
+const SKY = "205 70% 86%";
+const SKY_DEEP = "210 60% 70%";
+const SKY_SOFT = "205 75% 96%";
 
 const missingKeywords = [
   { word: "roadmap", impact: "high" },
@@ -69,16 +69,15 @@ function ScoreCard() {
 
   return (
     <section
-      className="relative overflow-hidden rounded-3xl border border-white p-7 backdrop-blur-xl"
+      className="relative overflow-hidden rounded-3xl border border-black/[0.05] p-7 bg-white/90 backdrop-blur-xl"
       style={{
-        background: `linear-gradient(135deg, rgba(255,255,255,0.92), hsl(${SKY} / 0.55) 60%, hsl(${SKY_SOFT} / 0.9))`,
         boxShadow:
-          "0 1px 0 rgba(255,255,255,0.9) inset, 0 1px 2px rgba(0,0,0,0.04), 0 24px 60px -30px rgba(0,0,0,0.18)",
+          "0 1px 0 rgba(255,255,255,0.9) inset, 0 1px 2px rgba(0,0,0,0.03), 0 24px 60px -36px rgba(0,0,0,0.14)",
       }}
     >
       <div
-        className="pointer-events-none absolute -top-16 -right-16 size-56 rounded-full blur-2xl"
-        style={{ background: `hsl(${SKY} / 0.55)` }}
+        className="pointer-events-none absolute -top-20 -right-20 size-64 rounded-full blur-3xl"
+        style={{ background: `hsl(${SKY} / 0.45)` }}
       />
 
       <div className="relative grid grid-cols-[auto_1fr_auto] gap-8 items-center">
@@ -245,7 +244,7 @@ function RewriteCard() {
           Drove a{" "}
           <span
             className="px-1.5 py-0.5 rounded-md font-semibold tabular-nums text-black"
-            style={{ background: `hsl(${SKY} / 0.6)` }}
+            style={{ background: `hsl(${SKY} / 0.5)` }}
           >
             38% activation lift
           </span>{" "}
@@ -286,15 +285,14 @@ function RewriteCard() {
 function KeywordsCard() {
   return (
     <section
-      className="col-span-2 rounded-3xl border border-white p-6 backdrop-blur-xl"
+      className="col-span-2 rounded-3xl border border-black/[0.05] p-6 bg-white/90 backdrop-blur-xl"
       style={{
-        background: `linear-gradient(160deg, rgba(255,255,255,0.9), hsl(${SKY} / 0.5))`,
         boxShadow:
-          "0 1px 0 rgba(255,255,255,0.9) inset, 0 1px 2px rgba(0,0,0,0.04), 0 18px 40px -28px rgba(0,0,0,0.12)",
+          "0 1px 0 rgba(255,255,255,0.9) inset, 0 1px 2px rgba(0,0,0,0.03), 0 18px 40px -28px rgba(0,0,0,0.10)",
       }}
     >
       <div className="flex items-center justify-between">
-        <div className="inline-flex items-center gap-2 rounded-full bg-white/85 border border-white px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-black/65">
+        <div className="inline-flex items-center gap-2 rounded-full bg-black/[0.04] border border-black/[0.05] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-black/65">
           <Search className="size-3" />
           Missing keywords
         </div>
@@ -309,12 +307,9 @@ function KeywordsCard() {
         {missingKeywords.map((k) => (
           <span
             key={k.word}
-            className="group inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-black border border-white hover:scale-105 transition-transform cursor-pointer shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
-            style={{
-              background: `linear-gradient(135deg, hsl(${SKY_SOFT}), hsl(${SKY} / 0.7))`,
-            }}
+            className="group inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11.5px] font-medium text-black/80 border border-black/[0.06] hover:border-black/15 hover:-translate-y-px transition-all cursor-pointer"
           >
-            <span className="text-black/45">+</span>
+            <span className="text-black/35">+</span>
             {k.word}
             {k.impact === "high" && (
               <span className="ml-0.5 size-1 rounded-full bg-amber-500" />
