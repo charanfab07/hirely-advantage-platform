@@ -25,15 +25,15 @@ const MockupCard = () => {
             <span className="text-[10px] uppercase tracking-[0.2em] text-foreground/45 font-medium">Before</span>
             <span className="text-[11px] font-mono text-foreground/45">42 / 100</span>
           </div>
-          <div className="rounded-2xl bg-white/50 border border-white/60 p-4 opacity-75">
-            <p className="text-xs font-semibold text-foreground/70">Senior Product Manager</p>
+          <div className="rounded-2xl bg-white/50 border border-white/60 p-4">
+            <p className="text-xs font-semibold text-foreground/85">Senior Product Manager</p>
             <ul className="mt-2 space-y-1.5">
-              <li className="text-[12px] text-foreground/55 leading-snug flex gap-2">
-                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground/30 shrink-0" />
+              <li className="text-[12px] text-foreground/75 leading-snug flex gap-2">
+                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground/50 shrink-0" />
                 Worked on improving onboarding metrics.
               </li>
-              <li className="text-[12px] text-foreground/55 leading-snug flex gap-2">
-                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground/30 shrink-0" />
+              <li className="text-[12px] text-foreground/75 leading-snug flex gap-2">
+                <span className="mt-1.5 w-1 h-1 rounded-full bg-foreground/50 shrink-0" />
                 Helped the team with product decisions.
               </li>
             </ul>
@@ -86,14 +86,14 @@ const MockupCard = () => {
       </div>
 
       {/* Floating decorative pill */}
-      <div className="absolute -bottom-5 -left-6 px-4 py-3 rounded-2xl bg-white/60 backdrop-blur-md border border-white/70 shadow-lg flex items-center gap-3 transform -rotate-3">
+      <div className="absolute top-1/2 -left-8 -translate-y-1/2 px-4 py-3 rounded-2xl bg-white/70 backdrop-blur-md border border-white/80 shadow-lg flex items-center gap-3 transform -rotate-[6deg] [animation:float-y_5s_ease-in-out_infinite] motion-reduce:animate-none">
         <div className="w-8 h-8 rounded-full bg-[hsl(var(--warm-blush))] flex items-center justify-center text-foreground font-bold text-sm">
           ↗
         </div>
-        <div className="text-xs font-semibold text-foreground/80 leading-tight">
+        <div className="text-xs font-semibold text-foreground leading-tight">
           +52 ATS pts
           <br />
-          <span className="text-foreground/60 font-medium">in one rewrite</span>
+          <span className="text-foreground/65 font-medium">in one rewrite</span>
         </div>
       </div>
     </div>
