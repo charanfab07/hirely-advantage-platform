@@ -70,9 +70,12 @@ const Index = () => {
         />
       </section>
 
+      <ResumeCompare />
       <RoadmapSection />
       <HowItWorks />
+      <ProductShowcase />
       <Testimonials />
+      <HiredWall />
       <FinalCTA />
       <Footer />
     </main>
