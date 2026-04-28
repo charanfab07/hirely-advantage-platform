@@ -108,7 +108,7 @@ const MockupCard = () => {
 
 export const Hero = () => {
   return (
-    <section className="relative pt-32 pb-24 px-4 lg:px-12 overflow-hidden">
+    <section className="relative pt-24 pb-6 px-4 lg:px-12 overflow-hidden">
       <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
         {/* Left: copy */}
         <div className="flex flex-col gap-9 text-center lg:text-left">
