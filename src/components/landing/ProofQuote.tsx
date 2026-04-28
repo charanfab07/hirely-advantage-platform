@@ -3,7 +3,7 @@ import { Star } from "lucide-react";
 
 export const ProofQuote = () => {
   return (
-    <section className="px-4 py-12 md:py-16">
+    <section className="px-4 py-6 md:py-8">
       <div className="mx-auto max-w-3xl">
         <Reveal>
           <figure className="glass-strong rounded-3xl px-7 py-8 md:px-10 md:py-10 text-center relative">
