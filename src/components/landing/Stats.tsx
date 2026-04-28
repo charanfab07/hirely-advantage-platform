@@ -38,7 +38,7 @@ const Counter = ({ value, suffix, decimals = 0, className = "font-display text-5
 
 export const Stats = ({ embedded = false }: { embedded?: boolean }) => {
   const inner = (
-    <div className="glass-strong rounded-[2rem] p-6 md:p-8 relative overflow-hidden h-full">
+    <div className="glass-strong rounded-[2rem] px-6 md:px-8 py-4 md:py-5 relative overflow-hidden h-full">
       {/* Inner sheen */}
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[60%] h-40 rounded-full bg-white/40 blur-3xl pointer-events-none" />
