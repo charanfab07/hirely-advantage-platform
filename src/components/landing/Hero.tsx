@@ -86,14 +86,16 @@ const MockupCard = () => {
       </div>
 
       {/* Floating decorative pill */}
-      <div className="absolute -top-6 -left-8 px-4 py-3 rounded-2xl bg-white/70 backdrop-blur-md border border-white/80 shadow-lg flex items-center gap-3 transform rotate-[8deg] [animation:float-y_5s_ease-in-out_infinite] motion-reduce:animate-none">
-        <div className="w-8 h-8 rounded-full bg-[hsl(var(--warm-blush))] flex items-center justify-center text-foreground font-bold text-sm">
-          ↗
-        </div>
-        <div className="text-xs font-semibold text-foreground leading-tight">
-          +52 ATS pts
-          <br />
-          <span className="text-foreground/65 font-medium">in one rewrite</span>
+      <div className="absolute -top-6 -left-8 transform rotate-[8deg]">
+        <div className="px-4 py-3 rounded-2xl bg-white/70 backdrop-blur-md border border-white/80 shadow-lg flex items-center gap-3 [animation:float-y_5s_ease-in-out_infinite] motion-reduce:animate-none">
+          <div className="w-8 h-8 rounded-full bg-[hsl(var(--warm-blush))] flex items-center justify-center text-foreground font-bold text-sm">
+            ↗
+          </div>
+          <div className="text-xs font-semibold text-foreground leading-tight">
+            +52 ATS pts
+            <br />
+            <span className="text-foreground/65 font-medium">in one rewrite</span>
+          </div>
         </div>
       </div>
     </div>
