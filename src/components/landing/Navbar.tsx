@@ -44,7 +44,7 @@ export const Navbar = () => {
         </ul>
 
         <a
-          href="#cta"
+          href="/app"
           className="text-sm font-medium text-background bg-foreground px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
         >
           Get Started
