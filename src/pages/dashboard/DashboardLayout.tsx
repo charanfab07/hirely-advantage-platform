@@ -15,10 +15,10 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-const SKY = "199 95% 74%";        // light sky blue
-const SKY_DEEP = "205 90% 62%";   // slightly deeper sky
-const SKY_SOFT = "200 100% 92%";  // very pale sky tint
-const INK = "0 0% 6%";            // near-black
+const SKY = "205 70% 86%";        // muted soft sky
+const SKY_DEEP = "210 60% 70%";   // restrained accent sky
+const SKY_SOFT = "205 75% 96%";   // barely-there tint
+const INK = "220 15% 12%";        // soft near-black
 
 const primaryNav = [
   { to: "/app/resume", label: "Resume", icon: FileText },
@@ -48,10 +48,9 @@ export default function DashboardLayout() {
         className="pointer-events-none fixed inset-0 -z-10"
         style={{
           background: `
-            radial-gradient(70% 55% at 10% 0%, hsl(${SKY} / 0.55), transparent 70%),
-            radial-gradient(60% 50% at 95% 5%, hsl(${SKY_SOFT} / 0.95), transparent 70%),
-            radial-gradient(55% 45% at 90% 95%, hsl(${SKY} / 0.35), transparent 70%),
-            linear-gradient(180deg, hsl(${SKY_SOFT}) 0%, #ffffff 55%, hsl(${SKY_SOFT} / 0.6) 100%)
+            radial-gradient(80% 60% at 0% 0%, hsl(${SKY} / 0.35), transparent 65%),
+            radial-gradient(60% 50% at 100% 100%, hsl(${SKY_SOFT}), transparent 70%),
+            linear-gradient(180deg, #ffffff 0%, hsl(${SKY_SOFT} / 0.6) 100%)
           `,
         }}
       />
