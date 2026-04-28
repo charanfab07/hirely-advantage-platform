@@ -25,6 +25,9 @@ const App = () => (
             <Route path="resume" element={<ResumePage />} />
             <Route path="outreach" element={<PlaceholderPage title="Outreach" />} />
             <Route path="applications" element={<PlaceholderPage title="Applications" />} />
+            <Route path="voice" element={<PlaceholderPage title="Voice Coach" />} />
+            <Route path="score" element={<PlaceholderPage title="Live ATS" />} />
+            <Route path="settings" element={<PlaceholderPage title="Settings" />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
