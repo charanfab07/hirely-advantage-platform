@@ -1,4 +1,4 @@
-import { Sparkles } from "lucide-react";
+import { LogoLockup } from "./Logo";
 
 const cols = [
   {
@@ -15,12 +15,8 @@ export const Footer = () => {
       <div className="mx-auto max-w-6xl glass rounded-3xl p-10 md:p-14">
         <div className="grid md:grid-cols-5 gap-10">
           <div className="md:col-span-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-foreground text-background flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <span className="font-display font-semibold text-lg tracking-tight">Hirely AI</span>
-            </div>
+            <LogoLockup size={32} />
+
             <p className="mt-4 text-sm text-foreground/60 max-w-xs leading-relaxed">
               Reverse-engineering the hiring process for the world's most ambitious candidates.
             </p>
