@@ -24,7 +24,7 @@ const MockupCard = () => {
         <div className="relative">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[11px] uppercase tracking-[0.2em] text-foreground font-bold px-2 py-0.5 rounded-md bg-foreground/10">Before</span>
-            <span className="text-base font-serif tracking-tight text-foreground/80 font-semibold">42 / 100</span>
+            <span className="text-base font-mono tracking-tight text-foreground/80 font-semibold">42 / 100</span>
           </div>
           <div className="rounded-2xl bg-white/50 border border-white/60 p-4">
             <p className="text-xs font-semibold text-foreground/85">Senior Product Manager</p>
@@ -57,7 +57,7 @@ const MockupCard = () => {
             <span className="text-[11px] uppercase tracking-[0.2em] text-background font-bold px-2 py-0.5 rounded-md bg-foreground flex items-center gap-1.5">
               <Sparkles className="w-3 h-3" /> After
             </span>
-            <span className="text-base font-serif tracking-tight text-foreground font-bold">94 / 100</span>
+            <span className="text-base font-mono tracking-tight text-foreground font-bold">94 / 100</span>
           </div>
           <div className="rounded-2xl bg-white/85 border border-white p-4 shadow-[0_8px_24px_-12px_hsl(var(--slate-ink)/0.18)]">
             <p className="text-xs font-semibold text-foreground">Senior Product Manager</p>
