@@ -54,8 +54,14 @@ export default function DashboardLayout() {
         {/* ============== Sidebar ============== */}
         <aside className="flex flex-col px-5 py-7 border-r border-foreground/[0.06]">
           <div className="px-3 mb-9 flex items-center gap-2.5">
-            <div className="size-7 rounded-lg bg-foreground grid place-items-center shadow-[0_4px_12px_-4px_hsl(var(--slate-ink)/0.4)]">
-              <div className="size-2 rounded-full bg-background" />
+            <div
+              className="size-7 rounded-lg grid place-items-center border border-white/80 shadow-[0_4px_12px_-4px_hsl(var(--slate-ink)/0.15)]"
+              style={{
+                background:
+                  "linear-gradient(135deg, hsl(var(--ethereal-blue)), hsl(var(--soft-lilac)))",
+              }}
+            >
+              <div className="size-2 rounded-full bg-white" />
             </div>
             <span className="font-display text-[15px] font-semibold tracking-tight">Hirely</span>
           </div>
@@ -94,7 +100,7 @@ export default function DashboardLayout() {
             <div className="mt-1.5 font-display text-[15px] font-semibold leading-snug text-foreground">
               Unlock unlimited rewrites
             </div>
-            <button className="mt-3.5 w-full rounded-lg bg-foreground text-background py-2 text-[12px] font-semibold hover:bg-foreground/90 transition-colors">
+            <button className="mt-3.5 w-full rounded-lg bg-white/85 backdrop-blur text-foreground py-2 text-[12px] font-semibold hover:bg-white transition-colors border border-white">
               Upgrade — $19/mo
             </button>
           </div>
@@ -136,7 +142,13 @@ export default function DashboardLayout() {
                 <Bell className="size-4" />
                 <span className="absolute top-2 right-2 size-1.5 rounded-full bg-emerald-500" />
               </button>
-              <button className="inline-flex items-center gap-1.5 rounded-xl bg-foreground text-background px-3.5 py-2 text-[12.5px] font-semibold hover:bg-foreground/85 transition-colors shadow-[0_8px_20px_-8px_hsl(var(--slate-ink)/0.4)]">
+              <button
+                className="inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-[12.5px] font-semibold text-foreground border border-white hover:-translate-y-px transition-all shadow-[0_8px_20px_-8px_hsl(var(--slate-ink)/0.18)]"
+                style={{
+                  background:
+                    "linear-gradient(135deg, hsl(var(--ethereal-blue) / 0.9), hsl(var(--soft-lilac) / 0.9) 60%, hsl(var(--warm-blush) / 0.85))",
+                }}
+              >
                 <Plus className="size-3.5" />
                 New scan
               </button>
@@ -225,10 +237,16 @@ function RightRail() {
           {Array.from({ length: 14 }).map((_, i) => (
             <div
               key={i}
-              className={`h-6 flex-1 rounded-[3px] ${
-                i < 12 ? "bg-foreground" : "bg-foreground/[0.07]"
-              }`}
-              style={i < 12 ? { opacity: 0.35 + (i / 14) * 0.65 } : undefined}
+              className="h-6 flex-1 rounded-[3px]"
+              style={
+                i < 12
+                  ? {
+                      background:
+                        "linear-gradient(180deg, hsl(var(--soft-lilac)), hsl(var(--warm-blush)))",
+                      opacity: 0.5 + (i / 14) * 0.5,
+                    }
+                  : { background: "hsl(var(--slate-ink) / 0.06)" }
+              }
             />
           ))}
         </div>
@@ -260,7 +278,7 @@ function RightRail() {
             style={{
               width: "70%",
               background:
-                "linear-gradient(90deg, hsl(var(--slate-ink)), hsl(var(--slate-ink-soft)))",
+                "linear-gradient(90deg, hsl(var(--ethereal-blue)), hsl(var(--soft-lilac)) 60%, hsl(var(--warm-blush)))",
             }}
           />
         </div>

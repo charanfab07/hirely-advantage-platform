@@ -127,8 +127,9 @@ function ScoreRing({ value }: { value: number }) {
         />
         <defs>
           <linearGradient id="scoreGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="hsl(226 19% 13%)" />
-            <stop offset="100%" stopColor="hsl(250 35% 35%)" />
+            <stop offset="0%" stopColor="hsl(213 100% 75%)" />
+            <stop offset="50%" stopColor="hsl(270 80% 78%)" />
+            <stop offset="100%" stopColor="hsl(350 92% 82%)" />
           </linearGradient>
         </defs>
       </svg>
@@ -164,24 +165,28 @@ function Sparkline({ data }: { data: number[] }) {
       <svg width={w} height={h} className="overflow-visible">
         <defs>
           <linearGradient id="sparkArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="hsl(226 19% 13%)" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="hsl(226 19% 13%)" stopOpacity="0" />
+            <stop offset="0%" stopColor="hsl(270 80% 70%)" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="hsl(270 80% 70%)" stopOpacity="0" />
+          </linearGradient>
+          <linearGradient id="sparkLine" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="hsl(213 100% 70%)" />
+            <stop offset="100%" stopColor="hsl(350 92% 75%)" />
           </linearGradient>
         </defs>
         <path d={area} fill="url(#sparkArea)" />
-        <path d={path} fill="none" stroke="hsl(226 19% 13%)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+        <path d={path} fill="none" stroke="url(#sparkLine)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         <circle
           cx={w}
           cy={h - ((data[data.length - 1] - min) / (max - min)) * h}
           r="3.5"
-          fill="hsl(226 19% 13%)"
+          fill="hsl(270 80% 70%)"
         />
         <circle
           cx={w}
           cy={h - ((data[data.length - 1] - min) / (max - min)) * h}
           r="7"
-          fill="hsl(226 19% 13%)"
-          fillOpacity="0.12"
+          fill="hsl(270 80% 70%)"
+          fillOpacity="0.18"
         />
       </svg>
       <div className="text-[10px] font-mono uppercase tracking-wider text-foreground/40">
@@ -203,7 +208,13 @@ function RewriteCard() {
       }}
     >
       <div className="flex items-center justify-between">
-        <div className="inline-flex items-center gap-2 rounded-full bg-foreground text-background px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em]">
+        <div
+          className="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-foreground border border-white"
+          style={{
+            background:
+              "linear-gradient(135deg, hsl(var(--soft-lilac)), hsl(var(--ethereal-blue)))",
+          }}
+        >
           <Sparkles className="size-3" />
           AI Rewrite
         </div>
@@ -231,11 +242,17 @@ function RewriteCard() {
         </div>
         <p className="font-display text-[16px] leading-[1.55] text-foreground">
           Drove a{" "}
-          <span className="bg-foreground text-background px-1.5 py-0.5 rounded-md font-semibold tabular-nums">
+          <span
+            className="px-1.5 py-0.5 rounded-md font-semibold tabular-nums text-foreground"
+            style={{ background: "hsl(213 100% 80% / 0.55)" }}
+          >
             38% activation lift
           </span>{" "}
           across 6 A/B tests on onboarding flow, unlocking{" "}
-          <span className="bg-foreground text-background px-1.5 py-0.5 rounded-md font-semibold tabular-nums">
+          <span
+            className="px-1.5 py-0.5 rounded-md font-semibold tabular-nums text-foreground"
+            style={{ background: "hsl(350 92% 85% / 0.6)" }}
+          >
             $1.2M ARR
           </span>{" "}
           for the SMB segment.
@@ -243,11 +260,17 @@ function RewriteCard() {
       </div>
 
       <div className="mt-6 flex items-center gap-2">
-        <button className="inline-flex items-center gap-1.5 rounded-lg bg-foreground text-background px-3 py-1.5 text-[12px] font-semibold hover:bg-foreground/85 transition-colors">
+        <button
+          className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-semibold text-foreground border border-white hover:-translate-y-px transition-all shadow-[0_6px_16px_-6px_hsl(var(--slate-ink)/0.18)]"
+          style={{
+            background:
+              "linear-gradient(135deg, hsl(var(--ethereal-blue)), hsl(var(--soft-lilac)) 60%, hsl(var(--warm-blush)))",
+          }}
+        >
           <Check className="size-3.5" />
           Accept rewrite
         </button>
-        <button className="rounded-lg border border-foreground/[0.12] px-3 py-1.5 text-[12px] font-medium text-foreground/65 hover:text-foreground hover:border-foreground/25 transition-colors">
+        <button className="rounded-lg border border-foreground/[0.12] bg-white/70 backdrop-blur px-3 py-1.5 text-[12px] font-medium text-foreground/70 hover:text-foreground hover:border-foreground/25 transition-colors">
           Regenerate
         </button>
         <button className="rounded-lg px-2.5 py-1.5 text-[12px] font-medium text-foreground/45 hover:text-foreground transition-colors ml-auto">
@@ -284,18 +307,27 @@ function KeywordsCard() {
       </p>
 
       <div className="mt-5 flex flex-wrap gap-1.5">
-        {missingKeywords.map((k) => (
-          <span
-            key={k.word}
-            className="group inline-flex items-center gap-1 rounded-full bg-foreground text-background px-2.5 py-1 text-[11.5px] font-medium hover:scale-105 transition-transform cursor-pointer"
-          >
-            <span className="text-background/55">+</span>
-            {k.word}
-            {k.impact === "high" && (
-              <span className="ml-0.5 size-1 rounded-full bg-amber-400" />
-            )}
-          </span>
-        ))}
+        {missingKeywords.map((k, i) => {
+          const tints = [
+            "linear-gradient(135deg, hsl(var(--ethereal-blue)), hsl(var(--soft-lilac)))",
+            "linear-gradient(135deg, hsl(var(--soft-lilac)), hsl(var(--warm-blush)))",
+            "linear-gradient(135deg, hsl(var(--warm-blush)), hsl(var(--dawn-orange)))",
+            "linear-gradient(135deg, hsl(var(--dawn-orange)), hsl(var(--ethereal-blue)))",
+          ];
+          return (
+            <span
+              key={k.word}
+              className="group inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11.5px] font-medium text-foreground border border-white hover:scale-105 transition-transform cursor-pointer shadow-[0_1px_2px_hsl(var(--slate-ink)/0.04)]"
+              style={{ background: tints[i % tints.length] }}
+            >
+              <span className="text-foreground/45">+</span>
+              {k.word}
+              {k.impact === "high" && (
+                <span className="ml-0.5 size-1 rounded-full bg-amber-500" />
+              )}
+            </span>
+          );
+        })}
       </div>
 
       <div className="mt-5 pt-4 border-t border-foreground/[0.08] flex items-center justify-between text-[11px]">
