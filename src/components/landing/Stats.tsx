@@ -8,7 +8,7 @@ const stats = [
   { value: 1.0, suffix: "M", label: "Job descriptions analyzed", decimals: 1 },
 ];
 
-const Counter = ({ value, suffix, decimals = 0 }: { value: number; suffix: string; decimals?: number }) => {
+const Counter = ({ value, suffix, decimals = 0, className = "font-display text-5xl md:text-6xl font-semibold text-foreground tracking-tight" }: { value: number; suffix: string; decimals?: number; className?: string }) => {
   const { ref, inView } = useInView();
   const [n, setN] = useState(0);
   const started = useRef(false);
