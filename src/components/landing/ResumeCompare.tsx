@@ -37,7 +37,7 @@ export const ResumeCompare = () => {
               <div className="flex flex-col">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[11px] uppercase tracking-[0.2em] text-foreground/45 font-medium">Before</span>
-                  <span className="text-xs font-mono text-foreground/45">42 / 100</span>
+                  <span className="text-sm font-serif tracking-tight text-foreground/70">42 / 100</span>
                 </div>
 
                 <div className="glass rounded-2xl p-6 flex-1 opacity-75">
@@ -77,7 +77,7 @@ export const ResumeCompare = () => {
                   <span className="text-[11px] uppercase tracking-[0.2em] text-foreground font-medium flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3" /> After
                   </span>
-                  <span className="text-xs font-mono text-foreground font-medium">94 / 100</span>
+                  <span className="text-sm font-serif tracking-tight text-foreground font-semibold">94 / 100</span>
                 </div>
 
                 <div className="glass-strong rounded-2xl p-6 flex-1">
