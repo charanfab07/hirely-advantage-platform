@@ -270,36 +270,104 @@ export default function DashboardLayout() {
   );
 }
 
-function NavItem({
+function SideRow({
   to,
   label,
   icon: Icon,
+  chevron,
+  trailing,
+  badge,
+  indent,
+  external,
+  emphasized,
 }: {
   to: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  chevron?: boolean;
+  trailing?: "actions";
+  badge?: string;
+  indent?: boolean;
+  external?: boolean;
+  emphasized?: boolean;
 }) {
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
         [
-          "group relative flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] font-medium transition-all",
+          "group relative flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] transition-colors",
+          indent ? "ml-3" : "",
           isActive
-            ? "bg-white text-black border border-white shadow-[0_1px_0_rgba(255,255,255,0.8)_inset,0_8px_20px_-8px_rgba(0,0,0,0.12)]"
-            : "text-black/55 hover:text-black hover:bg-white/55",
+            ? "bg-black/[0.05] text-black font-medium"
+            : emphasized
+              ? "text-black font-medium hover:bg-black/[0.04]"
+              : "text-black/70 hover:text-black hover:bg-black/[0.04]",
         ].join(" ")
       }
     >
-      {({ isActive }) => (
-        <>
-          {isActive && (
-            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-[3px] rounded-r-full bg-black" />
-          )}
-          <Icon className="size-4 shrink-0" />
-          <span>{label}</span>
-        </>
+      <Icon className="size-[15px] shrink-0 text-black/55 group-hover:text-black/80" />
+      <span className="flex-1 truncate">{label}</span>
+      {badge && (
+        <span className="rounded-[4px] border border-black/15 px-1 py-px text-[9.5px] font-semibold tracking-wider text-black/65">
+          {badge}
+        </span>
       )}
+      {trailing === "actions" && (
+        <span className="flex items-center gap-1 text-black/45">
+          <PlusIcon className="size-3.5 hover:text-black" />
+          <MoreHorizontal className="size-3.5 hover:text-black" />
+        </span>
+      )}
+      {chevron && <ChevronRight className="size-3.5 text-black/35" />}
+      {external && <ArrowUpRight className="size-3.5 text-black/45" />}
+    </NavLink>
+  );
+}
+
+function SpaceRow({
+  to,
+  label,
+  forceActive,
+}: {
+  to: string;
+  label: string;
+  forceActive?: boolean;
+}) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) => {
+        const on = isActive || forceActive;
+        return [
+          "group relative flex items-center gap-2 rounded-md ml-3 px-2 py-1.5 text-[13px] transition-colors",
+          on
+            ? "text-black font-medium"
+            : "text-black/70 hover:text-black hover:bg-black/[0.04]",
+        ].join(" ");
+      }}
+      style={({ isActive }) =>
+        isActive || forceActive
+          ? {
+              background: `linear-gradient(90deg, hsl(${SKY} / 0.55), hsl(${SKY_SOFT} / 0.6))`,
+            }
+          : undefined
+      }
+    >
+      {({ isActive }) => {
+        const on = isActive || forceActive;
+        return (
+          <>
+            {on && (
+              <span
+                className="absolute -left-3 top-1/2 -translate-y-1/2 h-4 w-[2.5px] rounded-r-full"
+                style={{ background: `hsl(${SKY_DEEP})` }}
+              />
+            )}
+            <span className="flex-1 truncate">{label}</span>
+          </>
+        );
+      }}
     </NavLink>
   );
 }
