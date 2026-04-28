@@ -13,6 +13,21 @@ import {
   Flame,
   ArrowUpRight,
   TrendingUp,
+  User,
+  Clock,
+  Star,
+  LayoutGrid,
+  Map,
+  Layers,
+  ChevronRight,
+  PanelLeft,
+  Filter,
+  LayoutDashboard,
+  Users,
+  MoreHorizontal,
+  Sparkles,
+  Upload,
+  Plus as PlusIcon,
 } from "lucide-react";
 
 const SKY = "205 70% 86%";        // muted soft sky
@@ -20,17 +35,37 @@ const SKY_DEEP = "210 60% 70%";   // restrained accent sky
 const SKY_SOFT = "205 75% 96%";   // barely-there tint
 const INK = "220 15% 12%";        // soft near-black
 
-const primaryNav = [
-  { to: "/app/resume", label: "Resume", icon: FileText },
-  { to: "/app/outreach", label: "Outreach", icon: Send },
-  { to: "/app/applications", label: "Applications", icon: Briefcase },
+// Jira-style top-level rows (icon + label, optional chevron)
+const topNav = [
+  { to: "/app/for-you", label: "For you", icon: User },
+  { to: "/app/recent", label: "Recent", icon: Clock, chevron: true },
+  { to: "/app/starred", label: "Starred", icon: Star, chevron: true },
+  { to: "/app/apps", label: "Apps", icon: LayoutGrid },
+  { to: "/app/plans", label: "Plans", icon: Map },
+  { to: "/app/spaces", label: "Spaces", icon: Layers, trailing: "actions" as const },
 ];
 
-const secondaryNav = [
-  { to: "/app/voice", label: "Voice Coach", icon: Mic },
-  { to: "/app/score", label: "Live ATS", icon: Activity },
-  { to: "/app/settings", label: "Settings", icon: Settings },
+// "Recent" group inside Spaces — primary workspace areas live here
+const spacesRecent = [
+  { to: "/app/resume", label: "Resume", active: true },
+  { to: "/app/outreach", label: "Outreach" },
+  { to: "/app/applications", label: "Applications" },
 ];
+
+// "Recommended" group
+const recommended = [
+  { to: "/app/voice", label: "Voice Coach", icon: Sparkles, badge: "TRY" },
+  { to: "/app/import", label: "Import work", icon: Upload },
+];
+
+// Footer rows
+const footerNav = [
+  { to: "/app/filters", label: "Filters", icon: Filter },
+  { to: "/app/score", label: "Dashboards", icon: LayoutDashboard },
+];
+
+const teamsRow = { to: "/app/teams", label: "Teams", icon: Users, external: true };
+const allNav = [...topNav, ...spacesRecent.map((s) => ({ ...s, icon: FileText })), ...recommended, ...footerNav, teamsRow];
 
 export default function DashboardLayout() {
   const { pathname } = useLocation();
