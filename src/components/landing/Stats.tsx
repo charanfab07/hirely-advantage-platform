@@ -30,7 +30,7 @@ const Counter = ({ value, suffix, decimals = 0, className = "font-display text-5
   }, [inView, value]);
 
   return (
-    <span ref={ref as any} className="font-display text-5xl md:text-6xl font-semibold text-foreground tracking-tight">
+    <span ref={ref as any} className={className}>
       {n.toFixed(decimals)}{suffix}
     </span>
   );
