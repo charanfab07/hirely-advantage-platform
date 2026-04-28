@@ -43,7 +43,7 @@ export const Stats = ({ embedded = false }: { embedded?: boolean }) => {
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
       <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[60%] h-40 rounded-full bg-white/40 blur-3xl pointer-events-none" />
 
-      <div className="grid grid-cols-2 gap-y-8 relative h-full content-center">
+      <div className="grid grid-cols-2 gap-y-4 relative h-full content-center">
         {stats.map((s, i) => (
           <div
             key={i}
