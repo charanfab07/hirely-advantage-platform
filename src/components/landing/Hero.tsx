@@ -108,12 +108,12 @@ const MockupCard = () => {
 
 export const Hero = () => {
   return (
-    <section className="relative pt-20 pb-2 px-4 lg:px-12 overflow-hidden">
-      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-10 items-center">
+    <section className="relative pt-24 pb-6 px-4 lg:px-12 overflow-hidden">
+      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
         {/* Left: copy */}
-        <div className="flex flex-col gap-5 text-center lg:text-left">
+        <div className="flex flex-col gap-9 text-center lg:text-left">
           <Reveal delay={120}>
-            <h1 className="font-display text-4xl sm:text-5xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-6xl">
+            <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-7xl">
               From Ignored to
               <br />
               <span className="relative inline-block">
@@ -125,7 +125,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={240}>
-            <p className="text-base lg:text-lg text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-lg lg:text-xl text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
               Upload your resume and instantly get your ATS score, missing keywords, and exact fixes to get{" "}
               <span className="relative inline-block font-semibold text-foreground">
                 more interviews
@@ -156,15 +156,34 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={480}>
-            <div className="pt-3 flex items-center justify-center lg:justify-start gap-3">
-              <div className="flex gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
+            <div className="pt-6 mt-2 border-t border-foreground/5 flex flex-col gap-5">
+              <div className="flex items-center justify-center lg:justify-start gap-3">
+                <div className="flex gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  ))}
+                </div>
+                <span className="text-sm font-medium text-foreground/60">
+                  4.9 from 2,400+ candidates hired at
+                </span>
               </div>
-              <span className="text-sm font-medium text-foreground/60">
-                4.9 · 2,400+ candidates hired
-              </span>
+              <div className="flex items-center justify-center lg:justify-start flex-wrap gap-x-8 gap-y-3 opacity-50">
+                <span className="font-display font-bold text-lg tracking-tighter uppercase text-foreground">
+                  Omnisearch
+                </span>
+                <span className="font-sans font-medium text-lg tracking-widest text-foreground">
+                  VANGUARD
+                </span>
+                <span className="font-display font-semibold text-xl tracking-tight lowercase text-foreground">
+                  streamer
+                </span>
+                <span className="font-display italic font-medium text-lg text-foreground">
+                  Lumina
+                </span>
+                <span className="font-display font-bold text-lg tracking-tight text-foreground">
+                  Northwind
+                </span>
+              </div>
             </div>
           </Reveal>
         </div>
