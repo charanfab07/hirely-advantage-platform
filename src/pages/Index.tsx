@@ -21,7 +21,6 @@ const Index = () => {
       <MeshGradient />
       <Navbar />
       <Hero />
-      <Stats />
       <ProofQuote />
 
       <section id="features" className="pt-12">
