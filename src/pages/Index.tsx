@@ -8,6 +8,9 @@ import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landin
 import { RoadmapSection } from "@/components/landing/RoadmapSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { Testimonials } from "@/components/landing/Testimonials";
+import { ResumeCompare } from "@/components/landing/ResumeCompare";
+import { ProductShowcase } from "@/components/landing/ProductShowcase";
+import { HiredWall } from "@/components/landing/HiredWall";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 
@@ -67,9 +70,12 @@ const Index = () => {
         />
       </section>
 
+      <ResumeCompare />
       <RoadmapSection />
       <HowItWorks />
+      <ProductShowcase />
       <Testimonials />
+      <HiredWall />
       <FinalCTA />
       <Footer />
     </main>

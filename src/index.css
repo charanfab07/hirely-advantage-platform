@@ -302,11 +302,21 @@
   82% { transform: translate3d(18px, -54px, 0) scale(1); opacity: 0; }
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  width: max-content;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
   [class*="animate-orb"],
   .aurora-ribbon,
   .aurora-wave,
   .light-sweep,
+  .animate-marquee,
   .spark-field span { animation: none !important; }
 }
