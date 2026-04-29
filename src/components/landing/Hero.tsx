@@ -1,5 +1,6 @@
 import { ArrowRight, Play, Star, Sparkles, ArrowDown } from "lucide-react";
 import { Reveal } from "./Reveal";
+import { AppTransitionLink } from "@/components/AppTransitionLink";
 
 
 const MockupCard = () => {
@@ -136,13 +137,13 @@ export const Hero = () => {
 
           <Reveal delay={360}>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
-              <a
-                href="/app"
+              <AppTransitionLink
+                to="/app"
                 className="group inline-flex items-center gap-2 bg-foreground text-background px-7 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition-all hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-8px_hsl(var(--slate-ink)/0.4)]"
               >
                 Get My Resume Score
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
-              </a>
+              </AppTransitionLink>
               <a
                 href="#features"
                 className="inline-flex items-center gap-3 px-6 py-3.5 rounded-full bg-white/40 backdrop-blur-md border border-foreground/10 text-foreground text-sm font-medium hover:bg-white/70 transition-colors"

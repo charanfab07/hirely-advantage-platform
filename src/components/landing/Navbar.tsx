@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { LogoLockup } from "./Logo";
+import { AppTransitionLink } from "@/components/AppTransitionLink";
 
 const links = [
   { label: "Features", href: "#features" },
@@ -43,12 +44,12 @@ export const Navbar = () => {
           ))}
         </ul>
 
-        <a
-          href="/app"
+        <AppTransitionLink
+          to="/app"
           className="text-sm font-medium text-background bg-foreground px-5 py-2 rounded-full hover:opacity-90 transition-opacity"
         >
           Get Started
-        </a>
+        </AppTransitionLink>
       </nav>
     </header>
   );
