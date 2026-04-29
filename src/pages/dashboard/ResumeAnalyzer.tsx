@@ -4,6 +4,8 @@ import { ArrowRight, Search } from "lucide-react";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { StatStrip } from "@/components/dashboard/StatStrip";
+import { TodayCard } from "@/components/dashboard/TodayCard";
+import { ScoreSparkline } from "@/components/dashboard/ScoreSparkline";
 
 const tabs = [
   { value: "score", label: "Score" },
@@ -64,8 +66,8 @@ const ResumeAnalyzer = () => {
       {/* Score panel */}
       {tab === "score" && (
         <>
-          <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <SectionCard className="lg:col-span-2">
+          <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <SectionCard className="lg:col-span-7">
               <div className="flex items-baseline justify-between">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Resume readiness
@@ -81,7 +83,7 @@ const ResumeAnalyzer = () => {
                   style={{ width: "94%", background: "linear-gradient(90deg,#0E0B1F,#6D54B3)" }}
                 />
               </div>
-              <p className="text-[12.5px] text-foreground/55 mt-3">
+              <p className="text-[12.5px] text-foreground/55 mt-2">
                 Beats 89% of senior PM resumes in your market.
               </p>
               <div className="mt-5 flex items-center gap-2">
@@ -100,7 +102,7 @@ const ResumeAnalyzer = () => {
               </div>
             </SectionCard>
 
-            <SectionCard tone="dark">
+            <SectionCard tone="dark" className="lg:col-span-3 flex flex-col">
               <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
                 Interviews
               </p>
@@ -108,13 +110,17 @@ const ResumeAnalyzer = () => {
               <p className="text-[12.5px] text-white/70 mt-2">2 scheduled this week</p>
               <Link
                 to="/app/interview-prep"
-                className="mt-5 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-full text-[12.5px] font-medium hover:opacity-90 transition-opacity"
+                className="mt-auto pt-5 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-full text-[12.5px] font-medium hover:opacity-90 transition-opacity"
                 style={{ background: "#C8B6FF", color: "#0E0B1F" }}
               >
                 Open prep <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </SectionCard>
+
+            <TodayCard className="lg:col-span-2" />
           </div>
+
+          <ScoreSparkline className="mt-4" />
 
           <div className="mt-4">
             <StatStrip
