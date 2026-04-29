@@ -6,6 +6,8 @@ import { SectionCard } from "@/components/dashboard/SectionCard";
 import { StatStrip } from "@/components/dashboard/StatStrip";
 import { TodayCard } from "@/components/dashboard/TodayCard";
 import { ScoreSparkline } from "@/components/dashboard/ScoreSparkline";
+import { InsightsTriad } from "@/components/dashboard/InsightsTriad";
+import { QuickWins } from "@/components/dashboard/QuickWins";
 
 const tabs = [
   { value: "score", label: "Score" },
@@ -121,6 +123,10 @@ const ResumeAnalyzer = () => {
           </div>
 
           <ScoreSparkline className="mt-4" />
+
+          <InsightsTriad className="mt-4" />
+
+          <QuickWins className="mt-4" />
 
           <div className="mt-4">
             <StatStrip
