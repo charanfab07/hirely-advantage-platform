@@ -19,6 +19,7 @@ export const FinalCTA = () => {
               className="mt-10 flex flex-col sm:flex-row items-stretch gap-3 max-w-md mx-auto"
               onSubmit={(e) => {
                 e.preventDefault();
+                window.location.href = "/app";
               }}
             >
               <input
