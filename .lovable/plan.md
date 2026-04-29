@@ -1,123 +1,85 @@
-# Dashboard build plan — "macOS sheet" direction
+# Above-the-fold upgrade — Resume Analyzer
 
 ## Goal
-Add an authenticated dashboard at `/app` that lives on the same aurora background as the landing, uses Apple-style SF-Pro typography, the landing palette (pearl + ethereal-blue + soft-lilac + warm-blush, with violet `#6D54B3` as the single accent), and a left sidebar surfacing the three core tools: **Resume Analyzer**, **Cover Letter Generator**, **Interview Prep**.
+Make the dashboard's first viewport feel like a complete morning status page, not a marketing card. Two concrete additions:
 
-No auth/backend changes in this pass — pure UI shell with placeholder data so we can iterate on look-and-feel before wiring anything up.
+1. A third hero column (**Today** card) next to Score and Interviews.
+2. A slim **30-day score sparkline** strip above the pipeline stats, giving visual proof of "+12 pts".
 
-## Routes
+No backend changes. Pure UI, mock data, fits the existing aurora/glass system.
 
-```
-/                     Landing (unchanged)
-/app                  → redirects to /app/resume
-/app/resume           Resume Analyzer  (default)
-/app/cover-letter     Cover Letter Generator
-/app/interview-prep   Interview Prep
-/app/applications     Applications tracker
-/app/saved            Saved roles
-```
+## New layout
 
-The landing's "Get My Resume Score" CTA and Navbar "Sign in" link will point to `/app`.
+Current hero is `grid-cols-3` (Score 2 / Interviews 1). Switching to a 12-column grid gives room for the third column without crowding:
 
-## File structure
-
-```
-src/
-  pages/
-    dashboard/
-      DashboardLayout.tsx       Shell: aurora + sidebar + main outlet
-      ResumeAnalyzer.tsx        Default view (the prototype B canvas)
-      CoverLetterGenerator.tsx  Placeholder with same shell typography
-      InterviewPrep.tsx         Placeholder
-      ApplicationsPage.tsx      Placeholder
-      SavedPage.tsx             Placeholder
-  components/
-    dashboard/
-      Sidebar.tsx               Left nav (Suite + Tracking + Pro card)
-      SegmentedTabs.tsx         Reusable iOS-style segmented control
-      StatStrip.tsx             4-up divided stat row
-      SectionCard.tsx           Glass card wrapper
+```text
+┌────────────────────────────┬───────────────┬───────────┐
+│ Score                      │ Interviews    │ Today     │
+│ (col-span 7)               │ (col-span 3)  │ (span 2)  │
+│ 94/100, gradient bar, CTAs │ dark, "5",    │ "1 task   │
+│                            │ Open prep →   │ due", mini│
+│                            │               │ checklist │
+└────────────────────────────┴───────────────┴───────────┘
+┌──────────────────────────────────────────────────────────┐
+│ Score · last 30 days   82 → 94   +12 pts        sparkline│
+└──────────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│ Applied 28 │ Screening 11 │ Interview 5 │ Offer 1        │
+└──────────────────────────────────────────────────────────┘
 ```
 
-`src/App.tsx` gets the new routes nested under `<DashboardLayout />`.
+Below `lg`, it collapses to single column in a sensible order: Score → Today → Interviews → Sparkline → Stats.
 
-## Visual system
+## New components
 
-Reuses landing tokens from `src/index.css` — no new CSS variables needed.
+### `src/components/dashboard/TodayCard.tsx`
+- Eyebrow "Today" + small `done/total` badge top-right.
+- Big number `{pending.length}` followed by "task due / tasks due".
+- A highlighted **focus task** row (first pending task) inside a soft inner card: title + duration ("Polish Linear cover letter · 12 min").
+- A 3-row mini checklist: violet-filled circle with check for done, hairline circle for open. Done items get strike-through and dimmed text.
+- Footer link "View all →" in violet.
+- Default mock tasks:
+  - "Polish Linear cover letter" · 12 min · pending  ← focus
+  - "Confirm Wed 2:30 with Karri" · 2 min · done
+  - "Run STAR drill · leadership" · 15 min · pending
+- Uses `SectionCard` glass tone for visual continuity with Score card.
 
-- **Background**: Reuse `<MeshGradient />` from the landing inside `DashboardLayout` so the aurora ribbons, sparks, and cursor spotlight follow the user across both surfaces.
-- **Typography**: SF Pro stack already configured (`font-display`). Headings use `tracking-[-0.035em]` and `font-semibold`. Body 13–14px, eyebrows 10–11px uppercase with `tracking-[0.22em]`.
-- **Cards**: `rounded-[22px]` glass — `bg-white/55 backdrop-blur-2xl border border-white/70` plus the existing `--shadow-glass` token.
-- **Accent**: violet `#6D54B3` (matching the landing "Interviewed" gradient) for the single highlighted metric, active-state dot, and primary CTA in the dark hero card. All other UI is black/white/glass.
-- **Tabs**: segmented pill control — outer `bg-black/[0.05]` track, inner active pill `bg-white` with subtle 1px shadow. Used inside Resume Analyzer for Score / Keywords / Impact rewrites / Versions.
-- **Dark accent card**: the small "Interviews · 5" card uses `linear-gradient(160deg,#0E0B1F,#3a2d5e)` with a `#C8B6FF` button, matching the landing's deeper accent moments.
+### `src/components/dashboard/ScoreSparkline.tsx`
+- Pure inline SVG (no chart lib — keeps the bundle clean).
+- Eyebrow: "Score · last 30 days"; large readout: `82 → 94` with violet `+12 pts` pill.
+- Right side (sm+): faint "30 daily snapshots" caption.
+- 100×28 viewBox area chart:
+  - Line stroke uses the same black→violet gradient as the Score progress bar (`#0E0B1F → #6D54B3`).
+  - Subtle violet area fill underneath (22% → 0% opacity).
+  - White-fill / violet-stroke dot at the latest point ("today" marker).
+  - `vector-effect="non-scaling-stroke"` so the line stays crisp when the SVG stretches.
+- Default data: realistic 30-point ramp from 82 to 94 with small noise; component accepts `data?: number[]` for later real data.
 
-## Sidebar
+## Resume Analyzer wiring
 
-Width 210px, transparent (sits directly on the aurora — no card wrapper).
+In `src/pages/dashboard/ResumeAnalyzer.tsx` (Score tab only):
 
-```
-[H] Hirely
+1. Replace the existing 3-col hero grid with `grid-cols-1 lg:grid-cols-12 gap-4`.
+2. Score card → `lg:col-span-7`.
+3. Interviews card → `lg:col-span-3`.
+4. New `<TodayCard />` → `lg:col-span-2` (will read 2-of-12, which is narrow on huge screens; on `lg` it stays comfortably readable).
+5. After the hero row, add `<ScoreSparkline />` as a full-width strip with `mt-4`.
+6. The existing `<StatStrip />` follows the sparkline.
 
-SUITE
- • Resume Analyzer        ← active row (white glass pill)
-   Cover Letter Generator
-   Interview Prep
+The Score card itself gets one small refinement: drop its bottom "Beats 89% of senior PM resumes" line down to a tighter `mt-2` so the card height roughly matches the new Today card column visually.
 
-TRACKING
-   Applications      28
-   Outreach          14
-   Saved             12
+## Responsive
 
-[Hirely Pro upsell card — dark gradient, "Upgrade" button]
-```
+- `<lg` (≤1023px): everything stacks. Sparkline still renders full-width and looks great because the SVG is fluid.
+- `sm` (≥640px): Today card stays comfortably sized; the 28-data-point line is dense enough to look like a real trend, not a stub.
+- `prefers-reduced-motion` is unaffected — these are static visuals, no animation added.
 
-Active state: white glass pill with inset highlight; inactive: 13px `text-black/55`, hover to full black + faint white wash. A tiny violet dot marks the active route. Section headers are 10px uppercase `tracking-[0.22em] text-black/35`.
+## Out of scope (saved for next pass)
+- Real task model / persistence.
+- Real score history (will plug in once we have a scoring backend).
+- Strengths / Gaps / Risks card and Quick Wins — separate bundle.
 
-A top-bar collapse trigger lets the sidebar tuck away on narrow screens; on mobile (<768px) it becomes a sheet that slides in from the left.
-
-## Resume Analyzer page (the hero view)
-
-Top row: eyebrow date + searchbox (`⌘K` placeholder) + avatar.
-
-Display headline: `From ignored to interviewed.` — "interviewed" rendered with the same black→violet→black gradient used on the landing, so the brand line is instantly recognizable.
-
-Segmented tabs (Score / Keywords / Impact rewrites / Versions). Score is the default panel and contains:
-
-1. **Score card (col-span 2)** — large `94` numeral at 80px with `tracking-[-0.045em]`, `+12 pts` violet pill, a 3px gradient progress bar (black → violet) at 94%, and the line "Beats 89% of senior PM resumes in your market."
-2. **Interviews card (dark, col-span 1)** — `5` interviews, "2 scheduled this week", lilac CTA "Open prep →" linking to `/app/interview-prep`.
-3. **Stat strip** below — Applied 28 / Screening 11 / **Interview 5** (violet) / Offer 1, divided by 1px hairlines inside a single faint glass shell.
-
-Other tab panels render skeleton placeholders for now so we can fill them iteratively.
-
-## Other pages (lightweight in this pass)
-
-Cover Letter Generator and Interview Prep get the same shell (eyebrow + display headline + segmented tabs + one hero card) but with placeholder content so the navigation feels complete:
-
-- **Cover Letter Generator** — tabs: Compose / Tone / History. Hero card shows a textarea with a "Generate with AI" CTA stub.
-- **Interview Prep** — tabs: Practice / Question bank / Recordings. Hero card shows the upcoming Linear screen + a "Start mock interview" CTA stub.
-
-Applications and Saved are simple list placeholders.
-
-## Landing → dashboard wiring
-
-- `Hero.tsx` "Get My Resume Score" button: `href="#features"` → `to="/app"`.
-- `Navbar.tsx` "Sign in" / "Get Started": link to `/app`.
-- `FinalCTA.tsx` form submission: navigate to `/app` on submit.
-
-(No real auth yet — these are entry points so the dashboard is reachable.)
-
-## Out of scope for this pass
-
-- Backend / Supabase auth, file uploads, real ATS scoring.
-- AI generation for cover letters / mock interview voice flow.
-- Persistence of applications/saved lists.
-
-These get layered in once the visual shell is approved.
-
-## Technical notes
-
-- `MeshGradient` is reused as-is; it's already `position: fixed` so it works under any route.
-- Segmented tab component is presentational only (controlled `value` / `onChange`) — no router coupling, so we can drop it into any page.
-- All new components are TypeScript + Tailwind, using existing shadcn primitives (`Button`, `Input`) where useful but no new shadcn additions required.
-- Mobile: sidebar collapses to a sheet at `<768px`; main content reflows to single column at `<lg`.
+## Files touched
+- **NEW** `src/components/dashboard/TodayCard.tsx`
+- **NEW** `src/components/dashboard/ScoreSparkline.tsx`
+- **EDIT** `src/pages/dashboard/ResumeAnalyzer.tsx` — restructure hero grid + insert sparkline
