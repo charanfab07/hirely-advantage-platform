@@ -755,7 +755,7 @@ const DeepDiveItem = ({
   </AccordionItem>
 );
 
-
+const toneClass: Record<"amber" | "violet" | "green", string> = {
   amber: "bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]",
   violet: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
   green: "bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]",
