@@ -623,7 +623,7 @@ const CoverLetterGenerator = () => {
 
         {/* Right: structured letter */}
         <SectionCard className="lg:col-span-7 p-0 overflow-hidden">
-          <div className="px-5 sm:px-6 pt-5 pb-4 flex items-center justify-between gap-3">
+          <div className="px-5 sm:px-6 pt-3 pb-2 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                 {hasLetter ? "Editable letter" : "Letter preview"}
@@ -657,7 +657,7 @@ const CoverLetterGenerator = () => {
             </div>
           </div>
 
-          <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-4 sm:p-6">
+          <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
             <LetterSheet
               doc={doc}
               update={update}
@@ -724,13 +724,6 @@ const CoverLetterGenerator = () => {
               </div>
             </div>
 
-            {!hasLetter && (
-              <div className="mx-auto mt-4 max-w-[640px] text-[12px] text-foreground/45 tracking-tight flex items-center gap-1.5">
-                <FileText className="w-3 h-3" />
-                Tip: fill in your details on the left first — they'll appear in the letter
-                automatically.
-              </div>
-            )}
           </div>
         </SectionCard>
       </div>
@@ -943,9 +936,9 @@ const LetterSheet = ({
     textAlign: typo.align,
   };
 
-  const maxW = compact ? "max-w-[640px]" : "max-w-[820px]";
-  const padX = compact ? "px-8 sm:px-12" : "px-10 sm:px-16";
-  const padY = compact ? "py-10" : "py-14";
+  const maxW = compact ? "max-w-[600px]" : "max-w-[820px]";
+  const padX = compact ? "px-6 sm:px-8" : "px-10 sm:px-16";
+  const padY = compact ? "py-5" : "py-14";
 
   return (
     <div
@@ -982,7 +975,7 @@ const LetterSheet = ({
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <EditableLine
           value={doc.date}
           onChange={(v) => update("date", v)}
@@ -990,7 +983,7 @@ const LetterSheet = ({
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <EditableLine
           value={doc.hiringManager}
           onChange={(v) => update("hiringManager", v)}
@@ -1009,7 +1002,7 @@ const LetterSheet = ({
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <EditableLine
           value={doc.salutation}
           onChange={(v) => update("salutation", v)}
@@ -1022,16 +1015,16 @@ const LetterSheet = ({
       <textarea
         value={doc.body}
         onChange={(e) => update("body", e.target.value)}
-        rows={hasLetter ? Math.max(10, doc.body.split("\n").length + 2) : 12}
+        rows={hasLetter ? Math.max(6, doc.body.split("\n").length + 1) : 6}
         placeholder={
           hasLetter
             ? ""
             : "Your generated letter body will appear here.\n\nEach paragraph is separated by a blank line. Click Generate after pasting the JD."
         }
-        className="mt-5 w-full bg-transparent border-0 outline-none resize-none text-foreground placeholder:text-foreground/35"
+        className="mt-3 w-full bg-transparent border-0 outline-none resize-none text-foreground placeholder:text-foreground/35"
         style={{
           ...sheetStyle,
-          minHeight: hasLetter ? undefined : compact ? 220 : 360,
+          minHeight: hasLetter ? undefined : compact ? 110 : 360,
         }}
       />
 
@@ -1041,7 +1034,7 @@ const LetterSheet = ({
           onChange={(v) => update("signOff", v)}
           placeholder="Sincerely,"
         />
-        <div className="h-6" />
+        <div className="h-3" />
         <EditableLine
           value={doc.senderName}
           onChange={(v) => update("senderName", v)}
