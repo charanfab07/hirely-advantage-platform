@@ -323,7 +323,7 @@ const ResumeAnalyzer = () => {
             <TodayCard className="lg:col-span-2" />
           </div>
 
-          {sparklineData && <ScoreSparkline className="mt-4" data={sparklineData} />}
+          
 
           {(latest.job_match?.match_percent != null || latest.score_breakdown) && (
             <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
