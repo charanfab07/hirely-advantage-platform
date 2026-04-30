@@ -216,8 +216,8 @@ const ResumeAnalyzer = () => {
         .
       </h1>
 
-      {/* Upload always visible at top */}
-      {user && (
+      {/* Upload only visible until first analysis exists */}
+      {user && !latest && (
         <div className="mt-5">
           <ResumeUploadCard userId={user.id} onAnalyzed={handleAnalyzed} />
         </div>
