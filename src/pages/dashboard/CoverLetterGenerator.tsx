@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Sparkles, Loader2, Upload, FileText, Download, Copy, Check, Trash2, RefreshCw } from "lucide-react";
+import { Sparkles, Loader2, Upload, FileText, Download, Copy, Check, Trash2, RefreshCw, Maximize2, Minimize2, Bold, Italic, AlignLeft, AlignCenter, AlignJustify, Type, X } from "lucide-react";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { useAuth } from "@/hooks/useAuth";
