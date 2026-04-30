@@ -214,9 +214,11 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json().catch(() => ({}));
-    const { resume_id, analysis_id } = body ?? {};
+    const { resume_id, analysis_id, target_role: requestedRole } = body ?? {};
 
     if (!resume_id) return json({ error: "resume_id is required" }, 400);
+    const cleanRequestedRole =
+      typeof requestedRole === "string" ? requestedRole.trim().slice(0, 80) : "";
 
     const { data: resumeRow, error: resumeErr } = await supabase
       .from("resumes")
@@ -264,9 +266,10 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
 
+    const effectiveRole = cleanRequestedRole || targetRole;
     const truncated = resumeRow.raw_text.slice(0, 16000);
     const userPrompt = `Rewrite this resume into a single recruiter-ready version that fixes every issue from the analysis.${
-      targetRole ? ` Optimize for the role: "${targetRole}".` : ""
+      effectiveRole ? ` Optimize specifically for the role: "${effectiveRole}". Tailor the summary, skill clusters, keyword choice, and bullet emphasis to what recruiters and ATS systems screen for in "${effectiveRole}" applications.` : ""
     }
 ${analysisContext}
 
