@@ -1298,22 +1298,39 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
 }
 
 // ----- DOCX -----
-function renderDocx(r: EditableResume): DocxDocument {
+function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
   const children: Paragraph[] = [];
+  const SC = typo.sizeScale;
+  const FONT = DOCX_FONT_NAME[typo.font];
+  // half-points: docx 'size' is in half-points; multiply by SC
+  const sz = (n: number) => Math.round(n * SC);
+  const headerAlignment =
+    typo.headerAlign === "left"
+      ? AlignmentType.LEFT
+      : typo.headerAlign === "right"
+      ? AlignmentType.RIGHT
+      : AlignmentType.CENTER;
+  const bodyAlignment =
+    typo.bodyAlign === "center"
+      ? AlignmentType.CENTER
+      : typo.bodyAlign === "justify"
+      ? AlignmentType.JUSTIFIED
+      : AlignmentType.LEFT;
+
 
   if (r.contact.name) {
     children.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text: r.contact.name, bold: true, size: 36 })],
+        alignment: headerAlignment,
+        children: [new TextRun({ font: FONT, text: r.contact.name, bold: true, size: sz(36) })],
       }),
     );
   }
   if (r.headline) {
     children.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text: r.headline, size: 22, color: "555770" })],
+        alignment: headerAlignment,
+        children: [new TextRun({ font: FONT, text: r.headline, size: sz(22), color: "555770" })],
       }),
     );
   }
@@ -1326,9 +1343,9 @@ function renderDocx(r: EditableResume): DocxDocument {
   if (contactBits.length) {
     children.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
+        alignment: headerAlignment,
         children: [
-          new TextRun({ text: contactBits.join("  ·  "), size: 18, color: "777890" }),
+          new TextRun({ font: FONT, text: contactBits.join("  ·  "), size: sz(18), color: "777890" }),
         ],
         spacing: { after: 200 },
       }),
@@ -1340,16 +1357,16 @@ function renderDocx(r: EditableResume): DocxDocument {
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 240, after: 100 },
       border: {
-        bottom: { color: "CCCCD0", style: "single", size: 6, space: 1 },
+        bottom: { color: "CCCCD0", style: "single", size: sz(6), space: 1 },
       },
       children: [
-        new TextRun({ text: title.toUpperCase(), bold: true, size: 20, color: "505070" }),
+        new TextRun({ font: FONT, text: title.toUpperCase(), bold: true, size: sz(20), color: "505070" }),
       ],
     });
 
   if (r.summary) {
     children.push(sectionHeading("Summary"));
-    children.push(new Paragraph({ children: [new TextRun({ text: r.summary, size: 20 })] }));
+    children.push(new Paragraph({ children: [new TextRun({ font: FONT, text: r.summary, size: sz(20) })] }));
   }
 
   if (r.skills.length) {
@@ -1357,9 +1374,10 @@ function renderDocx(r: EditableResume): DocxDocument {
     r.skills.forEach((s) => {
       children.push(
         new Paragraph({
+          alignment: bodyAlignment,
           children: [
-            new TextRun({ text: `${s.group}: `, bold: true, size: 20 }),
-            new TextRun({ text: s.items.join(", "), size: 20 }),
+            new TextRun({ text: `${s.group}: `, bold: true, size: sz(20) }),
+            new TextRun({ font: FONT, text: s.items.join(", "), size: sz(20) }),
           ],
         }),
       );
@@ -1373,22 +1391,24 @@ function renderDocx(r: EditableResume): DocxDocument {
         new Paragraph({
           spacing: { before: 120 },
           children: [
-            new TextRun({ text: `${x.role} — ${x.company}`, bold: true, size: 22 }),
-            ...(x.dates ? [new TextRun({ text: `   ${x.dates}`, size: 18, color: "777890" })] : []),
+            new TextRun({ text: `${x.role} — ${x.company}`, bold: true, size: sz(22) }),
+            ...(x.dates ? [new TextRun({ text: `   ${x.dates}`, size: sz(18), color: "777890" })] : []),
           ],
         }),
       );
       if (x.location) {
         children.push(
           new Paragraph({
-            children: [new TextRun({ text: x.location, size: 18, color: "777890" })],
+            alignment: bodyAlignment,
+            children: [new TextRun({ font: FONT, text: x.location, size: sz(18), color: "777890" })],
           }),
         );
       }
       x.bullets.filter(Boolean).forEach((b) => {
         children.push(
           new Paragraph({
-            children: [new TextRun({ text: `• ${b}`, size: 20 })],
+            alignment: bodyAlignment,
+            children: [new TextRun({ text: `• ${b}`, size: sz(20) })],
             indent: { left: 240 },
           }),
         );
@@ -1403,19 +1423,20 @@ function renderDocx(r: EditableResume): DocxDocument {
         new Paragraph({
           spacing: { before: 100 },
           children: [
-            new TextRun({ text: p.name, bold: true, size: 21 }),
+            new TextRun({ font: FONT, text: p.name, bold: true, size: sz(21) }),
             ...(p.tech.length
-              ? [new TextRun({ text: `  ${p.tech.join(", ")}`, size: 18, color: "777890" })]
+              ? [new TextRun({ text: `  ${p.tech.join(", ")}`, size: sz(18), color: "777890" })]
               : []),
           ],
         }),
       );
       children.push(
         new Paragraph({
+          alignment: bodyAlignment,
           children: [
             new TextRun({
               text: `${p.description}${p.impact ? ` — ${p.impact}` : ""}`,
-              size: 20,
+              size: sz(20),
             }),
           ],
         }),
@@ -1430,18 +1451,19 @@ function renderDocx(r: EditableResume): DocxDocument {
         new Paragraph({
           spacing: { before: 100 },
           children: [
-            new TextRun({ text: ed.degree, bold: true, size: 21 }),
-            ...(ed.dates ? [new TextRun({ text: `   ${ed.dates}`, size: 18, color: "777890" })] : []),
+            new TextRun({ font: FONT, text: ed.degree, bold: true, size: sz(21) }),
+            ...(ed.dates ? [new TextRun({ text: `   ${ed.dates}`, size: sz(18), color: "777890" })] : []),
           ],
         }),
       );
       children.push(
-        new Paragraph({ children: [new TextRun({ text: ed.school, size: 20, color: "555770" })] }),
+        new Paragraph({ children: [new TextRun({ font: FONT, text: ed.school, size: sz(20), color: "555770" })] }),
       );
       if (ed.detail) {
         children.push(
           new Paragraph({
-            children: [new TextRun({ text: ed.detail, size: 18, color: "777890" })],
+            alignment: bodyAlignment,
+            children: [new TextRun({ font: FONT, text: ed.detail, size: sz(18), color: "777890" })],
           }),
         );
       }
@@ -1453,7 +1475,8 @@ function renderDocx(r: EditableResume): DocxDocument {
     r.achievements.filter(Boolean).forEach((a) => {
       children.push(
         new Paragraph({
-          children: [new TextRun({ text: `• ${a}`, size: 20 })],
+          alignment: bodyAlignment,
+          children: [new TextRun({ text: `• ${a}`, size: sz(20) })],
           indent: { left: 240 },
         }),
       );
@@ -1462,7 +1485,7 @@ function renderDocx(r: EditableResume): DocxDocument {
 
   return new DocxDocument({
     styles: {
-      default: { document: { run: { font: "Calibri", size: 20 } } },
+      default: { document: { run: { font: "Calibri", size: sz(20) } } },
     },
     sections: [
       {
