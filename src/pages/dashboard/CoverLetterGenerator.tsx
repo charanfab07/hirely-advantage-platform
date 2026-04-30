@@ -154,6 +154,15 @@ const CoverLetterGenerator = () => {
           tone,
           job_description: jd.trim() || undefined,
           resume_id: resumeId ?? undefined,
+          hiring_manager: hiringManager.trim() || undefined,
+          strongest_achievement: strongestAchievement.trim() || undefined,
+          length,
+          experience_level: experienceLevel,
+          letter_style: letterStyle,
+          include_salary: includeSalary,
+          salary_expectation: includeSalary ? salaryExpectation.trim() || undefined : undefined,
+          mention_relocation: mentionRelocation,
+          relocation_preference: mentionRelocation ? relocationPreference : undefined,
         },
       });
       if (error) throw new Error(error.message || "Generation failed");
