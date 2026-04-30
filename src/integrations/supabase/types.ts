@@ -179,6 +179,51 @@ export type Database = {
         }
         Relationships: []
       }
+      interview_questions: {
+        Row: {
+          created_at: string
+          difficulty: string | null
+          focus_area: string | null
+          id: string
+          question: string
+          question_hash: string
+          question_type: string
+          rationale: string | null
+          resume_id: string | null
+          target_role: string | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: string | null
+          focus_area?: string | null
+          id?: string
+          question: string
+          question_hash: string
+          question_type?: string
+          rationale?: string | null
+          resume_id?: string | null
+          target_role?: string | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string | null
+          focus_area?: string | null
+          id?: string
+          question?: string
+          question_hash?: string
+          question_type?: string
+          rationale?: string | null
+          resume_id?: string | null
+          target_role?: string | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       mock_interview_sessions: {
         Row: {
           created_at: string
