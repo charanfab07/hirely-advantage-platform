@@ -268,6 +268,15 @@ Deno.serve(async (req) => {
       tone = "confident",
       resume_id,
       company_url,
+      hiring_manager,
+      strongest_achievement,
+      length = "medium",
+      experience_level = "junior",
+      letter_style = "modern",
+      include_salary = false,
+      salary_expectation,
+      mention_relocation = false,
+      relocation_preference,
     } = body ?? {};
 
     if (
@@ -279,6 +288,23 @@ Deno.serve(async (req) => {
       return json({ error: "company and role are required" }, 400);
     }
     const safeTone = ALLOWED_TONES.has(tone) ? tone : "confident";
+    const ALLOWED_LENGTHS = new Set(["short", "medium", "detailed"]);
+    const ALLOWED_LEVELS = new Set(["fresher", "intern", "junior", "experienced"]);
+    const ALLOWED_STYLES = new Set(["modern", "formal", "startup", "corporate"]);
+    const ALLOWED_RELOC = new Set(["remote", "hybrid", "onsite", "relocate"]);
+    const safeLength = ALLOWED_LENGTHS.has(length) ? length : "medium";
+    const safeLevel = ALLOWED_LEVELS.has(experience_level) ? experience_level : "junior";
+    const safeStyle = ALLOWED_STYLES.has(letter_style) ? letter_style : "modern";
+    const safeReloc = ALLOWED_RELOC.has(relocation_preference) ? relocation_preference : null;
+    const safeHiringManager = typeof hiring_manager === "string" ? hiring_manager.trim().slice(0, 120) : "";
+    const safeAchievement = typeof strongest_achievement === "string" ? strongest_achievement.trim().slice(0, 600) : "";
+    const safeSalary = typeof salary_expectation === "string" ? salary_expectation.trim().slice(0, 80) : "";
+
+    const wordTargets: Record<string, string> = {
+      short: "≤170 words",
+      medium: "200–270 words",
+      detailed: "300–360 words",
+    };
 
     // Pull resume text if provided & owned by user
     let resumeText = "";
