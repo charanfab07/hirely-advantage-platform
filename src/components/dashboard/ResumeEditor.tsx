@@ -244,6 +244,101 @@ export const ResumeEditor = ({
         </div>
       </div>
 
+      {/* Typography toolbar — applies to preview, PDF and DOCX */}
+      <div className="flex items-center gap-2 flex-wrap px-5 py-2.5 border-b border-foreground/[0.06] bg-foreground/[0.015]">
+        <div className="flex items-center gap-1.5">
+          <Type className="w-3.5 h-3.5 text-foreground/50" />
+          <select
+            value={typo.font}
+            onChange={(e) => updateTypo("font", e.target.value as ResumeFontKey)}
+            className="bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-2 py-1 text-[12.5px] text-foreground outline-none focus:border-foreground/20"
+            title="Font family"
+          >
+            {(Object.keys(FONT_LABELS) as ResumeFontKey[]).map((k) => (
+              <option key={k} value={k}>
+                {FONT_LABELS[k]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-1 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-1.5 py-0.5">
+          <button
+            type="button"
+            onClick={() => updateTypo("sizeScale", Math.max(0.85, +(typo.sizeScale - 0.05).toFixed(2)))}
+            className="w-6 h-6 inline-flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/[0.06] rounded"
+            title="Decrease size"
+          >
+            −
+          </button>
+          <span className="text-[12px] tabular-nums w-10 text-center text-foreground/70">
+            {Math.round(typo.sizeScale * 100)}%
+          </span>
+          <button
+            type="button"
+            onClick={() => updateTypo("sizeScale", Math.min(1.25, +(typo.sizeScale + 0.05).toFixed(2)))}
+            className="w-6 h-6 inline-flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/[0.06] rounded"
+            title="Increase size"
+          >
+            +
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-foreground/50 tracking-tight">Line</span>
+          <select
+            value={typo.lineHeight}
+            onChange={(e) => updateTypo("lineHeight", Number(e.target.value))}
+            className="bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-2 py-1 text-[12.5px] text-foreground outline-none focus:border-foreground/20"
+          >
+            {[1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0].map((v) => (
+              <option key={v} value={v}>
+                {v.toFixed(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-1.5 ml-1">
+          <span className="text-[11px] text-foreground/50 tracking-tight">Header</span>
+          <div className="flex items-center gap-0.5 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md p-0.5">
+            <AlignToggle active={typo.headerAlign === "left"} onClick={() => updateTypo("headerAlign", "left")} title="Header left">
+              <AlignLeft className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.headerAlign === "center"} onClick={() => updateTypo("headerAlign", "center")} title="Header center">
+              <AlignCenter className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.headerAlign === "right"} onClick={() => updateTypo("headerAlign", "right")} title="Header right">
+              <AlignRight className="w-3.5 h-3.5" />
+            </AlignToggle>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-foreground/50 tracking-tight">Body</span>
+          <div className="flex items-center gap-0.5 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md p-0.5">
+            <AlignToggle active={typo.bodyAlign === "left"} onClick={() => updateTypo("bodyAlign", "left")} title="Body left">
+              <AlignLeft className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.bodyAlign === "center"} onClick={() => updateTypo("bodyAlign", "center")} title="Body center">
+              <AlignCenter className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.bodyAlign === "justify"} onClick={() => updateTypo("bodyAlign", "justify")} title="Body justify">
+              <AlignJustify className="w-3.5 h-3.5" />
+            </AlignToggle>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setTypo(DEFAULT_TYPO)}
+          className="ml-auto text-[11.5px] text-foreground/55 hover:text-foreground tracking-tight"
+          title="Reset typography"
+        >
+          Reset
+        </button>
+      </div>
+
       {mode === "edit" ? (
         <div className="px-5 sm:px-7 py-6 space-y-7 max-h-[80vh] overflow-y-auto">
           {/* Contact */}
