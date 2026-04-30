@@ -199,6 +199,113 @@ function guessSalutation(hiringManager: string) {
   return name ? `Dear ${name},` : "Dear Hiring Manager,";
 }
 
+// Parse contact info from a resume's raw text. Best-effort heuristics —
+// scans the first ~40 non-empty lines (resume header) for name, email,
+// phone, and city/country location.
+function parseResumeContact(raw: string): {
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+} {
+  if (!raw) return {};
+  const text = raw.replace(/\r\n/g, "\n");
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const head = lines.slice(0, 40);
+  const headBlob = head.join("\n");
+
+  // Email
+  const emailMatch = headBlob.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
+  const email = emailMatch?.[0];
+
+  // Phone — international or local, 9–15 digits, allows spaces/dashes/parens
+  const phoneMatch = headBlob.match(
+    /(\+?\d[\d\s().-]{8,16}\d)/,
+  );
+  const phone = phoneMatch?.[1]?.replace(/\s+/g, " ").trim();
+
+  // Name — first line that looks like a "Firstname Lastname" header.
+  // 2–4 words, mostly letters, no email/phone/digits, not all caps lock-only
+  // junk. Allow ALL CAPS too (common on resumes).
+  let name: string | undefined;
+  for (const line of head.slice(0, 8)) {
+    if (/[@\d]/.test(line)) continue;
+    if (line.length > 60) continue;
+    const words = line.split(/\s+/);
+    if (words.length < 2 || words.length > 5) continue;
+    const ok = words.every((w) => /^[A-Za-zÀ-ÿ'’.\-]{1,}$/.test(w));
+    if (!ok) continue;
+    // Title-case the line (handles ALL CAPS resumes nicely)
+    name = words
+      .map((w) =>
+        w.length <= 2
+          ? w
+          : w[0].toUpperCase() + w.slice(1).toLowerCase(),
+      )
+      .join(" ");
+    break;
+  }
+
+  // Location — line containing a comma + words, no digits-only, no email,
+  // not the name. Common patterns: "San Francisco, CA", "Bengaluru, India".
+  let location: string | undefined;
+  for (const line of head) {
+    if (line === name) continue;
+    if (/@/.test(line)) continue;
+    if (!/,/.test(line)) continue;
+    if (/\d{4,}/.test(line)) continue; // skip lines with long numbers
+    if (line.length > 60) continue;
+    if (/(linkedin|github|twitter|portfolio|http)/i.test(line)) continue;
+    const parts = line.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length < 2 || parts.length > 3) continue;
+    const ok = parts.every((p) => /^[A-Za-zÀ-ÿ'’.\- ]{2,}$/.test(p));
+    if (!ok) continue;
+    location = parts.join(", ");
+    break;
+  }
+
+  return { name, email, phone, location };
+}
+
+// Best-effort company + hiring-manager extraction from a job description.
+function parseJobDescription(jd: string): {
+  company?: string;
+  hiringManager?: string;
+} {
+  if (!jd) return {};
+  const text = jd.replace(/\r\n/g, "\n");
+
+  // "at <Company>" — pick the proper-noun phrase right after.
+  // e.g. "Senior Engineer at Stripe", "Join us at Acme Corp".
+  let company: string | undefined;
+  const atMatch = text.match(
+    /\bat\s+([A-Z][A-Za-z0-9&.\-']+(?:\s+[A-Z][A-Za-z0-9&.\-']+){0,3})\b/,
+  );
+  if (atMatch) company = atMatch[1].trim();
+
+  // "About <Company>" header
+  if (!company) {
+    const aboutMatch = text.match(
+      /\bAbout\s+([A-Z][A-Za-z0-9&.\-']+(?:\s+[A-Z][A-Za-z0-9&.\-']+){0,3})\b/,
+    );
+    if (aboutMatch) company = aboutMatch[1].trim();
+  }
+
+  // Strip trailing connectors that get caught by the regex.
+  if (company) {
+    company = company.replace(/\s+(is|are|we|our|the)$/i, "").trim();
+  }
+
+  // Hiring manager — "Hiring Manager: Jane Doe" / "Reports to Jane Doe"
+  let hiringManager: string | undefined;
+  const hmMatch = text.match(
+    /(?:hiring manager|reports? to|recruiter)\s*[:\-]?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})/i,
+  );
+  if (hmMatch) hiringManager = hmMatch[1].trim();
+
+  return { company, hiringManager };
+}
+
 const CoverLetterGenerator = () => {
   const { user } = useAuth();
   const [jd, setJd] = useState("");
