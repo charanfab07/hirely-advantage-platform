@@ -271,21 +271,63 @@ const InterviewPrep = () => {
 
       {tab === "mock" && <div className="mt-5"><MockInterviewPanel resumeId={resumeId} /></div>}
 
-      {tab === "practice" && (
+      {tab === "practice" && !resumeLoading && !resumeId && user && (
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-7 lg:col-start-3">
+            <SectionCard tone="dark" className="mb-4 p-5">
+              <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-medium">
+                Step 1 — Upload your resume
+              </p>
+              <p className="mt-2 text-[16px] leading-snug font-medium tracking-tight">
+                Questions are written from your actual experience.
+              </p>
+              <p className="mt-1 text-[13px] text-white/70 tracking-tight">
+                Once we read your resume, every Shuffle gives you a brand-new question grounded in
+                your projects, skills and education — not generic FAQ filler. Hit shuffle 20 times,
+                get 20 different questions. 100 times, 100 different questions.
+              </p>
+            </SectionCard>
+            <ResumeUploadCard
+              userId={user.id}
+              onAnalyzed={async () => {
+                const { data: r } = await supabase
+                  .from("resumes")
+                  .select("id, file_name")
+                  .order("created_at", { ascending: false })
+                  .limit(1);
+                if (r?.[0]) {
+                  setResumeId(r[0].id);
+                  setResumeName(r[0].file_name ?? null);
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {tab === "practice" && resumeId && (
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Composer */}
           <SectionCard className="lg:col-span-5 p-0 overflow-hidden">
             <div className="px-5 sm:px-6 pt-5 pb-4">
-              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                Question
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Question
+                </p>
+                {resumeName && (
+                  <span className="inline-flex items-center gap-1 text-[10.5px] text-foreground/50 tracking-tight max-w-[60%] truncate">
+                    <FileText className="w-3 h-3 shrink-0" />
+                    <span className="truncate">From {resumeName}</span>
+                  </span>
+                )}
+              </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {QUESTION_BANK.map((b) => (
+                {QUESTION_TYPES.map((b) => (
                   <button
                     key={b.type}
                     type="button"
                     onClick={() => switchType(b.type)}
-                    disabled={analyzing}
+                    disabled={analyzing || generatingQ}
                     className={cn(
                       "px-2.5 py-1 rounded-full text-[11.5px] font-medium tracking-tight transition-colors border",
                       qType === b.type
@@ -299,21 +341,49 @@ const InterviewPrep = () => {
                 <button
                   type="button"
                   onClick={shuffleQuestion}
-                  disabled={analyzing}
-                  className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors"
+                  disabled={analyzing || generatingQ}
+                  className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors disabled:opacity-50"
                 >
-                  <Shuffle className="w-3 h-3" />
+                  {generatingQ ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Shuffle className="w-3 h-3" />
+                  )}
                   Shuffle
+                  {shuffleCount > 0 && (
+                    <span className="text-foreground/45 tabular-nums">· {shuffleCount}</span>
+                  )}
                 </button>
               </div>
 
               <textarea
-                value={question}
+                value={generatingQ && !question ? "" : question}
                 onChange={(e) => setQuestion(e.target.value)}
                 rows={3}
-                disabled={analyzing}
+                disabled={analyzing || generatingQ}
+                placeholder={generatingQ ? "Writing a question from your resume…" : "Hit Shuffle to get a personalized question."}
                 className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
               />
+
+              {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {questionMeta.focus_area && (
+                    <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight">
+                      {questionMeta.focus_area}
+                    </span>
+                  )}
+                  {questionMeta.difficulty && (
+                    <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight capitalize">
+                      {questionMeta.difficulty}
+                    </span>
+                  )}
+                  {questionMeta.rationale && (
+                    <span className="text-[11px] text-foreground/55 tracking-tight leading-snug w-full mt-1">
+                      Why this: {questionMeta.rationale}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-3">
