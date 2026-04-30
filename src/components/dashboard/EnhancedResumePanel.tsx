@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Download, Copy, Check, RefreshCw, FileText, Wand2 } from "lucide-react";
+import { Sparkles, Download, Copy, Check, RefreshCw, FileText, Wand2, Pencil } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { ResumeEditor, type EditableResume } from "./ResumeEditor";
 
 type Enhancement = {
   id: string;
@@ -86,6 +87,12 @@ export const EnhancedResumePanel = ({
   const [copied, setCopied] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
+  const [editing, setEditing] = useState(false);
+
+  const editableResume = useMemo<EditableResume | null>(
+    () => (enhancement ? toEditable(enhancement) : null),
+    [enhancement],
+  );
 
   // Load latest enhancement for this resume
   useEffect(() => {
@@ -365,9 +372,17 @@ export const EnhancedResumePanel = ({
             </button>
             <button
               type="button"
+              onClick={() => setEditing((v) => !v)}
+              className="px-3.5 py-2 rounded-full bg-white text-foreground text-[12px] font-medium hover:bg-white/90 transition-colors flex items-center gap-1.5"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              {editing ? "Hide editor" : "Edit & Download"}
+            </button>
+            <button
+              type="button"
               onClick={() => handleGenerate()}
               disabled={generating}
-              className="px-3.5 py-2 rounded-full bg-white text-foreground text-[12px] font-medium hover:bg-white/90 transition-colors flex items-center gap-1.5 disabled:opacity-60"
+              className="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-[12px] flex items-center gap-1.5 transition-colors disabled:opacity-60"
             >
               <RefreshCw className={cn("w-3.5 h-3.5", generating && "animate-spin")} />
               {generating ? "Rewriting…" : "Regenerate"}
@@ -375,6 +390,11 @@ export const EnhancedResumePanel = ({
           </div>
         </div>
       </SectionCard>
+
+      {/* EDITABLE EDITOR with PDF / DOCX / TXT exports */}
+      {editing && editableResume && (
+        <ResumeEditor initial={editableResume} onClose={() => setEditing(false)} />
+      )}
 
       {/* ORIGINAL vs ENHANCED — section-by-section comparison */}
       <ComparisonTable enhancement={enhancement} />
@@ -863,3 +883,38 @@ const ComparisonTable = ({ enhancement }: { enhancement: Enhancement }) => {
   );
 };
 
+
+function toEditable(e: Enhancement): EditableResume {
+  return {
+    contact: {
+      name: e.contact?.name ?? "",
+      location: e.contact?.location ?? "",
+      email: e.contact?.email ?? "",
+      phone: e.contact?.phone ?? "",
+      links: (e.contact?.links ?? []).map((l) => ({ label: l.label ?? "", url: l.url ?? "" })),
+    },
+    headline: e.headline ?? "",
+    summary: e.summary ?? "",
+    skills: (e.skills ?? []).map((s) => ({ group: s.group, items: [...(s.items ?? [])] })),
+    experience: (e.experience ?? []).map((x) => ({
+      role: x.role ?? "",
+      company: x.company ?? "",
+      location: x.location ?? "",
+      dates: x.dates ?? "",
+      bullets: [...(x.bullets ?? [])],
+    })),
+    projects: (e.projects ?? []).map((p) => ({
+      name: p.name ?? "",
+      description: p.description ?? "",
+      tech: [...(p.tech ?? [])],
+      impact: p.impact ?? "",
+    })),
+    education: (e.education ?? []).map((ed) => ({
+      degree: ed.degree ?? "",
+      school: ed.school ?? "",
+      dates: ed.dates ?? "",
+      detail: ed.detail ?? "",
+    })),
+    achievements: [...(e.achievements ?? [])],
+  };
+}
