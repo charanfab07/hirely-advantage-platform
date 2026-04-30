@@ -9,6 +9,7 @@ import { ScoreSparkline } from "@/components/dashboard/ScoreSparkline";
 import { InsightsTriad, type InsightsColumn } from "@/components/dashboard/InsightsTriad";
 import { QuickWins, type QuickWin } from "@/components/dashboard/QuickWins";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
+import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
