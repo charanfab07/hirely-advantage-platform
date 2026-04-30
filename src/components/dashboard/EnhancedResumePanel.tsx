@@ -362,7 +362,7 @@ export const EnhancedResumePanel = ({
             </button>
             <button
               type="button"
-              onClick={() => handleGenerate(enhancement.target_role ?? undefined)}
+              onClick={() => handleGenerate()}
               disabled={generating}
               className="px-3.5 py-2 rounded-full bg-white text-foreground text-[12px] font-medium hover:bg-white/90 transition-colors flex items-center gap-1.5 disabled:opacity-60"
             >
