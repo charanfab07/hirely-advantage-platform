@@ -245,104 +245,240 @@ const ResumeAnalyzer = () => {
         </SectionCard>
       )}
 
-      {/* SCORE TAB */}
+      {/* SCORE TAB — scan-first: hero, then act, then optional deep dives */}
       {tab === "score" && latest && (
         <>
-          <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
-            <SectionCard className="lg:col-span-8">
-              <div className="flex items-baseline justify-between">
+          {/* HERO — everything that matters at a glance, in one card */}
+          <SectionCard className="mt-5">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+              <div className="min-w-0">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Resume readiness
                 </p>
-                <span className="text-[11.5px] font-medium text-[hsl(258_38%_52%)]">
-                  ATS {latest.ats_score}/100
-                </span>
+                <p className="mt-2 text-[64px] sm:text-[72px] leading-none font-semibold tracking-[-0.045em] text-foreground tabular-nums">
+                  {latest.overall_score}
+                  <span className="text-[22px] text-foreground/30 tracking-tight">/100</span>
+                </p>
+                <p className="mt-3 text-[13.5px] leading-[1.5] text-foreground/70 tracking-tight max-w-xl">
+                  {latest.summary || "Your latest review."}
+                </p>
               </div>
-              <p className="mt-3 text-[72px] sm:text-[80px] leading-none font-semibold tracking-[-0.045em] text-foreground tabular-nums">
-                {latest.overall_score}
-                <span className="text-[26px] text-foreground/30 tracking-tight">/100</span>
-              </p>
-              <div className="mt-4 h-[3px] rounded-full bg-foreground/[0.06]">
-                <div
-                  className="h-full rounded-full transition-[width] duration-700"
-                  style={{
-                    width: `${latest.overall_score}%`,
-                    background: "linear-gradient(90deg,#0E0B1F,#6D54B3)",
-                  }}
+
+              {/* Inline stat pills — no separate StatStrip card */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-2.5 md:max-w-[420px] w-full md:w-auto">
+                <MiniStat label="ATS" value={`${latest.ats_score}`} accent={latest.ats_score >= 80} />
+                <MiniStat
+                  label="Match"
+                  value={
+                    latest.job_match?.match_percent != null
+                      ? `${Math.round(latest.job_match.match_percent)}%`
+                      : "—"
+                  }
+                />
+                <MiniStat label="Skills" value={`${latest.extracted?.skills?.length ?? 0}`} />
+                <MiniStat
+                  label="Issues"
+                  value={`${
+                    (latest.issues?.weak_bullets?.length ?? 0) +
+                    (latest.issues?.grammar_issues?.length ?? 0) +
+                    (latest.issues?.formatting_problems?.length ?? 0) +
+                    (latest.issues?.ats_problems?.length ?? 0)
+                  }`}
                 />
               </div>
-              <p className="text-[12.5px] text-foreground/55 mt-2">
-                {latest.summary || "Your latest review."}
-              </p>
-              <div className="mt-5 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setTab("extracted")}
-                  className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
-                >
-                  See what we found →
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTab("issues")}
-                  className="px-4 py-2 rounded-full text-foreground/65 text-[12.5px] hover:bg-foreground/5 transition-colors"
-                >
-                  View issues
-                </button>
-              </div>
-            </SectionCard>
-
-            <TodayCard className="lg:col-span-4" />
-          </div>
-
-          
-
-          {(latest.job_match?.match_percent != null || latest.score_breakdown) && (
-            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {latest.job_match?.match_percent != null && (
-                <JobMatchCard match={latest.job_match} />
-              )}
-              {latest.score_breakdown && (
-                <ScoreBreakdownCard breakdown={latest.score_breakdown} />
-              )}
             </div>
-          )}
 
-          {!!latest.strengths?.length && (
-            <StrengthsCard className="mt-4" items={latest.strengths} />
-          )}
+            <div className="mt-4 h-[3px] rounded-full bg-foreground/[0.06]">
+              <div
+                className="h-full rounded-full transition-[width] duration-700"
+                style={{
+                  width: `${latest.overall_score}%`,
+                  background: "linear-gradient(90deg,#0E0B1F,#6D54B3)",
+                }}
+              />
+            </div>
 
-          {!!latest.weaknesses?.length && (
-            <WeaknessesCard className="mt-4" items={latest.weaknesses} />
-          )}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setTab("issues")}
+                className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+              >
+                Fix top issues →
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab("tailored")}
+                className="px-4 py-2 rounded-full text-foreground/65 text-[12.5px] hover:bg-foreground/5 transition-colors"
+              >
+                Tailor to a role
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab("extracted")}
+                className="px-4 py-2 rounded-full text-foreground/65 text-[12.5px] hover:bg-foreground/5 transition-colors"
+              >
+                What we found
+              </button>
+            </div>
+          </SectionCard>
 
-          {!!latest.bullet_rewrites?.length && (
-            <BulletRewritesCard className="mt-4" items={latest.bullet_rewrites} />
-          )}
-
-          {insightsColumns && <InsightsTriad className="mt-4" columns={insightsColumns} />}
-
+          {/* ACT — top 3 quick wins surfaced front and center */}
           {quickWins && <QuickWins className="mt-4" wins={quickWins} />}
 
-          <div className="mt-4">
-            <StatStrip
-              stats={[
-                { label: "Skills", value: latest.extracted?.skills?.length ?? 0 },
-                { label: "Keywords", value: latest.extracted?.keywords?.length ?? 0 },
-                {
-                  label: "ATS",
-                  value: latest.ats_score,
-                  highlight: latest.ats_score >= 80,
-                },
-                { label: "Issues", value:
-                  (latest.issues?.weak_bullets?.length ?? 0) +
-                  (latest.issues?.grammar_issues?.length ?? 0) +
-                  (latest.issues?.formatting_problems?.length ?? 0) +
-                  (latest.issues?.ats_problems?.length ?? 0)
-                },
-              ]}
-            />
-          </div>
+          {/* DEEP DIVES — collapsed by default. User opens only what they want. */}
+          <SectionCard className="mt-4 p-0 overflow-hidden">
+            <div className="px-5 sm:px-6 py-4 border-b border-foreground/[0.06]">
+              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                Deep dive
+              </p>
+              <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
+                Tap any section to expand. Skim what matters, skip the rest.
+              </p>
+            </div>
+            <Accordion type="multiple" className="px-2 sm:px-3">
+              {!!latest.strengths?.length && (
+                <DeepDiveItem
+                  value="strengths"
+                  title="Strengths"
+                  count={latest.strengths.length}
+                  tone="green"
+                  preview={latest.strengths[0]?.title}
+                >
+                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {latest.strengths.map((s, i) => (
+                      <li
+                        key={i}
+                        className="rounded-xl bg-[hsl(150_55%_45%/0.06)] border border-[hsl(150_55%_45%/0.14)] p-3.5"
+                      >
+                        <p className="text-[13px] font-medium tracking-tight text-foreground">
+                          {s.title}
+                        </p>
+                        <p className="mt-1 text-[12.5px] text-foreground/65 leading-snug tracking-tight">
+                          {s.detail}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </DeepDiveItem>
+              )}
+
+              {!!latest.weaknesses?.length && (
+                <DeepDiveItem
+                  value="weaknesses"
+                  title="Refinement opportunities"
+                  count={latest.weaknesses.length}
+                  tone="amber"
+                  preview={latest.weaknesses[0]?.title}
+                >
+                  <ul className="divide-y divide-foreground/[0.06]">
+                    {latest.weaknesses.map((w, i) => (
+                      <li key={i} className="py-3 flex items-start gap-3">
+                        <span
+                          className={`text-[10px] font-medium px-2 py-0.5 rounded-full tracking-tight shrink-0 mt-0.5 ${SEVERITY_TONE[w.severity]}`}
+                        >
+                          {WEAKNESS_LABEL[w.category]}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-[13px] font-medium tracking-tight text-foreground">
+                            {w.title}
+                          </p>
+                          <p className="mt-0.5 text-[12.5px] text-foreground/65 leading-snug tracking-tight">
+                            {w.detail}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </DeepDiveItem>
+              )}
+
+              {!!latest.bullet_rewrites?.length && (
+                <DeepDiveItem
+                  value="rewrites"
+                  title="Before → After rewrites"
+                  count={latest.bullet_rewrites.length}
+                  tone="violet"
+                  preview="Concrete rewrites with realistic metrics"
+                >
+                  <ul className="space-y-3">
+                    {latest.bullet_rewrites.map((b, i) => (
+                      <li key={i} className="rounded-xl bg-foreground/[0.025] p-3.5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <p className="text-[10px] tracking-[0.18em] uppercase text-foreground/40 font-medium">
+                              Before
+                            </p>
+                            <p className="mt-1.5 text-[13px] text-foreground/70 leading-snug tracking-tight line-through decoration-foreground/20">
+                              {b.before}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] tracking-[0.18em] uppercase text-[hsl(258_38%_52%)] font-medium">
+                              After
+                            </p>
+                            <p className="mt-1.5 text-[13px] text-foreground leading-snug tracking-tight font-medium">
+                              {b.after}
+                            </p>
+                          </div>
+                        </div>
+                        {b.why && (
+                          <p className="mt-2.5 text-[11.5px] text-foreground/55 tracking-tight">
+                            Why: {b.why}
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </DeepDiveItem>
+              )}
+
+              {latest.job_match?.match_percent != null && (
+                <DeepDiveItem
+                  value="job-match"
+                  title="Job match"
+                  count={`${Math.round(latest.job_match.match_percent)}%`}
+                  tone="violet"
+                  preview={
+                    latest.job_match.target_role
+                      ? `vs ${latest.job_match.target_role}`
+                      : "Against your apparent target"
+                  }
+                >
+                  <JobMatchCard match={latest.job_match} />
+                </DeepDiveItem>
+              )}
+
+              {latest.score_breakdown && (
+                <DeepDiveItem
+                  value="breakdown"
+                  title="Score breakdown"
+                  count={5}
+                  tone="violet"
+                  preview="ATS · Impact · Relevance · Clarity · Keywords"
+                >
+                  <ScoreBreakdownCard breakdown={latest.score_breakdown} />
+                </DeepDiveItem>
+              )}
+
+              {insightsColumns && (
+                <DeepDiveItem
+                  value="insights"
+                  title="Strengths · Gaps · Risks"
+                  count={
+                    (insightsColumns[0]?.items.length ?? 0) +
+                    (insightsColumns[1]?.items.length ?? 0) +
+                    (insightsColumns[2]?.items.length ?? 0)
+                  }
+                  tone="green"
+                  preview="A side-by-side hiring-manager view"
+                  isLast
+                >
+                  <InsightsTriad columns={insightsColumns} />
+                </DeepDiveItem>
+              )}
+            </Accordion>
+          </SectionCard>
         </>
       )}
 
