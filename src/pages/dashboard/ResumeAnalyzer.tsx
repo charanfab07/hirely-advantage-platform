@@ -1,12 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { LogOut, Search } from "lucide-react";
+import { LogOut, Search, ChevronDown } from "lucide-react";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { StatStrip } from "@/components/dashboard/StatStrip";
-import { TodayCard } from "@/components/dashboard/TodayCard";
 
 import { InsightsTriad, type InsightsColumn } from "@/components/dashboard/InsightsTriad";
 import { QuickWins, type QuickWin } from "@/components/dashboard/QuickWins";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
