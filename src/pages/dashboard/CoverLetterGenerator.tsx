@@ -431,6 +431,7 @@ const CoverLetterGenerator = () => {
           tone,
           job_description: jd.trim(),
           hiring_manager: doc.hiringManager.trim() || undefined,
+          resume_id: resumeId ?? undefined,
         },
       });
       if (error) throw new Error(error.message || "Generation failed");
