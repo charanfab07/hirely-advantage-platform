@@ -103,15 +103,20 @@ export const EnhancedResumePanel = ({
     };
   }, [resumeId]);
 
-  const handleGenerate = async () => {
+  const handleGenerate = async (roleOverride?: string) => {
     if (!resumeId) {
       toast.error("Upload a resume first");
+      return;
+    }
+    const role = (roleOverride ?? (selectedRole === "__custom__" ? customRole : selectedRole) ?? "").trim();
+    if (!role) {
+      toast.error("Pick the role you're applying for first");
       return;
     }
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("enhance-resume", {
-        body: { resume_id: resumeId, analysis_id: analysisId ?? null },
+        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role },
       });
       if (error) {
         const msg = (error as any)?.message ?? "Failed to generate";
