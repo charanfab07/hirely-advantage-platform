@@ -244,7 +244,7 @@ const ResumeAnalyzer = () => {
       {tab === "score" && latest && (
         <>
           <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
-            <SectionCard className="lg:col-span-7">
+            <SectionCard className="lg:col-span-8">
               <div className="flex items-baseline justify-between">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Resume readiness
