@@ -392,10 +392,47 @@ Deno.serve(async (req) => {
     const mustUse = jdKeywords.filter((k) => skillSet.has(k.toLowerCase())).slice(0, 10);
 
     // ---- Personalization step 3: generate the letter with all context ----
+    const relocLine = mention_relocation && safeReloc
+      ? (safeReloc === "relocate"
+          ? "Mention candidate is open to relocating for this role."
+          : `Mention candidate's work-location preference: ${safeReloc}.`)
+      : "Do NOT mention relocation or remote/onsite preferences.";
+
+    const salaryLine = include_salary && safeSalary
+      ? `Mention salary expectation gracefully (not as the focus): ${safeSalary}.`
+      : include_salary
+        ? "Mention that the candidate is open to discussing compensation, briefly and gracefully."
+        : "Do NOT mention salary or compensation.";
+
+    const styleGuide: Record<string, string> = {
+      modern: "Voice: Modern — clean, current, conversational but sharp. Avoid stuffy phrases.",
+      formal: "Voice: Formal — polished, traditional, respectful. Slightly more structured sentences.",
+      startup: "Voice: Startup — scrappy, punchy, outcome-obsessed. Short sentences. Energy without hype.",
+      corporate: "Voice: Corporate — buttoned-up, measured, professional. Avoid slang.",
+    };
+
+    const levelGuide: Record<string, string> = {
+      fresher: "Candidate is a FRESHER (no full-time experience yet). Lean on coursework, projects, internships, and learning velocity. Never invent jobs.",
+      intern: "Candidate is targeting an INTERNSHIP. Emphasize curiosity, projects, and ability to ship. Keep tone humble and eager but confident.",
+      junior: "Candidate is JUNIOR (0–2 years). Highlight growth trajectory and the most concrete recent wins.",
+      experienced: "Candidate is EXPERIENCED (3+ years). Lead with seniority, scope, and measurable business impact.",
+    };
+
     const userPrompt = `Write a cover letter for:
 Company: ${company.trim()}
 Role: ${role.trim()}
 Tone: ${safeTone}
+Letter style: ${safeStyle}
+Length target: ${wordTargets[safeLength]} (this is a HARD cap — do not exceed)
+Experience level: ${safeLevel}
+${safeHiringManager ? `Hiring manager: ${safeHiringManager} (address them by name in the greeting, e.g. "Dear ${safeHiringManager},")` : "No hiring manager name provided — open with a strong hook, no \"To Whom It May Concern\"."}
+
+${styleGuide[safeStyle]}
+${levelGuide[safeLevel]}
+${salaryLine}
+${relocLine}
+
+${safeAchievement ? `--- CANDIDATE'S STRONGEST ACHIEVEMENT (use this as the basis for the 'proof' paragraph, polish wording but keep numbers exact) ---\n${safeAchievement}\n` : ""}
 
 ${jd ? `--- JOB DESCRIPTION ---\n${jd}\n` : "(No JD pasted — infer typical expectations.)"}
 
@@ -408,7 +445,7 @@ JD keywords: ${jdKeywords.join(", ") || "(none)"}
 Candidate's real skills: ${resumeSkills.join(", ") || "(none)"}
 must_use_keywords (use ≥70%, exact wording, naturally embedded): ${mustUse.join(", ") || "(none)"}
 
-Now call generate_cover_letter. The hook must NOT start with "I".`;
+Now call generate_cover_letter. The hook must NOT start with "I". Respect the length target strictly.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
