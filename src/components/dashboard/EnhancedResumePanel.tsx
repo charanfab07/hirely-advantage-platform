@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Download, Copy, Check, RefreshCw, FileText, Wand2, Pencil } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Sparkles, RefreshCw, Wand2 } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { ResumeEditor, type EditableResume } from "./ResumeEditor";
 
 type Enhancement = {
   id: string;
