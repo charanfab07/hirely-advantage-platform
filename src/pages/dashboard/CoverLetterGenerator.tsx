@@ -316,11 +316,17 @@ const CoverLetterGenerator = () => {
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const maxWidth = pageWidth - margin * 2;
-    const lineHeight = 14;
-    const blockGap = 10;
 
-    pdf.setFont("times", "normal");
-    pdf.setFontSize(11);
+    // Map preview px font-size -> pt (preview is rendered ~1.0 ratio).
+    const fontSizePt = Math.round(typo.fontSize * 0.85); // 14px ≈ 12pt
+    const lineHeight = Math.round(fontSizePt * typo.lineHeight);
+    const blockGap = Math.round(lineHeight * 0.55);
+    const fontName = PDF_FONT[typo.font];
+    const baseStyle: "normal" | "italic" = typo.italic ? "italic" : "normal";
+    const baseBold: "bold" | "bolditalic" = typo.italic ? "bolditalic" : "bold";
+
+    pdf.setFont(fontName, baseStyle);
+    pdf.setFontSize(fontSizePt);
 
     let y = margin;
     const ensureSpace = (h: number) => {
@@ -332,11 +338,20 @@ const CoverLetterGenerator = () => {
 
     const writeBlock = (text: string, opts: { bold?: boolean } = {}) => {
       if (!text || !text.trim()) return;
-      pdf.setFont("times", opts.bold ? "bold" : "normal");
+      const isBold = opts.bold || typo.bold;
+      pdf.setFont(fontName, isBold ? baseBold : baseStyle);
       const lines = pdf.splitTextToSize(text.trim(), maxWidth);
       for (const line of lines) {
         ensureSpace(lineHeight);
-        pdf.text(line, margin, y);
+        let x = margin;
+        let alignOpt: { align?: "left" | "center" | "justify" } = { align: "left" };
+        if (typo.align === "center") {
+          x = pageWidth / 2;
+          alignOpt = { align: "center" };
+        } else if (typo.align === "justify") {
+          alignOpt = { align: "justify" };
+        }
+        pdf.text(line, x, y, alignOpt);
         y += lineHeight;
       }
       y += blockGap;
