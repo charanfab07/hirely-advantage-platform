@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Loader2, Copy, Check, Trash2, FileText, Target, Globe } from "lucide-react";
+import { Sparkles, Loader2, Copy, Check, Trash2, FileText, Target, Globe, FileCheck2, Award, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
