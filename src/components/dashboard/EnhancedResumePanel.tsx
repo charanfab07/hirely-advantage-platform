@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { Sparkles, RefreshCw, Wand2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Sparkles, RefreshCw, Wand2, Pencil, Maximize2, Minimize2 } from "lucide-react";
 import { SectionCard } from "./SectionCard";
+import { ResumeEditor, type EditableResume } from "./ResumeEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
