@@ -381,6 +381,9 @@ export const EnhancedResumePanel = ({
         </div>
       </SectionCard>
 
+      {/* NEEDS VERIFICATION — flag AI-added quantified claims */}
+      <NeedsVerificationPanel enhancement={enhancement} originalText={originalText} />
+
       {/* ORIGINAL vs ENHANCED — section-by-section comparison */}
       <ComparisonTable enhancement={enhancement} />
 
