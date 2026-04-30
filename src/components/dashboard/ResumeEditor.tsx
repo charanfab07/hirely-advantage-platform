@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Download, FileText, FileType, Pencil, Eye, X } from "lucide-react";
+import { Plus, Trash2, Download, FileText, FileType, Pencil, Eye, X, Type, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
