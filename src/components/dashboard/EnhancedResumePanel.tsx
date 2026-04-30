@@ -883,3 +883,38 @@ const ComparisonTable = ({ enhancement }: { enhancement: Enhancement }) => {
   );
 };
 
+
+function toEditable(e: Enhancement): EditableResume {
+  return {
+    contact: {
+      name: e.contact?.name ?? "",
+      location: e.contact?.location ?? "",
+      email: e.contact?.email ?? "",
+      phone: e.contact?.phone ?? "",
+      links: (e.contact?.links ?? []).map((l) => ({ label: l.label ?? "", url: l.url ?? "" })),
+    },
+    headline: e.headline ?? "",
+    summary: e.summary ?? "",
+    skills: (e.skills ?? []).map((s) => ({ group: s.group, items: [...(s.items ?? [])] })),
+    experience: (e.experience ?? []).map((x) => ({
+      role: x.role ?? "",
+      company: x.company ?? "",
+      location: x.location ?? "",
+      dates: x.dates ?? "",
+      bullets: [...(x.bullets ?? [])],
+    })),
+    projects: (e.projects ?? []).map((p) => ({
+      name: p.name ?? "",
+      description: p.description ?? "",
+      tech: [...(p.tech ?? [])],
+      impact: p.impact ?? "",
+    })),
+    education: (e.education ?? []).map((ed) => ({
+      degree: ed.degree ?? "",
+      school: ed.school ?? "",
+      dates: ed.dates ?? "",
+      detail: ed.detail ?? "",
+    })),
+    achievements: [...(e.achievements ?? [])],
+  };
+}
