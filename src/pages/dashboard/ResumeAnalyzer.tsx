@@ -684,6 +684,12 @@ const ResumeAnalyzer = () => {
       {tab === "versions" && (
         <TransformationPanel className="mt-5" versions={analyses} />
       )}
+
+      {/* Footer rail — anchors the page so it never ends in raw whitespace */}
+      <DashboardFooterRail
+        lastSync={latest?.created_at}
+        analysesCount={analyses.length}
+      />
     </div>
   );
 };
