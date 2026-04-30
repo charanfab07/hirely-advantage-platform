@@ -815,11 +815,54 @@ const AddBtn = ({ label, onClick }: { label: string; onClick: () => void }) => (
   </button>
 );
 
+const AlignToggle = ({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={cn(
+      "w-7 h-7 inline-flex items-center justify-center rounded transition-colors",
+      active
+        ? "bg-foreground text-background"
+        : "text-foreground/65 hover:text-foreground hover:bg-foreground/[0.06]",
+    )}
+  >
+    {children}
+  </button>
+);
+
 // ----- Live preview (matches the document preview style) -----
-const ResumePreview = ({ resume }: { resume: EditableResume }) => (
-  <div className="px-7 sm:px-10 py-9 bg-white text-[#0E0B1F] font-serif max-h-[80vh] overflow-y-auto">
-    <div className="text-center">
-      <h1 className="text-[26px] font-semibold tracking-[-0.02em]">
+const ResumePreview = ({
+  resume,
+  typo,
+}: {
+  resume: EditableResume;
+  typo: ResumeTypography;
+}) => {
+  const scale = typo.sizeScale;
+  // Helper to render an em-scaled, aligned size
+  const sz = (px: number) => `${(px * scale).toFixed(2)}px`;
+  const headerAlign =
+    typo.headerAlign === "left" ? "text-left" : typo.headerAlign === "right" ? "text-right" : "text-center";
+  const bodyAlign =
+    typo.bodyAlign === "center" ? "text-center" : typo.bodyAlign === "justify" ? "text-justify" : "text-left";
+  return (
+  <div
+    className={cn("px-7 sm:px-10 py-9 bg-white text-[#0E0B1F] max-h-[80vh] overflow-y-auto", bodyAlign)}
+    style={{ fontFamily: FONT_STACKS[typo.font], lineHeight: typo.lineHeight }}
+  >
+    <div className={headerAlign}>
+      <h1 className="font-semibold tracking-[-0.02em]" style={{ fontSize: sz(26) }}>
         {resume.contact.name || "Your name"}
       </h1>
       {resume.headline && (
