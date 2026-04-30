@@ -68,14 +68,21 @@ const InterviewPrep = () => {
   const [tab, setTab] = useState("practice");
 
   // form
-  const [qType, setQType] = useState<QuestionType>("behavioral");
-  const [question, setQuestion] = useState(QUESTION_BANK[0].questions[0]);
+  const [qType, setQType] = useState<GenerableType>("behavioral");
+  const [question, setQuestion] = useState<string>("");
+  const [questionMeta, setQuestionMeta] = useState<{ rationale: string | null; focus_area: string | null; difficulty: string | null } | null>(null);
   const [answer, setAnswer] = useState("");
   const [targetRole, setTargetRole] = useState("");
 
+  // resume + question generation
+  const [resumeId, setResumeId] = useState<string | null>(null);
+  const [resumeName, setResumeName] = useState<string | null>(null);
+  const [resumeLoading, setResumeLoading] = useState(true);
+  const [generatingQ, setGeneratingQ] = useState(false);
+  const [shuffleCount, setShuffleCount] = useState(0);
+
   // results
   const [analyzing, setAnalyzing] = useState(false);
-  const [resumeId, setResumeId] = useState<string | null>(null);
   const [history, setHistory] = useState<Analysis[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -87,17 +94,26 @@ const InterviewPrep = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
+      setResumeLoading(true);
       const [{ data: rows }, { data: r }] = await Promise.all([
         supabase
           .from("interview_answers")
           .select("*")
           .order("created_at", { ascending: false })
           .limit(30),
-        supabase.from("resumes").select("id").order("created_at", { ascending: false }).limit(1),
+        supabase
+          .from("resumes")
+          .select("id, file_name")
+          .order("created_at", { ascending: false })
+          .limit(1),
       ]);
       setHistory((rows ?? []) as unknown as Analysis[]);
       if (rows?.[0]) setActiveId(rows[0].id);
-      if (r?.[0]) setResumeId(r[0].id);
+      if (r?.[0]) {
+        setResumeId(r[0].id);
+        setResumeName(r[0].file_name ?? null);
+      }
+      setResumeLoading(false);
     })();
   }, [user?.id]);
 
@@ -115,19 +131,59 @@ const InterviewPrep = () => {
     [answer],
   );
 
-  const shuffleQuestion = () => {
-    const bank = QUESTION_BANK.find((b) => b.type === qType) ?? QUESTION_BANK[0];
-    const next = bank.questions[Math.floor(Math.random() * bank.questions.length)];
-    setQuestion(next);
+  const generateQuestion = async (type: GenerableType = qType) => {
+    if (!resumeId) {
+      toast.error("Upload your resume first.");
+      return;
+    }
+    setGeneratingQ(true);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "generate-interview-questions",
+        {
+          body: {
+            resume_id: resumeId,
+            question_type: type,
+            target_role: targetRole.trim() || undefined,
+            count: 1,
+          },
+        },
+      );
+      if (error) throw new Error(error.message || "Couldn't generate question");
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      const q = (data as { questions?: GeneratedQuestion[] }).questions?.[0];
+      if (!q) throw new Error("No question returned");
+      setQuestion(q.question);
+      setQuestionMeta({
+        rationale: q.rationale,
+        focus_area: q.focus_area,
+        difficulty: q.difficulty,
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setGeneratingQ(false);
+    }
   };
 
-  const switchType = (t: QuestionType) => {
+  const shuffleQuestion = async () => {
+    setShuffleCount((c) => c + 1);
+    await generateQuestion(qType);
+  };
+
+  const switchType = async (t: GenerableType) => {
+    if (t === qType) return;
     setQType(t);
-    const bank = QUESTION_BANK.find((b) => b.type === t) ?? QUESTION_BANK[0];
-    setQuestion(bank.questions[0]);
+    if (resumeId) {
+      await generateQuestion(t);
+    }
   };
 
   const analyze = async () => {
+    if (!question.trim()) {
+      toast.error("Generate a question first.");
+      return;
+    }
     if (answer.trim().length < 20) {
       toast.error("Write at least a couple of sentences before analyzing.");
       return;
@@ -174,6 +230,13 @@ const InterviewPrep = () => {
       toast.error("Copy failed");
     }
   };
+
+  // Auto-generate the first question once a resume is available.
+  useEffect(() => {
+    if (!resumeId || question || generatingQ) return;
+    generateQuestion(qType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeId]);
 
   return (
     <div className="max-w-6xl mx-auto">
