@@ -326,19 +326,61 @@ const CoverLetterGenerator = () => {
   const updateTypo = <K extends keyof TypoSettings>(key: K, value: TypoSettings[K]) =>
     setTypo((t) => ({ ...t, [key]: value }));
 
-  // Pre-fill sender name + email from the signed-in user.
+  const [resumeId, setResumeId] = useState<string | null>(null);
+
+  // Pre-fill sender details from the signed-in user + their latest resume.
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+
+    (async () => {
+      // 1) Quick fill from auth metadata
+      setDoc((d) => ({
+        ...d,
+        senderEmail: d.senderEmail || user.email || "",
+        senderName:
+          d.senderName ||
+          (user.user_metadata?.full_name as string | undefined) ||
+          (user.user_metadata?.name as string | undefined) ||
+          "",
+      }));
+
+      // 2) Pull most recent resume and parse contact info
+      const { data, error } = await supabase
+        .from("resumes")
+        .select("id, raw_text")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (cancelled || error || !data) return;
+      setResumeId(data.id);
+      const parsed = parseResumeContact(data.raw_text ?? "");
+      setDoc((d) => ({
+        ...d,
+        senderName: d.senderName || parsed.name || "",
+        senderEmail: d.senderEmail || parsed.email || "",
+        senderPhone: d.senderPhone || parsed.phone || "",
+        senderLocation: d.senderLocation || parsed.location || "",
+      }));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  // Auto-fill recipient details when the user pastes/uploads a JD.
+  useEffect(() => {
+    if (jd.trim().length < 40) return;
+    const parsed = parseJobDescription(jd);
     setDoc((d) => ({
       ...d,
-      senderEmail: d.senderEmail || user.email || "",
-      senderName:
-        d.senderName ||
-        (user.user_metadata?.full_name as string | undefined) ||
-        (user.user_metadata?.name as string | undefined) ||
-        "",
+      companyName: d.companyName || parsed.company || "",
+      hiringManager: d.hiringManager || parsed.hiringManager || "",
     }));
-  }, [user?.id]);
+  }, [jd]);
 
   // Esc closes fullscreen + lock body scroll while open
   useEffect(() => {
