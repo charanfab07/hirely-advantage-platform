@@ -118,7 +118,9 @@ export const EnhancedResumePanel = ({
       return;
     }
     const role = (roleOverride ?? (selectedRole === "__custom__" ? customRole : selectedRole) ?? "").trim();
-    if (!role) {
+    // Require role only on first generation. Regenerate (when an enhancement already exists)
+    // can reuse the previously analyzed role server-side.
+    if (!role && !enhancement) {
       toast.error("Pick the role you're applying for first");
       return;
     }
