@@ -383,20 +383,13 @@ const CoverLetterGenerator = () => {
                 </SectionCard>
               </>
             ) : (
-              <SectionCard className="flex items-center gap-3">
-                <span className="w-9 h-9 rounded-full bg-foreground/[0.05] grid place-items-center shrink-0">
-                  <FileText className="w-4 h-4 text-foreground/55" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[14px] font-medium tracking-tight text-foreground">
-                    No cover letter yet
-                  </p>
-                  <p className="text-[12.5px] text-foreground/60 tracking-tight">
-                    Fill in the company, role, and tone — we'll write a structured letter that doesn't
-                    sound like generic AI.
-                  </p>
-                </div>
-              </SectionCard>
+              <LivePreviewSkeleton
+                company={company}
+                role={role}
+                tone={tone}
+                hasJd={jd.trim().length > 0}
+                hasResume={hasResume}
+              />
             )}
           </div>
         </div>
@@ -639,6 +632,104 @@ const PersonalizationCard = ({ letter }: { letter: Letter }) => {
           )}
         </div>
       )}
+    </SectionCard>
+  );
+};
+
+const PREVIEW_PARTS: { key: string; label: string; helper: string; sample: (ctx: { company: string; role: string }) => string }[] = [
+  {
+    key: "hook",
+    label: "Opening hook",
+    helper: "A sharp first line — never starts with 'I'.",
+    sample: ({ company }) =>
+      `${company || "Your company"}'s recent work on shipping fast without breaking trust is exactly the kind of problem worth solving — and the kind I've been quietly preparing for.`,
+  },
+  {
+    key: "culture",
+    label: "Why this company",
+    helper: "A specific, non-generic reason this company fits.",
+    sample: ({ company }) =>
+      `What pulls me toward ${company || "your team"} isn't the brand — it's the mission, and the way the team treats craft as a competitive advantage rather than a checkbox.`,
+  },
+  {
+    key: "alignment",
+    label: "Skills match",
+    helper: "2–3 of your skills mapped directly to the JD.",
+    sample: ({ role }) =>
+      `For the ${role || "role"}, I'd bring hands-on experience with the exact stack and workflow you described — turning ambiguous problems into shipped, measurable outcomes.`,
+  },
+  {
+    key: "proof",
+    label: "Achievement proof",
+    helper: "One concrete result with a real metric from your resume.",
+    sample: () =>
+      `In my last role, I led a project that cut a key workflow from 4 hours to 22 minutes and unlocked ~$120K/year in saved engineering time — the kind of impact I'd repeat here.`,
+  },
+  {
+    key: "closing",
+    label: "Closing paragraph",
+    helper: "Confident close that suggests a next step.",
+    sample: ({ company }) =>
+      `Happy to walk through any of this in more depth — would love 20 minutes with the ${company || "team"} to dig into where I'd add the most value first.`,
+  },
+];
+
+const LivePreviewSkeleton = ({
+  company,
+  role,
+  tone,
+  hasJd,
+  hasResume,
+}: {
+  company: string;
+  role: string;
+  tone: Tone;
+  hasJd: boolean;
+  hasResume: boolean;
+}) => {
+  const ctx = { company: company.trim(), role: role.trim() };
+  const toneLabel = TONES.find((t) => t.value === tone)?.label ?? "Confident";
+  return (
+    <SectionCard className="p-0 overflow-hidden">
+      <div className="px-5 sm:px-6 pt-5 pb-4 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+            Live preview
+          </p>
+          <p className="mt-1.5 text-[14px] text-foreground tracking-tight leading-snug">
+            Here's the structure your letter will follow.
+          </p>
+          <p className="mt-1 text-[12px] text-foreground/55 tracking-tight">
+            {toneLabel} tone · {hasResume ? "real metrics from your resume" : "upload a resume for proof statements"}
+            {hasJd ? " · keyword-aligned to your JD" : ""}
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full px-2.5 py-1 bg-foreground/[0.05] text-foreground/55 text-[10.5px] tracking-[0.18em] uppercase font-medium">
+          Sample
+        </span>
+      </div>
+      <ul className="border-t border-foreground/[0.06] divide-y divide-foreground/[0.06]">
+        {PREVIEW_PARTS.map((p, i) => (
+          <li key={p.key} className="px-5 sm:px-6 py-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="text-[11px] font-medium text-foreground/55 tracking-tight">
+                <span className="text-foreground/35 tabular-nums mr-1.5">0{i + 1}</span>
+                {p.label}
+              </p>
+              <p className="text-[10.5px] text-foreground/40 tracking-tight hidden sm:block">{p.helper}</p>
+            </div>
+            <p className="mt-2 text-[13.5px] leading-[1.6] text-foreground/55 tracking-tight italic">
+              {p.sample(ctx)}
+            </p>
+          </li>
+        ))}
+      </ul>
+      <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex items-center gap-2">
+        <Sparkles className="w-3.5 h-3.5 text-foreground/45" />
+        <p className="text-[11.5px] text-foreground/55 tracking-tight">
+          Fill in the form and hit Generate — these placeholders will be replaced with your real, personalized letter.
+        </p>
+      </div>
     </SectionCard>
   );
 };
