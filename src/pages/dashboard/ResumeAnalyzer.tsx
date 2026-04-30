@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight } from "lucide-react";
+import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight, Sparkles } from "lucide-react";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 
@@ -16,6 +16,7 @@ import {
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
+import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -88,6 +89,7 @@ type Analysis = {
 
 const tabs = [
   { value: "score", label: "Score" },
+  { value: "enhanced", label: "Enhanced" },
   { value: "compare", label: "Compare" },
   { value: "extracted", label: "Extracted" },
   { value: "issues", label: "Issues" },
