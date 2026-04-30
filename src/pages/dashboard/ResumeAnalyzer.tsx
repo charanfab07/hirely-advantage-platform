@@ -166,24 +166,6 @@ const ResumeAnalyzer = () => {
       effort: w.impact === "high" ? "1 min" : w.impact === "medium" ? "45 sec" : "30 sec",
     }));
   }, [latest]);
-
-  const sparklineData = useMemo(() => {
-    // Build 30-point series from analysis history if we have any, else gentle ramp to current
-    if (!analyses.length) return undefined;
-    const scores = [...analyses].reverse().map((a) => a.overall_score);
-    const last = scores[scores.length - 1] ?? 0;
-    if (scores.length >= 30) return scores.slice(-30);
-    // Pad start with a gentle ramp toward the first known score
-    const pad: number[] = [];
-    const first = scores[0];
-    const padCount = 30 - scores.length;
-    for (let i = 0; i < padCount; i++) {
-      const v = Math.max(40, Math.round(first - (padCount - i) * 0.4));
-      pad.push(v);
-    }
-    return [...pad, ...scores, ...(scores.length === 1 ? [last] : [])].slice(-30);
-  }, [analyses]);
-
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
