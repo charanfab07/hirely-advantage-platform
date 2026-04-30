@@ -8,6 +8,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type Tone = "confident" | "warm" | "direct" | "formal";
+type Length = "short" | "medium" | "detailed";
+type ExperienceLevel = "fresher" | "intern" | "junior" | "experienced";
+type LetterStyle = "modern" | "formal" | "startup" | "corporate";
+
+const LENGTHS: { value: Length; label: string; hint: string }[] = [
+  { value: "short", label: "Short", hint: "~150 words" },
+  { value: "medium", label: "Medium", hint: "~250 words" },
+  { value: "detailed", label: "Detailed", hint: "~350 words" },
+];
+
+const EXPERIENCE_LEVELS: { value: ExperienceLevel; label: string }[] = [
+  { value: "fresher", label: "Fresher" },
+  { value: "intern", label: "Intern" },
+  { value: "junior", label: "Junior" },
+  { value: "experienced", label: "Experienced" },
+];
+
+const LETTER_STYLES: { value: LetterStyle; label: string; hint: string }[] = [
+  { value: "modern", label: "Modern", hint: "Clean & current" },
+  { value: "formal", label: "Formal", hint: "Traditional polish" },
+  { value: "startup", label: "Startup", hint: "Scrappy & punchy" },
+  { value: "corporate", label: "Corporate", hint: "Buttoned-up" },
+];
 
 type Letter = {
   id: string;
@@ -63,6 +86,15 @@ const CoverLetterGenerator = () => {
   const [role, setRole] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
   const [jd, setJd] = useState("");
+  const [hiringManager, setHiringManager] = useState("");
+  const [strongestAchievement, setStrongestAchievement] = useState("");
+  const [length, setLength] = useState<Length>("medium");
+  const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>("junior");
+  const [letterStyle, setLetterStyle] = useState<LetterStyle>("modern");
+  const [includeSalary, setIncludeSalary] = useState(false);
+  const [salaryExpectation, setSalaryExpectation] = useState("");
+  const [mentionRelocation, setMentionRelocation] = useState(false);
+  const [relocationPreference, setRelocationPreference] = useState<"remote" | "relocate" | "hybrid" | "onsite">("remote");
 
   const tabs = [
     { value: "compose", label: "Compose" },
@@ -122,6 +154,15 @@ const CoverLetterGenerator = () => {
           tone,
           job_description: jd.trim() || undefined,
           resume_id: resumeId ?? undefined,
+          hiring_manager: hiringManager.trim() || undefined,
+          strongest_achievement: strongestAchievement.trim() || undefined,
+          length,
+          experience_level: experienceLevel,
+          letter_style: letterStyle,
+          include_salary: includeSalary,
+          salary_expectation: includeSalary ? salaryExpectation.trim() || undefined : undefined,
+          mention_relocation: mentionRelocation,
+          relocation_preference: mentionRelocation ? relocationPreference : undefined,
         },
       });
       if (error) throw new Error(error.message || "Generation failed");
@@ -260,6 +301,179 @@ const CoverLetterGenerator = () => {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              <Field
+                label="Hiring manager (optional)"
+                value={hiringManager}
+                onChange={setHiringManager}
+                placeholder="e.g. Priya Shah"
+                disabled={generating}
+              />
+
+              <div>
+                <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Your strongest achievement (optional)
+                </label>
+                <textarea
+                  value={strongestAchievement}
+                  onChange={(e) => setStrongestAchievement(e.target.value)}
+                  rows={2}
+                  disabled={generating}
+                  placeholder="e.g. Led a launch that grew weekly active users 38% in 6 weeks."
+                  className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
+                />
+                <p className="mt-1 text-[11px] text-foreground/45 tracking-tight">
+                  We'll feature this as the proof paragraph if it's strong.
+                </p>
+              </div>
+
+              <div>
+                <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Length
+                </label>
+                <div className="mt-1.5 grid grid-cols-3 gap-1.5">
+                  {LENGTHS.map((l) => (
+                    <button
+                      key={l.value}
+                      type="button"
+                      disabled={generating}
+                      onClick={() => setLength(l.value)}
+                      className={cn(
+                        "rounded-lg px-2.5 py-2 text-left transition-colors border",
+                        length === l.value
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
+                      )}
+                    >
+                      <p className="text-[12.5px] font-medium tracking-tight">{l.label}</p>
+                      <p
+                        className={cn(
+                          "text-[11px] tracking-tight",
+                          length === l.value ? "text-background/60" : "text-foreground/50",
+                        )}
+                      >
+                        {l.hint}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Experience level
+                </label>
+                <div className="mt-1.5 grid grid-cols-4 gap-1.5">
+                  {EXPERIENCE_LEVELS.map((l) => (
+                    <button
+                      key={l.value}
+                      type="button"
+                      disabled={generating}
+                      onClick={() => setExperienceLevel(l.value)}
+                      className={cn(
+                        "rounded-lg px-2 py-2 text-center transition-colors border text-[12px] font-medium tracking-tight",
+                        experienceLevel === l.value
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06] text-foreground/75",
+                      )}
+                    >
+                      {l.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Letter style
+                </label>
+                <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                  {LETTER_STYLES.map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      disabled={generating}
+                      onClick={() => setLetterStyle(s.value)}
+                      className={cn(
+                        "rounded-lg px-2.5 py-2 text-left transition-colors border",
+                        letterStyle === s.value
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
+                      )}
+                    >
+                      <p className="text-[12.5px] font-medium tracking-tight">{s.label}</p>
+                      <p
+                        className={cn(
+                          "text-[11px] tracking-tight",
+                          letterStyle === s.value ? "text-background/60" : "text-foreground/50",
+                        )}
+                      >
+                        {s.hint}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] p-3 space-y-3">
+                <label className="flex items-center justify-between gap-3 cursor-pointer">
+                  <span className="text-[12.5px] font-medium tracking-tight text-foreground">
+                    Include salary expectation
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={includeSalary}
+                    onChange={(e) => setIncludeSalary(e.target.checked)}
+                    disabled={generating}
+                    className="h-4 w-4 accent-foreground"
+                  />
+                </label>
+                {includeSalary && (
+                  <input
+                    type="text"
+                    value={salaryExpectation}
+                    onChange={(e) => setSalaryExpectation(e.target.value)}
+                    disabled={generating}
+                    placeholder="e.g. ₹18–22 LPA or $120k–$140k"
+                    className="w-full bg-background border border-foreground/[0.08] rounded-md px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors"
+                  />
+                )}
+
+                <div className="border-t border-foreground/[0.06]" />
+
+                <label className="flex items-center justify-between gap-3 cursor-pointer">
+                  <span className="text-[12.5px] font-medium tracking-tight text-foreground">
+                    Mention relocation / remote preference
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={mentionRelocation}
+                    onChange={(e) => setMentionRelocation(e.target.checked)}
+                    disabled={generating}
+                    className="h-4 w-4 accent-foreground"
+                  />
+                </label>
+                {mentionRelocation && (
+                  <div className="grid grid-cols-4 gap-1.5">
+                    {(["remote", "hybrid", "onsite", "relocate"] as const).map((p) => (
+                      <button
+                        key={p}
+                        type="button"
+                        disabled={generating}
+                        onClick={() => setRelocationPreference(p)}
+                        className={cn(
+                          "rounded-md px-2 py-1.5 text-center transition-colors border text-[11.5px] font-medium tracking-tight capitalize",
+                          relocationPreference === p
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-background border-foreground/[0.08] hover:bg-foreground/[0.06] text-foreground/75",
+                        )}
+                      >
+                        {p === "relocate" ? "Open to relocate" : p}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div>
