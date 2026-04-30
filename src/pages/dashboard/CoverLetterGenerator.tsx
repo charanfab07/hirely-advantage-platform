@@ -494,4 +494,128 @@ const CopyBtn = ({ onClick, label = "Copy" }: { onClick: () => void; label?: str
   );
 };
 
+const HighlightedLetter = ({ text, keywords }: { text: string; keywords: string[] }) => {
+  if (!text) return null;
+  if (!keywords.length) {
+    return (
+      <pre className="mt-4 whitespace-pre-wrap font-sans text-[14px] leading-[1.65] text-foreground tracking-tight">
+        {text}
+      </pre>
+    );
+  }
+  // Build a single regex matching any keyword as a whole word, longest first
+  const escaped = [...keywords]
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length)
+    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const re = new RegExp(`\\b(${escaped.join("|")})\\b`, "gi");
+  const parts = text.split(re);
+  return (
+    <pre className="mt-4 whitespace-pre-wrap font-sans text-[14px] leading-[1.65] text-foreground tracking-tight">
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <mark
+            key={i}
+            className="bg-foreground/[0.08] text-foreground rounded px-0.5 py-px font-medium"
+          >
+            {part}
+          </mark>
+        ) : (
+          <span key={i}>{part}</span>
+        ),
+      )}
+    </pre>
+  );
+};
+
+const PersonalizationCard = ({ letter }: { letter: Letter }) => {
+  const matched = letter.matched_keywords ?? [];
+  const missing = letter.missing_keywords ?? [];
+  const total = (letter.jd_keywords ?? []).length;
+  const score = letter.match_score;
+  if (!total && !letter.company_mission) return null;
+
+  return (
+    <SectionCard className="p-0 overflow-hidden">
+      <div className="px-5 sm:px-6 pt-5 pb-3 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium flex items-center gap-1.5">
+            <Target className="w-3 h-3" />
+            Personalization
+          </p>
+          {total > 0 && (
+            <p className="mt-1.5 text-[14px] text-foreground tracking-tight leading-snug">
+              Your cover letter includes{" "}
+              <span className="font-semibold">{matched.length}</span> of{" "}
+              <span className="font-semibold">{total}</span> keywords from the job description.
+            </p>
+          )}
+          {letter.company_mission && (
+            <p className="mt-1 text-[12px] text-foreground/55 tracking-tight">
+              Aligned to {letter.company}'s mission{letter.company_url ? ` (${new URL(letter.company_url).hostname})` : ""}.
+            </p>
+          )}
+        </div>
+        {score !== null && score !== undefined && (
+          <div
+            className={cn(
+              "shrink-0 rounded-full px-3 py-1.5 text-[12px] font-semibold tracking-tight tabular-nums",
+              score >= 70
+                ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                : score >= 40
+                  ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                  : "bg-foreground/[0.06] text-foreground/70",
+            )}
+          >
+            {score}% match
+          </div>
+        )}
+      </div>
+
+      {(matched.length > 0 || missing.length > 0) && (
+        <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-3">
+          {matched.length > 0 && (
+            <div>
+              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                Covered ({matched.length})
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {matched.map((k) => (
+                  <span
+                    key={k}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[11.5px] tracking-tight"
+                  >
+                    <Check className="w-2.5 h-2.5" />
+                    {k}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {missing.length > 0 && (
+            <div>
+              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                Missing ({missing.length})
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {missing.map((k) => (
+                  <span
+                    key={k}
+                    className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[11.5px] tracking-tight"
+                  >
+                    {k}
+                  </span>
+                ))}
+              </div>
+              <p className="mt-2 text-[11.5px] text-foreground/50 tracking-tight">
+                Tip: weave a few of these in to lift the match score.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </SectionCard>
+  );
+};
+
 export default CoverLetterGenerator;
