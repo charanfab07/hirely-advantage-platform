@@ -372,9 +372,17 @@ export const EnhancedResumePanel = ({
             </button>
             <button
               type="button"
+              onClick={() => setEditing((v) => !v)}
+              className="px-3.5 py-2 rounded-full bg-white text-foreground text-[12px] font-medium hover:bg-white/90 transition-colors flex items-center gap-1.5"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              {editing ? "Hide editor" : "Edit & Download"}
+            </button>
+            <button
+              type="button"
               onClick={() => handleGenerate()}
               disabled={generating}
-              className="px-3.5 py-2 rounded-full bg-white text-foreground text-[12px] font-medium hover:bg-white/90 transition-colors flex items-center gap-1.5 disabled:opacity-60"
+              className="px-3.5 py-2 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 text-[12px] flex items-center gap-1.5 transition-colors disabled:opacity-60"
             >
               <RefreshCw className={cn("w-3.5 h-3.5", generating && "animate-spin")} />
               {generating ? "Rewriting…" : "Regenerate"}
@@ -382,6 +390,11 @@ export const EnhancedResumePanel = ({
           </div>
         </div>
       </SectionCard>
+
+      {/* EDITABLE EDITOR with PDF / DOCX / TXT exports */}
+      {editing && editableResume && (
+        <ResumeEditor initial={editableResume} onClose={() => setEditing(false)} />
+      )}
 
       {/* ORIGINAL vs ENHANCED — section-by-section comparison */}
       <ComparisonTable enhancement={enhancement} />
