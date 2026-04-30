@@ -36,6 +36,15 @@ type Enhancement = {
   created_at: string;
 };
 
+const ROLE_OPTIONS = [
+  "AI/ML Engineer",
+  "Data Analyst",
+  "Python Developer",
+  "Software Developer",
+  "Web Developer",
+  "Fresher IT role",
+];
+
 const CATEGORY_LABEL: Record<string, string> = {
   summary: "Summary",
   metrics_added: "Quantified",
