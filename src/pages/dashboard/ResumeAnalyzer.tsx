@@ -318,8 +318,16 @@ const ResumeAnalyzer = () => {
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <button
                 type="button"
+                onClick={() => setTab("enhanced")}
+                className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity inline-flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Generate perfect resume
+              </button>
+              <button
+                type="button"
                 onClick={() => setTab("issues")}
-                className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+                className="px-4 py-2 rounded-full text-foreground/65 text-[12.5px] hover:bg-foreground/5 transition-colors"
               >
                 Fix top issues →
               </button>
