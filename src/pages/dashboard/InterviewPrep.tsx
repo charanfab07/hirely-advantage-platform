@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
+import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
@@ -9,6 +10,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type QuestionType = "behavioral" | "technical" | "case" | "general";
+type GenerableType = "behavioral" | "technical" | "case";
+
+type GeneratedQuestion = {
+  id: string;
+  question: string;
+  question_type: GenerableType;
+  rationale: string | null;
+  focus_area: string | null;
+  difficulty: string | null;
+};
 
 type StarPart = { present: boolean; note: string };
 
@@ -41,36 +52,10 @@ type Analysis = {
   created_at: string;
 };
 
-const QUESTION_BANK: { type: QuestionType; label: string; questions: string[] }[] = [
-  {
-    type: "behavioral",
-    label: "Behavioral",
-    questions: [
-      "Tell me about a time you led a project under tight constraints. What did you do, and what was the outcome?",
-      "Describe a situation where you had to influence someone without authority.",
-      "Walk me through a time you made a decision with incomplete information.",
-      "Tell me about a time you disagreed with your manager. How did you handle it?",
-      "Describe your biggest professional failure and what you learned.",
-    ],
-  },
-  {
-    type: "technical",
-    label: "Technical",
-    questions: [
-      "Walk me through how you'd design a system that handles 1M users with low latency reads.",
-      "How would you debug a production issue where latency suddenly spiked by 4x?",
-      "Explain a tradeoff you made between performance and maintainability.",
-    ],
-  },
-  {
-    type: "case",
-    label: "Case / PM",
-    questions: [
-      "Our retention dropped 12% last month. How would you investigate?",
-      "How would you prioritize between three features with similar reach but different user types?",
-      "Estimate the daily revenue of a major coffee chain in a single city.",
-    ],
-  },
+const QUESTION_TYPES: { type: GenerableType; label: string }[] = [
+  { type: "behavioral", label: "Behavioral" },
+  { type: "technical", label: "Technical" },
+  { type: "case", label: "Case / PM" },
 ];
 
 const tabs = [
@@ -83,14 +68,21 @@ const InterviewPrep = () => {
   const [tab, setTab] = useState("practice");
 
   // form
-  const [qType, setQType] = useState<QuestionType>("behavioral");
-  const [question, setQuestion] = useState(QUESTION_BANK[0].questions[0]);
+  const [qType, setQType] = useState<GenerableType>("behavioral");
+  const [question, setQuestion] = useState<string>("");
+  const [questionMeta, setQuestionMeta] = useState<{ rationale: string | null; focus_area: string | null; difficulty: string | null } | null>(null);
   const [answer, setAnswer] = useState("");
   const [targetRole, setTargetRole] = useState("");
 
+  // resume + question generation
+  const [resumeId, setResumeId] = useState<string | null>(null);
+  const [resumeName, setResumeName] = useState<string | null>(null);
+  const [resumeLoading, setResumeLoading] = useState(true);
+  const [generatingQ, setGeneratingQ] = useState(false);
+  const [shuffleCount, setShuffleCount] = useState(0);
+
   // results
   const [analyzing, setAnalyzing] = useState(false);
-  const [resumeId, setResumeId] = useState<string | null>(null);
   const [history, setHistory] = useState<Analysis[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -102,17 +94,26 @@ const InterviewPrep = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
+      setResumeLoading(true);
       const [{ data: rows }, { data: r }] = await Promise.all([
         supabase
           .from("interview_answers")
           .select("*")
           .order("created_at", { ascending: false })
           .limit(30),
-        supabase.from("resumes").select("id").order("created_at", { ascending: false }).limit(1),
+        supabase
+          .from("resumes")
+          .select("id, file_name")
+          .order("created_at", { ascending: false })
+          .limit(1),
       ]);
       setHistory((rows ?? []) as unknown as Analysis[]);
       if (rows?.[0]) setActiveId(rows[0].id);
-      if (r?.[0]) setResumeId(r[0].id);
+      if (r?.[0]) {
+        setResumeId(r[0].id);
+        setResumeName(r[0].file_name ?? null);
+      }
+      setResumeLoading(false);
     })();
   }, [user?.id]);
 
@@ -130,19 +131,59 @@ const InterviewPrep = () => {
     [answer],
   );
 
-  const shuffleQuestion = () => {
-    const bank = QUESTION_BANK.find((b) => b.type === qType) ?? QUESTION_BANK[0];
-    const next = bank.questions[Math.floor(Math.random() * bank.questions.length)];
-    setQuestion(next);
+  const generateQuestion = async (type: GenerableType = qType) => {
+    if (!resumeId) {
+      toast.error("Upload your resume first.");
+      return;
+    }
+    setGeneratingQ(true);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "generate-interview-questions",
+        {
+          body: {
+            resume_id: resumeId,
+            question_type: type,
+            target_role: targetRole.trim() || undefined,
+            count: 1,
+          },
+        },
+      );
+      if (error) throw new Error(error.message || "Couldn't generate question");
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      const q = (data as { questions?: GeneratedQuestion[] }).questions?.[0];
+      if (!q) throw new Error("No question returned");
+      setQuestion(q.question);
+      setQuestionMeta({
+        rationale: q.rationale,
+        focus_area: q.focus_area,
+        difficulty: q.difficulty,
+      });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setGeneratingQ(false);
+    }
   };
 
-  const switchType = (t: QuestionType) => {
+  const shuffleQuestion = async () => {
+    setShuffleCount((c) => c + 1);
+    await generateQuestion(qType);
+  };
+
+  const switchType = async (t: GenerableType) => {
+    if (t === qType) return;
     setQType(t);
-    const bank = QUESTION_BANK.find((b) => b.type === t) ?? QUESTION_BANK[0];
-    setQuestion(bank.questions[0]);
+    if (resumeId) {
+      await generateQuestion(t);
+    }
   };
 
   const analyze = async () => {
+    if (!question.trim()) {
+      toast.error("Generate a question first.");
+      return;
+    }
     if (answer.trim().length < 20) {
       toast.error("Write at least a couple of sentences before analyzing.");
       return;
@@ -190,6 +231,13 @@ const InterviewPrep = () => {
     }
   };
 
+  // Auto-generate the first question once a resume is available.
+  useEffect(() => {
+    if (!resumeId || question || generatingQ) return;
+    generateQuestion(qType);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resumeId]);
+
   return (
     <div className="max-w-6xl mx-auto">
       <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
@@ -223,21 +271,63 @@ const InterviewPrep = () => {
 
       {tab === "mock" && <div className="mt-5"><MockInterviewPanel resumeId={resumeId} /></div>}
 
-      {tab === "practice" && (
+      {tab === "practice" && !resumeLoading && !resumeId && user && (
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-7 lg:col-start-3">
+            <SectionCard tone="dark" className="mb-4 p-5">
+              <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-medium">
+                Step 1 — Upload your resume
+              </p>
+              <p className="mt-2 text-[16px] leading-snug font-medium tracking-tight">
+                Questions are written from your actual experience.
+              </p>
+              <p className="mt-1 text-[13px] text-white/70 tracking-tight">
+                Once we read your resume, every Shuffle gives you a brand-new question grounded in
+                your projects, skills and education — not generic FAQ filler. Hit shuffle 20 times,
+                get 20 different questions. 100 times, 100 different questions.
+              </p>
+            </SectionCard>
+            <ResumeUploadCard
+              userId={user.id}
+              onAnalyzed={async () => {
+                const { data: r } = await supabase
+                  .from("resumes")
+                  .select("id, file_name")
+                  .order("created_at", { ascending: false })
+                  .limit(1);
+                if (r?.[0]) {
+                  setResumeId(r[0].id);
+                  setResumeName(r[0].file_name ?? null);
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {tab === "practice" && resumeId && (
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Composer */}
           <SectionCard className="lg:col-span-5 p-0 overflow-hidden">
             <div className="px-5 sm:px-6 pt-5 pb-4">
-              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                Question
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Question
+                </p>
+                {resumeName && (
+                  <span className="inline-flex items-center gap-1 text-[10.5px] text-foreground/50 tracking-tight max-w-[60%] truncate">
+                    <FileText className="w-3 h-3 shrink-0" />
+                    <span className="truncate">From {resumeName}</span>
+                  </span>
+                )}
+              </div>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {QUESTION_BANK.map((b) => (
+                {QUESTION_TYPES.map((b) => (
                   <button
                     key={b.type}
                     type="button"
                     onClick={() => switchType(b.type)}
-                    disabled={analyzing}
+                    disabled={analyzing || generatingQ}
                     className={cn(
                       "px-2.5 py-1 rounded-full text-[11.5px] font-medium tracking-tight transition-colors border",
                       qType === b.type
@@ -251,21 +341,49 @@ const InterviewPrep = () => {
                 <button
                   type="button"
                   onClick={shuffleQuestion}
-                  disabled={analyzing}
-                  className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors"
+                  disabled={analyzing || generatingQ}
+                  className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors disabled:opacity-50"
                 >
-                  <Shuffle className="w-3 h-3" />
+                  {generatingQ ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Shuffle className="w-3 h-3" />
+                  )}
                   Shuffle
+                  {shuffleCount > 0 && (
+                    <span className="text-foreground/45 tabular-nums">· {shuffleCount}</span>
+                  )}
                 </button>
               </div>
 
               <textarea
-                value={question}
+                value={generatingQ && !question ? "" : question}
                 onChange={(e) => setQuestion(e.target.value)}
                 rows={3}
-                disabled={analyzing}
+                disabled={analyzing || generatingQ}
+                placeholder={generatingQ ? "Writing a question from your resume…" : "Hit Shuffle to get a personalized question."}
                 className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
               />
+
+              {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {questionMeta.focus_area && (
+                    <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight">
+                      {questionMeta.focus_area}
+                    </span>
+                  )}
+                  {questionMeta.difficulty && (
+                    <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight capitalize">
+                      {questionMeta.difficulty}
+                    </span>
+                  )}
+                  {questionMeta.rationale && (
+                    <span className="text-[11px] text-foreground/55 tracking-tight leading-snug w-full mt-1">
+                      Why this: {questionMeta.rationale}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-3">
