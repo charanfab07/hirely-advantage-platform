@@ -149,6 +149,17 @@ const CoverLetterGenerator = () => {
   const [hasLetter, setHasLetter] = useState(false);
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
   const [copied, setCopied] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [typo, setTypo] = useState<TypoSettings>({
+    font: "serif",
+    fontSize: 14,
+    lineHeight: 1.7,
+    align: "left",
+    bold: false,
+    italic: false,
+  });
+  const updateTypo = <K extends keyof TypoSettings>(key: K, value: TypoSettings[K]) =>
+    setTypo((t) => ({ ...t, [key]: value }));
 
   // Pre-fill sender name + email from the signed-in user.
   useEffect(() => {
