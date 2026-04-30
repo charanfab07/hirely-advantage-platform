@@ -25,6 +25,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   const [stage, setStage] = useState<Stage>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [targetRole, setTargetRole] = useState("");
 
   const stageLabel: Record<Stage, string> = {
     idle: "",
@@ -90,7 +91,13 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
       setStage("analyzing");
       const { data: fnData, error: fnErr } = await supabase.functions.invoke(
         "analyze-resume",
-        { body: { resume_id: resumeRow.id, raw_text: text } },
+        {
+          body: {
+            resume_id: resumeRow.id,
+            raw_text: text,
+            target_role: targetRole.trim() || undefined,
+          },
+        },
       );
       if (fnErr) {
         // Try to extract a useful error message
@@ -202,6 +209,20 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
           </div>
         )}
       </button>
+
+      <div className="border-t border-foreground/[0.06] px-6 sm:px-7 py-3 flex items-center gap-3">
+        <span className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium shrink-0">
+          Target role
+        </span>
+        <input
+          type="text"
+          value={targetRole}
+          onChange={(e) => setTargetRole(e.target.value)}
+          disabled={busy}
+          placeholder="e.g. Senior PM at Linear (optional — sharpens job-match %)"
+          className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-foreground/35 outline-none tracking-tight"
+        />
+      </div>
 
       <input
         ref={inputRef}
