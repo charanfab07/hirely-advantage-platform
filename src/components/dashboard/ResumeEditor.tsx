@@ -971,7 +971,8 @@ const ResumePreview = ({
       </PreviewSection>
     )}
   </div>
-);
+  );
+};
 
 const PreviewSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="mt-6">
