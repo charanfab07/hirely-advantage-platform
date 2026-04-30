@@ -494,6 +494,9 @@ const CopyBtn = ({ onClick, label = "Copy" }: { onClick: () => void; label?: str
   );
 };
 
+// Looser matcher used only for visual highlighting in the rendered letter.
+// Matches the keyword + simple plural/verb variants (s, es, ed, ing, ies/y, etc.)
+// so the highlights line up with the smarter backend match.
 const HighlightedLetter = ({ text, keywords }: { text: string; keywords: string[] }) => {
   if (!text) return null;
   if (!keywords.length) {
@@ -503,12 +506,34 @@ const HighlightedLetter = ({ text, keywords }: { text: string; keywords: string[
       </pre>
     );
   }
-  // Build a single regex matching any keyword as a whole word, longest first
-  const escaped = [...keywords]
+  const esc = (k: string) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const buildPattern = (raw: string) => {
+    const k = raw.trim();
+    if (!k) return null;
+    // Multi-word keywords: tolerate spaces/hyphens/slashes between words and
+    // simple plural/verb suffixes on the LAST word.
+    if (/\s/.test(k)) {
+      const words = k.split(/\s+/).map(esc);
+      const last = words.pop()!;
+      const lastWithSuffix = `${last}(?:s|es|ed|ing|ies)?`;
+      return [...words, lastWithSuffix].join("[\\s\\-/]+");
+    }
+    // Single token: also match common suffixes; preserve special chars (e.g. C++, .NET).
+    return `${esc(k)}(?:s|es|ed|ing|ies)?`;
+  };
+  const patterns = [...keywords]
     .filter(Boolean)
     .sort((a, b) => b.length - a.length)
-    .map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-  const re = new RegExp(`\\b(${escaped.join("|")})\\b`, "gi");
+    .map(buildPattern)
+    .filter((p): p is string => !!p);
+  if (!patterns.length) {
+    return (
+      <pre className="mt-4 whitespace-pre-wrap font-sans text-[14px] leading-[1.65] text-foreground tracking-tight">
+        {text}
+      </pre>
+    );
+  }
+  const re = new RegExp(`\\b(${patterns.join("|")})\\b`, "gi");
   const parts = text.split(re);
   return (
     <pre className="mt-4 whitespace-pre-wrap font-sans text-[14px] leading-[1.65] text-foreground tracking-tight">
