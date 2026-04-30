@@ -383,20 +383,13 @@ const CoverLetterGenerator = () => {
                 </SectionCard>
               </>
             ) : (
-              <SectionCard className="flex items-center gap-3">
-                <span className="w-9 h-9 rounded-full bg-foreground/[0.05] grid place-items-center shrink-0">
-                  <FileText className="w-4 h-4 text-foreground/55" />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[14px] font-medium tracking-tight text-foreground">
-                    No cover letter yet
-                  </p>
-                  <p className="text-[12.5px] text-foreground/60 tracking-tight">
-                    Fill in the company, role, and tone — we'll write a structured letter that doesn't
-                    sound like generic AI.
-                  </p>
-                </div>
-              </SectionCard>
+              <LivePreviewSkeleton
+                company={company}
+                role={role}
+                tone={tone}
+                hasJd={jd.trim().length > 0}
+                hasResume={hasResume}
+              />
             )}
           </div>
         </div>
