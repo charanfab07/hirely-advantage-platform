@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
+import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
@@ -9,6 +10,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type QuestionType = "behavioral" | "technical" | "case" | "general";
+type GenerableType = "behavioral" | "technical" | "case";
+
+type GeneratedQuestion = {
+  id: string;
+  question: string;
+  question_type: GenerableType;
+  rationale: string | null;
+  focus_area: string | null;
+  difficulty: string | null;
+};
 
 type StarPart = { present: boolean; note: string };
 
