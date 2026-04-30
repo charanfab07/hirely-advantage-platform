@@ -779,7 +779,7 @@ export const ResumeEditor = ({
           </section>
         </div>
       ) : (
-        <ResumePreview resume={resume} />
+        <ResumePreview resume={resume} typo={typo} />
       )}
     </SectionCard>
   );
