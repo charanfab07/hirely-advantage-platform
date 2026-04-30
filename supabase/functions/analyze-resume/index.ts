@@ -142,7 +142,7 @@ const TOOL_SCHEMA = {
 
         weaknesses: {
           type: "array",
-          description: "3–6 categorized weaknesses. Be ruthlessly specific.",
+          description: "3–6 categorized refinement opportunities. Be specific and constructive — frame each as a growth opportunity, never as a criticism. Titles like 'Quantify impact for stronger recall' not 'No metrics'.",
           items: {
             type: "object",
             properties: {
