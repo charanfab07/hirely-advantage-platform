@@ -52,36 +52,10 @@ type Analysis = {
   created_at: string;
 };
 
-const QUESTION_BANK: { type: QuestionType; label: string; questions: string[] }[] = [
-  {
-    type: "behavioral",
-    label: "Behavioral",
-    questions: [
-      "Tell me about a time you led a project under tight constraints. What did you do, and what was the outcome?",
-      "Describe a situation where you had to influence someone without authority.",
-      "Walk me through a time you made a decision with incomplete information.",
-      "Tell me about a time you disagreed with your manager. How did you handle it?",
-      "Describe your biggest professional failure and what you learned.",
-    ],
-  },
-  {
-    type: "technical",
-    label: "Technical",
-    questions: [
-      "Walk me through how you'd design a system that handles 1M users with low latency reads.",
-      "How would you debug a production issue where latency suddenly spiked by 4x?",
-      "Explain a tradeoff you made between performance and maintainability.",
-    ],
-  },
-  {
-    type: "case",
-    label: "Case / PM",
-    questions: [
-      "Our retention dropped 12% last month. How would you investigate?",
-      "How would you prioritize between three features with similar reach but different user types?",
-      "Estimate the daily revenue of a major coffee chain in a single city.",
-    ],
-  },
+const QUESTION_TYPES: { type: GenerableType; label: string }[] = [
+  { type: "behavioral", label: "Behavioral" },
+  { type: "technical", label: "Technical" },
+  { type: "case", label: "Case / PM" },
 ];
 
 const tabs = [
