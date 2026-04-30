@@ -170,7 +170,7 @@ export const ResumeEditor = ({
 
   const handleDownloadDocx = async () => {
     try {
-      const doc = renderDocx(resume);
+      const doc = renderDocx(resume, typo);
       const blob = await Packer.toBlob(doc);
       saveAs(blob, `${fileBase}.docx`);
       toast.success("DOCX downloaded");
