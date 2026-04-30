@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Loader2, Copy, Check, Trash2, FileText } from "lucide-react";
+import { Sparkles, Loader2, Copy, Check, Trash2, FileText, Target, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
@@ -14,6 +14,8 @@ type Letter = {
   resume_id: string | null;
   company: string;
   role: string;
+  company_url: string | null;
+  company_mission: string | null;
   job_description: string | null;
   tone: Tone;
   hook: string | null;
@@ -23,6 +25,11 @@ type Letter = {
   closing: string | null;
   full_letter: string;
   notes: string | null;
+  jd_keywords: string[] | null;
+  matched_keywords: string[] | null;
+  missing_keywords: string[] | null;
+  resume_skills: string[] | null;
+  match_score: number | null;
   created_at: string;
 };
 
@@ -52,6 +59,7 @@ const CoverLetterGenerator = () => {
 
   // form
   const [company, setCompany] = useState("");
+  const [companyUrl, setCompanyUrl] = useState("");
   const [role, setRole] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
   const [jd, setJd] = useState("");
@@ -109,6 +117,7 @@ const CoverLetterGenerator = () => {
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
         body: {
           company: company.trim(),
+          company_url: companyUrl.trim() || undefined,
           role: role.trim(),
           tone,
           job_description: jd.trim() || undefined,
