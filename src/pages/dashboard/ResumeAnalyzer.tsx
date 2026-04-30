@@ -545,6 +545,16 @@ const ResumeAnalyzer = () => {
         </div>
       )}
 
+      {/* TAILORED TAB */}
+      {tab === "tailored" && (
+        <TailoredEditsPanel
+          className="mt-5"
+          resumeId={latest?.resume_id ?? null}
+          analysisId={latest?.id ?? null}
+          defaultTargetRole={latest?.target_role ?? undefined}
+        />
+      )}
+
       {/* HISTORY TAB */}
       {tab === "versions" && (
         <SectionCard className="mt-5 p-0 overflow-hidden">
