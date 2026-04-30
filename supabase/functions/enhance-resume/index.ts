@@ -266,9 +266,10 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
 
+    const effectiveRole = cleanRequestedRole || targetRole;
     const truncated = resumeRow.raw_text.slice(0, 16000);
     const userPrompt = `Rewrite this resume into a single recruiter-ready version that fixes every issue from the analysis.${
-      targetRole ? ` Optimize for the role: "${targetRole}".` : ""
+      effectiveRole ? ` Optimize specifically for the role: "${effectiveRole}". Tailor the summary, skill clusters, keyword choice, and bullet emphasis to what recruiters and ATS systems screen for in "${effectiveRole}" applications.` : ""
     }
 ${analysisContext}
 
