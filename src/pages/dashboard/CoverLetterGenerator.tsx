@@ -943,9 +943,9 @@ const LetterSheet = ({
     textAlign: typo.align,
   };
 
-  const maxW = compact ? "max-w-[640px]" : "max-w-[820px]";
-  const padX = compact ? "px-8 sm:px-12" : "px-10 sm:px-16";
-  const padY = compact ? "py-10" : "py-14";
+  const maxW = compact ? "max-w-[600px]" : "max-w-[820px]";
+  const padX = compact ? "px-6 sm:px-8" : "px-10 sm:px-16";
+  const padY = compact ? "py-5" : "py-14";
 
   return (
     <div
