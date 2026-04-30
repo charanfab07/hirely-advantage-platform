@@ -42,6 +42,47 @@ type LetterDoc = {
   signOff: string;
 };
 
+type FontKey = "serif" | "sans" | "mono";
+type AlignKey = "left" | "center" | "justify";
+
+type TypoSettings = {
+  font: FontKey;
+  fontSize: number; // px in preview, mapped to pt for exports
+  lineHeight: number;
+  align: AlignKey;
+  bold: boolean;
+  italic: boolean;
+};
+
+const FONT_STACKS: Record<FontKey, string> = {
+  serif: '"Times New Roman", Georgia, "Cambria", serif',
+  sans: '"Inter", "Helvetica Neue", Arial, sans-serif',
+  mono: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace',
+};
+
+const FONT_LABELS: Record<FontKey, string> = {
+  serif: "Serif",
+  sans: "Sans",
+  mono: "Mono",
+};
+
+// Map our preview font choice -> the font name jsPDF / Word should use.
+const PDF_FONT: Record<FontKey, "times" | "helvetica" | "courier"> = {
+  serif: "times",
+  sans: "helvetica",
+  mono: "courier",
+};
+const DOCX_FONT: Record<FontKey, string> = {
+  serif: "Times New Roman",
+  sans: "Calibri",
+  mono: "Courier New",
+};
+const DOCX_ALIGN: Record<AlignKey, (typeof AlignmentType)[keyof typeof AlignmentType]> = {
+  left: AlignmentType.LEFT,
+  center: AlignmentType.CENTER,
+  justify: AlignmentType.JUSTIFIED,
+};
+
 const todayLong = () =>
   new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
