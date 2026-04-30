@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LogOut, Search, ChevronDown } from "lucide-react";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
-import { StatStrip } from "@/components/dashboard/StatStrip";
+
 
 import { InsightsTriad, type InsightsColumn } from "@/components/dashboard/InsightsTriad";
 import { QuickWins, type QuickWin } from "@/components/dashboard/QuickWins";
