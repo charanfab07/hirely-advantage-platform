@@ -42,7 +42,21 @@ type LetterDoc = {
   signOff: string;
 };
 
-type FontKey = "serif" | "sans" | "mono";
+type FontKey =
+  | "times"
+  | "georgia"
+  | "cambria"
+  | "garamond"
+  | "bookman"
+  | "inter"
+  | "helvetica"
+  | "arial"
+  | "calibri"
+  | "verdana"
+  | "tahoma"
+  | "trebuchet"
+  | "jetbrains"
+  | "courier";
 type AlignKey = "left" | "center" | "justify";
 
 type TypoSettings = {
@@ -55,27 +69,71 @@ type TypoSettings = {
 };
 
 const FONT_STACKS: Record<FontKey, string> = {
-  serif: '"Times New Roman", Georgia, "Cambria", serif',
-  sans: '"Inter", "Helvetica Neue", Arial, sans-serif',
-  mono: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace',
+  times: '"Times New Roman", Times, serif',
+  georgia: 'Georgia, "Iowan Old Style", serif',
+  cambria: 'Cambria, "Hoefler Text", serif',
+  garamond: '"EB Garamond", Garamond, "Apple Garamond", serif',
+  bookman: '"Bookman Old Style", "URW Bookman L", serif',
+  inter: '"Inter", "Helvetica Neue", Arial, sans-serif',
+  helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  arial: 'Arial, "Liberation Sans", sans-serif',
+  calibri: 'Calibri, "Carlito", "Trebuchet MS", sans-serif',
+  verdana: 'Verdana, Geneva, sans-serif',
+  tahoma: 'Tahoma, "DejaVu Sans", sans-serif',
+  trebuchet: '"Trebuchet MS", "Lucida Sans", sans-serif',
+  jetbrains: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace',
+  courier: '"Courier New", Courier, monospace',
 };
 
 const FONT_LABELS: Record<FontKey, string> = {
-  serif: "Serif",
-  sans: "Sans",
-  mono: "Mono",
+  times: "Times New Roman",
+  georgia: "Georgia",
+  cambria: "Cambria",
+  garamond: "Garamond",
+  bookman: "Bookman",
+  inter: "Inter",
+  helvetica: "Helvetica",
+  arial: "Arial",
+  calibri: "Calibri",
+  verdana: "Verdana",
+  tahoma: "Tahoma",
+  trebuchet: "Trebuchet MS",
+  jetbrains: "JetBrains Mono",
+  courier: "Courier New",
 };
 
-// Map our preview font choice -> the font name jsPDF / Word should use.
+// jsPDF has 3 built-in font families. Map each choice to the closest match.
 const PDF_FONT: Record<FontKey, "times" | "helvetica" | "courier"> = {
-  serif: "times",
-  sans: "helvetica",
-  mono: "courier",
+  times: "times",
+  georgia: "times",
+  cambria: "times",
+  garamond: "times",
+  bookman: "times",
+  inter: "helvetica",
+  helvetica: "helvetica",
+  arial: "helvetica",
+  calibri: "helvetica",
+  verdana: "helvetica",
+  tahoma: "helvetica",
+  trebuchet: "helvetica",
+  jetbrains: "courier",
+  courier: "courier",
 };
 const DOCX_FONT: Record<FontKey, string> = {
-  serif: "Times New Roman",
-  sans: "Calibri",
-  mono: "Courier New",
+  times: "Times New Roman",
+  georgia: "Georgia",
+  cambria: "Cambria",
+  garamond: "Garamond",
+  bookman: "Bookman Old Style",
+  inter: "Inter",
+  helvetica: "Helvetica",
+  arial: "Arial",
+  calibri: "Calibri",
+  verdana: "Verdana",
+  tahoma: "Tahoma",
+  trebuchet: "Trebuchet MS",
+  jetbrains: "JetBrains Mono",
+  courier: "Courier New",
 };
 const DOCX_ALIGN: Record<AlignKey, (typeof AlignmentType)[keyof typeof AlignmentType]> = {
   left: AlignmentType.LEFT,
@@ -141,6 +199,113 @@ function guessSalutation(hiringManager: string) {
   return name ? `Dear ${name},` : "Dear Hiring Manager,";
 }
 
+// Parse contact info from a resume's raw text. Best-effort heuristics —
+// scans the first ~40 non-empty lines (resume header) for name, email,
+// phone, and city/country location.
+function parseResumeContact(raw: string): {
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+} {
+  if (!raw) return {};
+  const text = raw.replace(/\r\n/g, "\n");
+  const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
+  const head = lines.slice(0, 40);
+  const headBlob = head.join("\n");
+
+  // Email
+  const emailMatch = headBlob.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);
+  const email = emailMatch?.[0];
+
+  // Phone — international or local, 9–15 digits, allows spaces/dashes/parens
+  const phoneMatch = headBlob.match(
+    /(\+?\d[\d\s().-]{8,16}\d)/,
+  );
+  const phone = phoneMatch?.[1]?.replace(/\s+/g, " ").trim();
+
+  // Name — first line that looks like a "Firstname Lastname" header.
+  // 2–4 words, mostly letters, no email/phone/digits, not all caps lock-only
+  // junk. Allow ALL CAPS too (common on resumes).
+  let name: string | undefined;
+  for (const line of head.slice(0, 8)) {
+    if (/[@\d]/.test(line)) continue;
+    if (line.length > 60) continue;
+    const words = line.split(/\s+/);
+    if (words.length < 2 || words.length > 5) continue;
+    const ok = words.every((w) => /^[A-Za-zÀ-ÿ'’.\-]{1,}$/.test(w));
+    if (!ok) continue;
+    // Title-case the line (handles ALL CAPS resumes nicely)
+    name = words
+      .map((w) =>
+        w.length <= 2
+          ? w
+          : w[0].toUpperCase() + w.slice(1).toLowerCase(),
+      )
+      .join(" ");
+    break;
+  }
+
+  // Location — line containing a comma + words, no digits-only, no email,
+  // not the name. Common patterns: "San Francisco, CA", "Bengaluru, India".
+  let location: string | undefined;
+  for (const line of head) {
+    if (line === name) continue;
+    if (/@/.test(line)) continue;
+    if (!/,/.test(line)) continue;
+    if (/\d{4,}/.test(line)) continue; // skip lines with long numbers
+    if (line.length > 60) continue;
+    if (/(linkedin|github|twitter|portfolio|http)/i.test(line)) continue;
+    const parts = line.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length < 2 || parts.length > 3) continue;
+    const ok = parts.every((p) => /^[A-Za-zÀ-ÿ'’.\- ]{2,}$/.test(p));
+    if (!ok) continue;
+    location = parts.join(", ");
+    break;
+  }
+
+  return { name, email, phone, location };
+}
+
+// Best-effort company + hiring-manager extraction from a job description.
+function parseJobDescription(jd: string): {
+  company?: string;
+  hiringManager?: string;
+} {
+  if (!jd) return {};
+  const text = jd.replace(/\r\n/g, "\n");
+
+  // "at <Company>" — pick the proper-noun phrase right after.
+  // e.g. "Senior Engineer at Stripe", "Join us at Acme Corp".
+  let company: string | undefined;
+  const atMatch = text.match(
+    /\bat\s+([A-Z][A-Za-z0-9&.\-']+(?:\s+[A-Z][A-Za-z0-9&.\-']+){0,3})\b/,
+  );
+  if (atMatch) company = atMatch[1].trim();
+
+  // "About <Company>" header
+  if (!company) {
+    const aboutMatch = text.match(
+      /\bAbout\s+([A-Z][A-Za-z0-9&.\-']+(?:\s+[A-Z][A-Za-z0-9&.\-']+){0,3})\b/,
+    );
+    if (aboutMatch) company = aboutMatch[1].trim();
+  }
+
+  // Strip trailing connectors that get caught by the regex.
+  if (company) {
+    company = company.replace(/\s+(is|are|we|our|the)$/i, "").trim();
+  }
+
+  // Hiring manager — "Hiring Manager: Jane Doe" / "Reports to Jane Doe"
+  let hiringManager: string | undefined;
+  const hmMatch = text.match(
+    /(?:hiring manager|reports? to|recruiter)\s*[:\-]?\s*([A-Z][a-z]+(?:\s+[A-Z][a-z]+){1,2})/i,
+  );
+  if (hmMatch) hiringManager = hmMatch[1].trim();
+
+  return { company, hiringManager };
+}
+
 const CoverLetterGenerator = () => {
   const { user } = useAuth();
   const [jd, setJd] = useState("");
@@ -151,7 +316,7 @@ const CoverLetterGenerator = () => {
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [typo, setTypo] = useState<TypoSettings>({
-    font: "serif",
+    font: "times",
     fontSize: 14,
     lineHeight: 1.7,
     align: "left",
@@ -161,19 +326,61 @@ const CoverLetterGenerator = () => {
   const updateTypo = <K extends keyof TypoSettings>(key: K, value: TypoSettings[K]) =>
     setTypo((t) => ({ ...t, [key]: value }));
 
-  // Pre-fill sender name + email from the signed-in user.
+  const [resumeId, setResumeId] = useState<string | null>(null);
+
+  // Pre-fill sender details from the signed-in user + their latest resume.
   useEffect(() => {
     if (!user) return;
+    let cancelled = false;
+
+    (async () => {
+      // 1) Quick fill from auth metadata
+      setDoc((d) => ({
+        ...d,
+        senderEmail: d.senderEmail || user.email || "",
+        senderName:
+          d.senderName ||
+          (user.user_metadata?.full_name as string | undefined) ||
+          (user.user_metadata?.name as string | undefined) ||
+          "",
+      }));
+
+      // 2) Pull most recent resume and parse contact info
+      const { data, error } = await supabase
+        .from("resumes")
+        .select("id, raw_text")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (cancelled || error || !data) return;
+      setResumeId(data.id);
+      const parsed = parseResumeContact(data.raw_text ?? "");
+      setDoc((d) => ({
+        ...d,
+        senderName: d.senderName || parsed.name || "",
+        senderEmail: d.senderEmail || parsed.email || "",
+        senderPhone: d.senderPhone || parsed.phone || "",
+        senderLocation: d.senderLocation || parsed.location || "",
+      }));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+
+  // Auto-fill recipient details when the user pastes/uploads a JD.
+  useEffect(() => {
+    if (jd.trim().length < 40) return;
+    const parsed = parseJobDescription(jd);
     setDoc((d) => ({
       ...d,
-      senderEmail: d.senderEmail || user.email || "",
-      senderName:
-        d.senderName ||
-        (user.user_metadata?.full_name as string | undefined) ||
-        (user.user_metadata?.name as string | undefined) ||
-        "",
+      companyName: d.companyName || parsed.company || "",
+      hiringManager: d.hiringManager || parsed.hiringManager || "",
     }));
-  }, [user?.id]);
+  }, [jd]);
 
   // Esc closes fullscreen + lock body scroll while open
   useEffect(() => {
@@ -224,6 +431,7 @@ const CoverLetterGenerator = () => {
           tone,
           job_description: jd.trim(),
           hiring_manager: doc.hiringManager.trim() || undefined,
+          resume_id: resumeId ?? undefined,
         },
       });
       if (error) throw new Error(error.message || "Generation failed");
