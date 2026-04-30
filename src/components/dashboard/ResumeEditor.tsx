@@ -159,7 +159,7 @@ export const ResumeEditor = ({
 
   const handleDownloadPdf = () => {
     try {
-      const doc = renderPdf(resume);
+      const doc = renderPdf(resume, typo);
       doc.save(`${fileBase}.pdf`);
       toast.success("PDF downloaded");
     } catch (e) {
