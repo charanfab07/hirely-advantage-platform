@@ -9,6 +9,7 @@ import { ScoreSparkline } from "@/components/dashboard/ScoreSparkline";
 import { InsightsTriad, type InsightsColumn } from "@/components/dashboard/InsightsTriad";
 import { QuickWins, type QuickWin } from "@/components/dashboard/QuickWins";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
+import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -83,6 +84,7 @@ const tabs = [
   { value: "score", label: "Score" },
   { value: "extracted", label: "Extracted" },
   { value: "issues", label: "Issues" },
+  { value: "tailored", label: "Tailored" },
   { value: "versions", label: "History" },
 ];
 
@@ -541,6 +543,16 @@ const ResumeAnalyzer = () => {
             </ul>
           </SectionCard>
         </div>
+      )}
+
+      {/* TAILORED TAB */}
+      {tab === "tailored" && (
+        <TailoredEditsPanel
+          className="mt-5"
+          resumeId={latest?.resume_id ?? null}
+          analysisId={latest?.id ?? null}
+          defaultTargetRole={latest?.target_role ?? undefined}
+        />
       )}
 
       {/* HISTORY TAB */}

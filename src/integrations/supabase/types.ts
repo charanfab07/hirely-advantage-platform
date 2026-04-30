@@ -112,6 +112,60 @@ export type Database = {
           },
         ]
       }
+      resume_tailorings: {
+        Row: {
+          analysis_id: string | null
+          bullets: Json
+          cover_note: string | null
+          created_at: string
+          id: string
+          job_description: string | null
+          keywords_to_add: Json
+          match_after: number | null
+          match_before: number | null
+          model: string | null
+          resume_id: string
+          skills: Json
+          summary: string | null
+          target_role: string
+          user_id: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          bullets?: Json
+          cover_note?: string | null
+          created_at?: string
+          id?: string
+          job_description?: string | null
+          keywords_to_add?: Json
+          match_after?: number | null
+          match_before?: number | null
+          model?: string | null
+          resume_id: string
+          skills?: Json
+          summary?: string | null
+          target_role: string
+          user_id: string
+        }
+        Update: {
+          analysis_id?: string | null
+          bullets?: Json
+          cover_note?: string | null
+          created_at?: string
+          id?: string
+          job_description?: string | null
+          keywords_to_add?: Json
+          match_after?: number | null
+          match_before?: number | null
+          model?: string | null
+          resume_id?: string
+          skills?: Json
+          summary?: string | null
+          target_role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       resumes: {
         Row: {
           created_at: string
