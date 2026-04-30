@@ -51,7 +51,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
               <span
                 className={cn(
                   "w-1.5 h-1.5 rounded-full transition-colors",
-                  isActive ? "bg-[hsl(258_38%_52%)]" : "bg-transparent",
+                  isActive ? "bg-[hsl(200_100%_55%)]" : "bg-transparent",
                 )}
               />
               <Icon className="w-4 h-4 opacity-70" />
