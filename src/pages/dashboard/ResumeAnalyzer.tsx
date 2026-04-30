@@ -493,7 +493,7 @@ const ResumeAnalyzer = () => {
 
           <SectionCard className="md:col-span-2">
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-              Weak bullets · {latest.issues?.weak_bullets?.length ?? 0}
+              Bullets to sharpen · {latest.issues?.weak_bullets?.length ?? 0}
             </p>
             <ul className="mt-3 space-y-3">
               {(latest.issues?.weak_bullets ?? []).map((b, i) => (
@@ -505,7 +505,7 @@ const ResumeAnalyzer = () => {
                 </li>
               ))}
               {!latest.issues?.weak_bullets?.length && (
-                <p className="text-[13px] text-foreground/55">No weak bullets — solid work.</p>
+                <p className="text-[13px] text-foreground/55">Every bullet is pulling its weight — beautifully done.</p>
               )}
             </ul>
           </SectionCard>
