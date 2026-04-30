@@ -500,6 +500,26 @@ const ResumeAnalyzer = () => {
         </>
       )}
 
+      {/* COMPARE TAB — latest vs previous, side by side */}
+      {tab === "compare" && latest && (
+        analyses.length < 2 ? (
+          <SectionCard className="mt-5">
+            <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+              One version on file
+            </p>
+            <p className="mt-2 text-[14px] text-foreground/70 tracking-tight leading-snug max-w-xl">
+              Re-upload an improved resume to unlock the side-by-side comparison — we'll show
+              every score axis, skill, and issue that moved, with improvements highlighted in green.
+            </p>
+          </SectionCard>
+        ) : (
+          <TransformationPanel
+            className="mt-5"
+            versions={[analyses[0], analyses[1]]}
+          />
+        )
+      )}
+
       {/* EXTRACTED TAB */}
       {tab === "extracted" && latest && (
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
