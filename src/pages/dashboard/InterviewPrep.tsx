@@ -1,16 +1,193 @@
-import { useState } from "react";
-import { Mic } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+
+type QuestionType = "behavioral" | "technical" | "case" | "general";
+
+type StarPart = { present: boolean; note: string };
+
+type Analysis = {
+  id: string;
+  question: string;
+  question_type: QuestionType;
+  target_role: string | null;
+  answer: string;
+  clarity_score: number | null;
+  confidence_score: number | null;
+  length_score: number | null;
+  metrics_score: number | null;
+  star_score: number | null;
+  keyword_score: number | null;
+  overall_score: number | null;
+  strengths: string[];
+  gaps: string[];
+  matched_keywords: string[];
+  missing_keywords: string[];
+  star_breakdown: {
+    situation?: StarPart;
+    task?: StarPart;
+    action?: StarPart;
+    result?: StarPart;
+  };
+  improved_answer: string | null;
+  coaching_note: string | null;
+  word_count: number | null;
+  created_at: string;
+};
+
+const QUESTION_BANK: { type: QuestionType; label: string; questions: string[] }[] = [
+  {
+    type: "behavioral",
+    label: "Behavioral",
+    questions: [
+      "Tell me about a time you led a project under tight constraints. What did you do, and what was the outcome?",
+      "Describe a situation where you had to influence someone without authority.",
+      "Walk me through a time you made a decision with incomplete information.",
+      "Tell me about a time you disagreed with your manager. How did you handle it?",
+      "Describe your biggest professional failure and what you learned.",
+    ],
+  },
+  {
+    type: "technical",
+    label: "Technical",
+    questions: [
+      "Walk me through how you'd design a system that handles 1M users with low latency reads.",
+      "How would you debug a production issue where latency suddenly spiked by 4x?",
+      "Explain a tradeoff you made between performance and maintainability.",
+    ],
+  },
+  {
+    type: "case",
+    label: "Case / PM",
+    questions: [
+      "Our retention dropped 12% last month. How would you investigate?",
+      "How would you prioritize between three features with similar reach but different user types?",
+      "Estimate the daily revenue of a major coffee chain in a single city.",
+    ],
+  },
+];
 
 const tabs = [
   { value: "practice", label: "Practice" },
-  { value: "bank", label: "Question bank", count: 120 },
-  { value: "recordings", label: "Recordings", count: 7 },
+  { value: "history", label: "History" },
 ];
 
 const InterviewPrep = () => {
+  const { user } = useAuth();
   const [tab, setTab] = useState("practice");
+
+  // form
+  const [qType, setQType] = useState<QuestionType>("behavioral");
+  const [question, setQuestion] = useState(QUESTION_BANK[0].questions[0]);
+  const [answer, setAnswer] = useState("");
+  const [targetRole, setTargetRole] = useState("");
+
+  // results
+  const [analyzing, setAnalyzing] = useState(false);
+  const [resumeId, setResumeId] = useState<string | null>(null);
+  const [history, setHistory] = useState<Analysis[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  const active = useMemo(
+    () => history.find((h) => h.id === activeId) ?? null,
+    [history, activeId],
+  );
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ data: rows }, { data: r }] = await Promise.all([
+        supabase
+          .from("interview_answers")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(30),
+        supabase.from("resumes").select("id").order("created_at", { ascending: false }).limit(1),
+      ]);
+      setHistory((rows ?? []) as unknown as Analysis[]);
+      if (rows?.[0]) setActiveId(rows[0].id);
+      if (r?.[0]) setResumeId(r[0].id);
+    })();
+  }, [user?.id]);
+
+  const refresh = async () => {
+    const { data } = await supabase
+      .from("interview_answers")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(30);
+    setHistory((data ?? []) as unknown as Analysis[]);
+  };
+
+  const wordCount = useMemo(
+    () => answer.trim().split(/\s+/).filter(Boolean).length,
+    [answer],
+  );
+
+  const shuffleQuestion = () => {
+    const bank = QUESTION_BANK.find((b) => b.type === qType) ?? QUESTION_BANK[0];
+    const next = bank.questions[Math.floor(Math.random() * bank.questions.length)];
+    setQuestion(next);
+  };
+
+  const switchType = (t: QuestionType) => {
+    setQType(t);
+    const bank = QUESTION_BANK.find((b) => b.type === t) ?? QUESTION_BANK[0];
+    setQuestion(bank.questions[0]);
+  };
+
+  const analyze = async () => {
+    if (answer.trim().length < 20) {
+      toast.error("Write at least a couple of sentences before analyzing.");
+      return;
+    }
+    setAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-interview-answer", {
+        body: {
+          question: question.trim(),
+          answer: answer.trim(),
+          question_type: qType,
+          target_role: targetRole.trim() || undefined,
+          resume_id: resumeId ?? undefined,
+        },
+      });
+      if (error) throw new Error(error.message || "Analysis failed");
+      if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
+      const a = (data as { analysis?: Analysis }).analysis;
+      if (a?.id) setActiveId(a.id);
+      await refresh();
+      toast.success("Analysis ready.");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const remove = async (id: string) => {
+    const { error } = await supabase.from("interview_answers").delete().eq("id", id);
+    if (error) {
+      toast.error("Couldn't delete");
+      return;
+    }
+    if (activeId === id) setActiveId(null);
+    refresh();
+  };
+
+  const copy = async (text: string, label = "Copied") => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(label);
+    } catch {
+      toast.error("Copy failed");
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -30,54 +207,457 @@ const InterviewPrep = () => {
           Walk in fluent.
         </span>
       </h1>
+      <p className="mt-3 text-[14px] text-foreground/60 tracking-tight max-w-2xl">
+        Type your answer. We score it on clarity, confidence, length, metrics, STAR structure, and
+        keyword relevance — then rewrite a stronger version you can actually use.
+      </p>
 
       <div className="mt-6">
-        <SegmentedTabs tabs={tabs} value={tab} onChange={setTab} />
+        <SegmentedTabs tabs={[...tabs, { value: "history", label: "History", count: history.length || undefined }]} value={tab} onChange={setTab} />
       </div>
 
-      <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <SectionCard className="lg:col-span-2">
-          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-            Up next
-          </p>
-          <p className="mt-3 text-[22px] font-semibold tracking-[-0.02em] text-foreground leading-snug">
-            Linear · Senior PM screen
-          </p>
-          <p className="text-[13px] text-foreground/55 mt-1">Wed, 2:30 PM · 30 min with Karri</p>
+      {tab === "practice" && (
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Composer */}
+          <SectionCard className="lg:col-span-5 p-0 overflow-hidden">
+            <div className="px-5 sm:px-6 pt-5 pb-4">
+              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                Question
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {QUESTION_BANK.map((b) => (
+                  <button
+                    key={b.type}
+                    type="button"
+                    onClick={() => switchType(b.type)}
+                    disabled={analyzing}
+                    className={cn(
+                      "px-2.5 py-1 rounded-full text-[11.5px] font-medium tracking-tight transition-colors border",
+                      qType === b.type
+                        ? "bg-foreground text-background border-foreground"
+                        : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
+                    )}
+                  >
+                    {b.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={shuffleQuestion}
+                  disabled={analyzing}
+                  className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors"
+                >
+                  <Shuffle className="w-3 h-3" />
+                  Shuffle
+                </button>
+              </div>
 
-          <div className="mt-5 pt-5 border-t border-foreground/[0.06]">
-            <div className="flex items-center justify-between">
-              <span className="text-[12px] text-foreground/55">Prep checklist</span>
-              <span className="text-[12px] font-medium text-[hsl(258_38%_52%)]">3 of 5 done</span>
+              <textarea
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                rows={3}
+                disabled={analyzing}
+                className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
+              />
             </div>
-            <div className="mt-3 flex gap-1">
-              {[true, true, true, false, false].map((done, i) => (
-                <div
-                  key={i}
-                  className="flex-1 h-1 rounded-full"
-                  style={{ background: done ? "#6D54B3" : "hsl(var(--foreground) / 0.1)" }}
+
+            <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-3">
+              <div>
+                <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Target role (optional)
+                </label>
+                <input
+                  type="text"
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value)}
+                  disabled={analyzing}
+                  placeholder="Senior PM, Data Analyst…"
+                  className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors"
                 />
-              ))}
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                    Your answer
+                  </label>
+                  <span className="text-[11px] text-foreground/45 tabular-nums">
+                    {wordCount} words
+                    {wordCount > 0 && (
+                      <>
+                        {" · "}
+                        <span
+                          className={cn(
+                            wordCount >= 150 && wordCount <= 300
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-amber-600 dark:text-amber-400",
+                          )}
+                        >
+                          {wordCount < 150
+                            ? "a bit short"
+                            : wordCount <= 300
+                              ? "good length"
+                              : "trim this"}
+                        </span>
+                      </>
+                    )}
+                  </span>
+                </div>
+                <textarea
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  rows={10}
+                  disabled={analyzing}
+                  placeholder="Speak it like you would in the interview, then type it. Aim for 150–300 words for behavioral answers."
+                  className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
+                />
+              </div>
             </div>
+
+            <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex items-center justify-between">
+              <p className="text-[11px] text-foreground/50 tracking-tight inline-flex items-center gap-1">
+                <Mic className="w-3 h-3" />
+                Voice mode coming soon
+              </p>
+              <button
+                type="button"
+                onClick={analyze}
+                disabled={analyzing}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-medium tracking-tight transition-opacity",
+                  "bg-foreground text-background hover:opacity-90 disabled:opacity-50",
+                )}
+              >
+                {analyzing ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Scoring…
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5" />
+                    Analyze answer
+                  </>
+                )}
+              </button>
+            </div>
+          </SectionCard>
+
+          {/* Result */}
+          <div className="lg:col-span-7 space-y-4">
+            {active ? (
+              <AnalysisView
+                analysis={active}
+                onCopy={copy}
+                onUseImproved={() => {
+                  if (active.improved_answer) {
+                    setAnswer(active.improved_answer);
+                    toast.success("Loaded improved answer — try delivering it now.");
+                  }
+                }}
+              />
+            ) : (
+              <SectionCard className="flex items-center gap-3">
+                <span className="w-9 h-9 rounded-full bg-foreground/[0.05] grid place-items-center shrink-0">
+                  <Wand2 className="w-4 h-4 text-foreground/55" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[14px] font-medium tracking-tight text-foreground">
+                    No analysis yet
+                  </p>
+                  <p className="text-[12.5px] text-foreground/60 tracking-tight">
+                    Pick a question, write your answer, and we'll score it across six axes and
+                    rewrite a sharper version.
+                  </p>
+                </div>
+              </SectionCard>
+            )}
+          </div>
+        </div>
+      )}
+
+      {tab === "history" && (
+        <SectionCard className="mt-5 p-0 overflow-hidden">
+          <ul className="divide-y divide-foreground/[0.06]">
+            {history.map((h) => (
+              <li key={h.id} className="px-5 py-4 flex items-center gap-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13.5px] font-medium tracking-tight text-foreground truncate">
+                    {h.question}
+                  </p>
+                  <p className="text-[11.5px] text-foreground/50 tracking-tight">
+                    {h.question_type} ·{" "}
+                    {h.overall_score !== null ? `${h.overall_score}/100` : "—"} ·{" "}
+                    {new Date(h.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveId(h.id);
+                    setTab("practice");
+                  }}
+                  className="text-[12px] px-3 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 tracking-tight transition-colors"
+                >
+                  Open
+                </button>
+                <button
+                  type="button"
+                  onClick={() => remove(h.id)}
+                  className="text-foreground/40 hover:text-foreground/80 transition-colors"
+                  aria-label="Delete"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </li>
+            ))}
+            {!history.length && (
+              <li className="px-5 py-6 text-[13px] text-foreground/55">
+                No practice answers yet. Run your first one in the Practice tab.
+              </li>
+            )}
+          </ul>
+        </SectionCard>
+      )}
+    </div>
+  );
+};
+
+const AnalysisView = ({
+  analysis,
+  onCopy,
+  onUseImproved,
+}: {
+  analysis: Analysis;
+  onCopy: (text: string, label?: string) => void;
+  onUseImproved: () => void;
+}) => {
+  const score = analysis.overall_score ?? 0;
+  const scoreColor =
+    score >= 80
+      ? "text-emerald-600 dark:text-emerald-400"
+      : score >= 60
+        ? "text-amber-600 dark:text-amber-400"
+        : "text-rose-600 dark:text-rose-400";
+
+  const star = analysis.star_breakdown ?? {};
+  const starParts: { key: keyof typeof star; label: string }[] = [
+    { key: "situation", label: "Situation" },
+    { key: "task", label: "Task" },
+    { key: "action", label: "Action" },
+    { key: "result", label: "Result" },
+  ];
+
+  const axes: { label: string; value: number | null }[] = [
+    { label: "Clarity", value: analysis.clarity_score },
+    { label: "Confidence", value: analysis.confidence_score },
+    { label: "STAR structure", value: analysis.star_score },
+    { label: "Metrics", value: analysis.metrics_score },
+    { label: "Keywords", value: analysis.keyword_score },
+    { label: "Length", value: analysis.length_score },
+  ];
+
+  return (
+    <>
+      <SectionCard>
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+              Overall delivery
+            </p>
+            <p className={cn("mt-1 text-[40px] font-semibold tracking-[-0.03em] leading-none tabular-nums", scoreColor)}>
+              {score}
+              <span className="text-[18px] text-foreground/40 font-medium ml-1">/100</span>
+            </p>
+            {analysis.coaching_note && (
+              <p className="mt-2 text-[13px] text-foreground/70 tracking-tight leading-snug max-w-md">
+                {analysis.coaching_note}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {analysis.improved_answer && (
+              <button
+                type="button"
+                onClick={onUseImproved}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-[11.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+              >
+                <Wand2 className="w-3 h-3" />
+                Use improved
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {axes.map((a) => (
+            <ScoreBar key={a.label} label={a.label} value={a.value} />
+          ))}
+        </div>
+      </SectionCard>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <SectionCard>
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-emerald-700 dark:text-emerald-400 font-medium">
+            What you did well
+          </p>
+          <ul className="mt-3 space-y-2">
+            {(analysis.strengths ?? []).map((s, i) => (
+              <li key={i} className="flex gap-2 text-[13px] text-foreground/80 tracking-tight leading-snug">
+                <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{s}</span>
+              </li>
+            ))}
+            {!analysis.strengths?.length && (
+              <li className="text-[12.5px] text-foreground/55">No strengths surfaced.</li>
+            )}
+          </ul>
+        </SectionCard>
+
+        <SectionCard>
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-amber-700 dark:text-amber-400 font-medium">
+            What you missed
+          </p>
+          <ul className="mt-3 space-y-2">
+            {(analysis.gaps ?? []).map((g, i) => (
+              <li key={i} className="flex gap-2 text-[13px] text-foreground/80 tracking-tight leading-snug">
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>{g}</span>
+              </li>
+            ))}
+            {!analysis.gaps?.length && (
+              <li className="text-[12.5px] text-foreground/55">Nothing major to fix.</li>
+            )}
+          </ul>
+        </SectionCard>
+      </div>
+
+      <SectionCard className="p-0 overflow-hidden">
+        <div className="px-5 sm:px-6 pt-5 pb-3">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+            STAR breakdown
+          </p>
+          <p className="text-[12px] text-foreground/55 tracking-tight mt-1">
+            Each section the interviewer expects, and whether it landed.
+          </p>
+        </div>
+        <ul className="border-t border-foreground/[0.06] divide-y divide-foreground/[0.06]">
+          {starParts.map((p) => {
+            const part = (star as Record<string, StarPart | undefined>)[p.key as string];
+            return (
+              <li key={p.key as string} className="px-5 sm:px-6 py-3 flex items-start gap-3">
+                <span
+                  className={cn(
+                    "mt-0.5 w-5 h-5 rounded-full grid place-items-center shrink-0 text-[10px] font-semibold",
+                    part?.present
+                      ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                      : "bg-rose-500/15 text-rose-700 dark:text-rose-400",
+                  )}
+                >
+                  {part?.present ? "✓" : "—"}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[13px] font-medium tracking-tight text-foreground">{p.label}</p>
+                  <p className="text-[12.5px] text-foreground/65 tracking-tight leading-snug">
+                    {part?.note ?? "No notes."}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </SectionCard>
+
+      {(analysis.matched_keywords?.length || analysis.missing_keywords?.length) ? (
+        <SectionCard>
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+            Keyword relevance
+          </p>
+          {!!analysis.matched_keywords?.length && (
+            <div className="mt-3">
+              <p className="text-[11px] text-foreground/55 tracking-tight mb-1.5">Used</p>
+              <div className="flex flex-wrap gap-1.5">
+                {analysis.matched_keywords.map((k) => (
+                  <span
+                    key={k}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 text-[11.5px] tracking-tight"
+                  >
+                    <Check className="w-2.5 h-2.5" />
+                    {k}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {!!analysis.missing_keywords?.length && (
+            <div className="mt-3">
+              <p className="text-[11px] text-foreground/55 tracking-tight mb-1.5">Worth adding</p>
+              <div className="flex flex-wrap gap-1.5">
+                {analysis.missing_keywords.map((k) => (
+                  <span
+                    key={k}
+                    className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[11.5px] tracking-tight"
+                  >
+                    {k}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </SectionCard>
+      ) : null}
+
+      {analysis.improved_answer && (
+        <SectionCard className="p-0 overflow-hidden">
+          <div className="px-5 sm:px-6 pt-5 pb-3 flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium inline-flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3" />
+                Improved sample answer
+              </p>
+              <p className="text-[12px] text-foreground/55 tracking-tight mt-1">
+                Same story, sharper structure. Anything in [brackets] is a placeholder you should
+                replace with your real number.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onCopy(analysis.improved_answer ?? "", "Improved answer copied")}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors shrink-0"
+            >
+              <Copy className="w-3 h-3" />
+              Copy
+            </button>
+          </div>
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4">
+            <p className="whitespace-pre-wrap text-[13.5px] leading-[1.65] text-foreground tracking-tight">
+              {analysis.improved_answer}
+            </p>
           </div>
         </SectionCard>
+      )}
+    </>
+  );
+};
 
-        <SectionCard tone="dark" className="flex flex-col">
-          <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
-            Mock interview
-          </p>
-          <p className="mt-3 text-[20px] font-semibold tracking-tight">Behavioral · STAR drill</p>
-          <p className="text-[12.5px] text-white/65 mt-2">
-            15 min · voice-first · live delivery scoring
-          </p>
-          <button
-            type="button"
-            className="mt-auto w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-full text-[12.5px] font-medium hover:opacity-90 transition-opacity"
-            style={{ background: "#C8B6FF", color: "#0E0B1F" }}
-          >
-            <Mic className="w-3.5 h-3.5" /> Start mock interview
-          </button>
-        </SectionCard>
+const ScoreBar = ({ label, value }: { label: string; value: number | null }) => {
+  const v = value ?? 0;
+  const color =
+    v >= 80
+      ? "bg-emerald-500"
+      : v >= 60
+        ? "bg-amber-500"
+        : "bg-rose-500";
+  return (
+    <div className="rounded-lg border border-foreground/[0.06] bg-foreground/[0.02] px-3 py-2">
+      <div className="flex items-baseline justify-between">
+        <p className="text-[11px] text-foreground/55 tracking-tight">{label}</p>
+        <p className="text-[12px] font-semibold text-foreground tabular-nums">
+          {value ?? "—"}
+        </p>
+      </div>
+      <div className="mt-1.5 h-1 rounded-full bg-foreground/[0.06] overflow-hidden">
+        <div className={cn("h-full rounded-full", color)} style={{ width: `${v}%` }} />
       </div>
     </div>
   );
