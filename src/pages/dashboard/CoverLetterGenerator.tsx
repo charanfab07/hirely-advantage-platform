@@ -982,7 +982,7 @@ const LetterSheet = ({
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <EditableLine
           value={doc.date}
           onChange={(v) => update("date", v)}
@@ -990,7 +990,7 @@ const LetterSheet = ({
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <EditableLine
           value={doc.hiringManager}
           onChange={(v) => update("hiringManager", v)}
@@ -1009,7 +1009,7 @@ const LetterSheet = ({
         />
       </div>
 
-      <div className="mt-6">
+      <div className="mt-3">
         <EditableLine
           value={doc.salutation}
           onChange={(v) => update("salutation", v)}
@@ -1041,7 +1041,7 @@ const LetterSheet = ({
           onChange={(v) => update("signOff", v)}
           placeholder="Sincerely,"
         />
-        <div className="h-6" />
+        <div className="h-3" />
         <EditableLine
           value={doc.senderName}
           onChange={(v) => update("senderName", v)}
