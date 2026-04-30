@@ -23,11 +23,11 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
   <>
-    <div className="flex items-center gap-2 mb-9 px-2">
-      <div className="w-7 h-7 rounded-[9px] bg-foreground flex items-center justify-center text-background text-[11px] font-semibold">
+    <div className="flex items-center gap-2.5 mb-9 px-2">
+      <div className="w-8 h-8 rounded-[10px] bg-foreground flex items-center justify-center text-background text-[12px] font-semibold">
         H
       </div>
-      <span className="font-semibold tracking-[-0.02em] text-foreground text-[14.5px]">Hirely</span>
+      <span className="font-semibold tracking-[-0.02em] text-foreground text-[15.5px]">Hirely</span>
     </div>
 
     <SectionLabel>Suite</SectionLabel>
@@ -39,7 +39,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] tracking-tight transition-colors",
+              "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
                 ? "bg-card/70 text-foreground font-medium shadow-[0_1px_0_hsl(0_0%_100%/1)_inset,0_1px_2px_hsl(var(--slate-ink)/0.06)]"
                 : "text-foreground/55 hover:text-foreground hover:bg-card/40",
@@ -54,7 +54,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
                   isActive ? "bg-[hsl(258_38%_52%)]" : "bg-transparent",
                 )}
               />
-              <Icon className="w-3.5 h-3.5 opacity-70" />
+              <Icon className="w-4 h-4 opacity-70" />
               {label}
             </>
           )}
@@ -71,18 +71,18 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[13px] tracking-tight transition-colors",
+              "flex items-center justify-between px-3 py-2 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
                 ? "text-foreground font-medium bg-card/60"
                 : "text-foreground/60 hover:text-foreground hover:bg-card/40",
             )
           }
         >
-          <span className="flex items-center gap-2">
-            <Icon className="w-3.5 h-3.5 opacity-70" />
+          <span className="flex items-center gap-2.5">
+            <Icon className="w-4 h-4 opacity-70" />
             {label}
           </span>
-          <span className="text-foreground/40 text-[12px]">{count}</span>
+          <span className="text-foreground/40 text-[12.5px]">{count}</span>
         </NavLink>
       ))}
     </nav>
@@ -105,7 +105,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
 
 export const DashboardSidebar = () => {
   return (
-    <aside className="w-[240px] shrink-0 hidden md:flex flex-col px-5 py-7">
+    <aside className="w-[280px] shrink-0 hidden md:flex flex-col px-6 py-8">
       <SidebarBody />
     </aside>
   );
