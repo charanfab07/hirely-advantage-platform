@@ -24,7 +24,7 @@ export const LogoLockup = ({ className, size = "text-xl" }: LogoProps) => {
       >
         ·
       </span>
-      <span className="ml-1.5 text-[0.62em] font-semibold tracking-[0.22em] text-foreground/45 uppercase">
+      <span className="ml-1.5 font-semibold tracking-[0.22em] text-foreground/45 uppercase text-xs">
         ai
       </span>
     </span>
