@@ -137,6 +137,10 @@ export const ResumeEditor = ({
 }) => {
   const [resume, setResume] = useState<EditableResume>(initial);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
+  const [typo, setTypo] = useState<ResumeTypography>(DEFAULT_TYPO);
+
+  const updateTypo = <K extends keyof ResumeTypography>(key: K, value: ResumeTypography[K]) =>
+    setTypo((t) => ({ ...t, [key]: value }));
 
   const update = <K extends keyof EditableResume>(key: K, value: EditableResume[K]) =>
     setResume((r) => ({ ...r, [key]: value }));
