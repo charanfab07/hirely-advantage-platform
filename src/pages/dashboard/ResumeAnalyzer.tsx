@@ -261,7 +261,7 @@ const ResumeAnalyzer = () => {
         <>
           {/* HERO — everything that matters at a glance, in one card */}
           <SectionCard className="mt-5">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_220px] gap-5 lg:gap-7 items-end">
               <div className="min-w-0">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Resume readiness
@@ -276,7 +276,7 @@ const ResumeAnalyzer = () => {
               </div>
 
               {/* Inline stat pills — no separate StatStrip card */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-2.5 md:max-w-[420px] w-full md:w-auto">
+              <div className="grid grid-cols-2 lg:grid-cols-2 gap-2 md:gap-2.5 lg:max-w-[260px] w-full lg:w-auto">
                 <MiniStat label="ATS" value={`${latest.ats_score}`} accent={latest.ats_score >= 80} />
                 <MiniStat
                   label="Match"
@@ -297,6 +297,9 @@ const ResumeAnalyzer = () => {
                   }`}
                 />
               </div>
+
+              {/* Trajectory rail */}
+              <ScoreTrajectory analyses={analyses} />
             </div>
 
             <div className="mt-4 h-[3px] rounded-full bg-foreground/[0.06]">
