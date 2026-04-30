@@ -906,38 +906,7 @@ const ScoreBreakdownCard = ({
   );
 };
 
-// ----- Strengths card -----
-const StrengthsCard = ({
-  items,
-  className,
-}: {
-  items: { title: string; detail: string }[];
-  className?: string;
-}) => (
-  <SectionCard className={className}>
-    <div className="flex items-center justify-between">
-      <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-        Strengths
-      </p>
-      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full tracking-tight bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]">
-        {items.length}
-      </span>
-    </div>
-    <ul className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-      {items.map((s, i) => (
-        <li
-          key={i}
-          className="rounded-xl bg-[hsl(150_55%_45%/0.06)] border border-[hsl(150_55%_45%/0.14)] p-3.5"
-        >
-          <p className="text-[13px] font-medium tracking-tight text-foreground">{s.title}</p>
-          <p className="mt-1 text-[12.5px] text-foreground/65 leading-snug tracking-tight">
-            {s.detail}
-          </p>
-        </li>
-      ))}
-    </ul>
-  </SectionCard>
-);
+
 
 // ----- Weaknesses card -----
 const WEAKNESS_LABEL: Record<Weakness["category"], string> = {
