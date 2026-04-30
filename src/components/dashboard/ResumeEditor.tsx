@@ -1376,7 +1376,7 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
         new Paragraph({
           alignment: bodyAlignment,
           children: [
-            new TextRun({ text: `${s.group}: `, bold: true, size: sz(20) }),
+            new TextRun({ font: FONT, text: `${s.group}: `, bold: true, size: sz(20) }),
             new TextRun({ font: FONT, text: s.items.join(", "), size: sz(20) }),
           ],
         }),
@@ -1391,8 +1391,8 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
         new Paragraph({
           spacing: { before: 120 },
           children: [
-            new TextRun({ text: `${x.role} — ${x.company}`, bold: true, size: sz(22) }),
-            ...(x.dates ? [new TextRun({ text: `   ${x.dates}`, size: sz(18), color: "777890" })] : []),
+            new TextRun({ font: FONT, text: `${x.role} — ${x.company}`, bold: true, size: sz(22) }),
+            ...(x.dates ? [new TextRun({ font: FONT, text: `   ${x.dates}`, size: sz(18), color: "777890" })] : []),
           ],
         }),
       );
@@ -1408,7 +1408,7 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
         children.push(
           new Paragraph({
             alignment: bodyAlignment,
-            children: [new TextRun({ text: `• ${b}`, size: sz(20) })],
+            children: [new TextRun({ font: FONT, text: `• ${b}`, size: sz(20) })],
             indent: { left: 240 },
           }),
         );
@@ -1425,7 +1425,7 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
           children: [
             new TextRun({ font: FONT, text: p.name, bold: true, size: sz(21) }),
             ...(p.tech.length
-              ? [new TextRun({ text: `  ${p.tech.join(", ")}`, size: sz(18), color: "777890" })]
+              ? [new TextRun({ font: FONT, text: `  ${p.tech.join(", ")}`, size: sz(18), color: "777890" })]
               : []),
           ],
         }),
@@ -1435,6 +1435,7 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
           alignment: bodyAlignment,
           children: [
             new TextRun({
+              font: FONT,
               text: `${p.description}${p.impact ? ` — ${p.impact}` : ""}`,
               size: sz(20),
             }),
@@ -1452,7 +1453,7 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
           spacing: { before: 100 },
           children: [
             new TextRun({ font: FONT, text: ed.degree, bold: true, size: sz(21) }),
-            ...(ed.dates ? [new TextRun({ text: `   ${ed.dates}`, size: sz(18), color: "777890" })] : []),
+            ...(ed.dates ? [new TextRun({ font: FONT, text: `   ${ed.dates}`, size: sz(18), color: "777890" })] : []),
           ],
         }),
       );
@@ -1476,7 +1477,7 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
       children.push(
         new Paragraph({
           alignment: bodyAlignment,
-          children: [new TextRun({ text: `• ${a}`, size: sz(20) })],
+          children: [new TextRun({ font: FONT, text: `• ${a}`, size: sz(20) })],
           indent: { left: 240 },
         }),
       );
