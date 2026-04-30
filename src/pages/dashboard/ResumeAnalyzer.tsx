@@ -716,14 +716,14 @@ const StrengthsCard = ({
 
 // ----- Weaknesses card -----
 const WEAKNESS_LABEL: Record<Weakness["category"], string> = {
-  lack_of_metrics: "Lack of metrics",
-  weak_action_verbs: "Weak verbs",
-  too_generic: "Too generic",
-  missing_summary: "Missing summary",
-  skills_mismatch: "Skills mismatch",
-  ats_formatting: "ATS formatting",
-  grammar: "Grammar",
-  other: "Other",
+  lack_of_metrics: "Quantify impact",
+  weak_action_verbs: "Stronger verbs",
+  too_generic: "Add specificity",
+  missing_summary: "Add a summary",
+  skills_mismatch: "Skills alignment",
+  ats_formatting: "ATS polish",
+  grammar: "Language polish",
+  other: "Refinement",
 };
 
 const SEVERITY_TONE: Record<Weakness["severity"], string> = {
