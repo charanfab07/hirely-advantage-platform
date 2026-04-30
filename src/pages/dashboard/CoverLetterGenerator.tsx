@@ -338,10 +338,13 @@ const CoverLetterGenerator = () => {
                       {active.notes}
                     </p>
                   )}
-                  <pre className="mt-4 whitespace-pre-wrap font-sans text-[14px] leading-[1.65] text-foreground tracking-tight">
-                    {active.full_letter}
-                  </pre>
+                  <HighlightedLetter
+                    text={active.full_letter}
+                    keywords={active.matched_keywords ?? []}
+                  />
                 </SectionCard>
+
+                <PersonalizationCard letter={active} />
 
                 <SectionCard className="p-0 overflow-hidden">
                   <div className="px-5 sm:px-6 pt-5 pb-3">
