@@ -95,6 +95,90 @@ export type Database = {
         }
         Relationships: []
       }
+      interview_answers: {
+        Row: {
+          answer: string
+          clarity_score: number | null
+          coaching_note: string | null
+          confidence_score: number | null
+          created_at: string
+          gaps: Json
+          id: string
+          improved_answer: string | null
+          keyword_score: number | null
+          length_score: number | null
+          matched_keywords: Json
+          metrics_score: number | null
+          missing_keywords: Json
+          model: string | null
+          overall_score: number | null
+          question: string
+          question_type: string
+          resume_id: string | null
+          star_breakdown: Json
+          star_score: number | null
+          strengths: Json
+          target_role: string | null
+          updated_at: string
+          user_id: string
+          word_count: number | null
+        }
+        Insert: {
+          answer: string
+          clarity_score?: number | null
+          coaching_note?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          gaps?: Json
+          id?: string
+          improved_answer?: string | null
+          keyword_score?: number | null
+          length_score?: number | null
+          matched_keywords?: Json
+          metrics_score?: number | null
+          missing_keywords?: Json
+          model?: string | null
+          overall_score?: number | null
+          question: string
+          question_type?: string
+          resume_id?: string | null
+          star_breakdown?: Json
+          star_score?: number | null
+          strengths?: Json
+          target_role?: string | null
+          updated_at?: string
+          user_id: string
+          word_count?: number | null
+        }
+        Update: {
+          answer?: string
+          clarity_score?: number | null
+          coaching_note?: string | null
+          confidence_score?: number | null
+          created_at?: string
+          gaps?: Json
+          id?: string
+          improved_answer?: string | null
+          keyword_score?: number | null
+          length_score?: number | null
+          matched_keywords?: Json
+          metrics_score?: number | null
+          missing_keywords?: Json
+          model?: string | null
+          overall_score?: number | null
+          question?: string
+          question_type?: string
+          resume_id?: string | null
+          star_breakdown?: Json
+          star_score?: number | null
+          strengths?: Json
+          target_role?: string | null
+          updated_at?: string
+          user_id?: string
+          word_count?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
