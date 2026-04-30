@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Download, Copy, Check, RefreshCw, FileText, Wand2 } from "lucide-react";
+import { Sparkles, Download, Copy, Check, RefreshCw, FileText, Wand2, AlertTriangle, ShieldCheck } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
