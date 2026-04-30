@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      cover_letters: {
+        Row: {
+          alignment: string | null
+          closing: string | null
+          company: string
+          created_at: string
+          culture_fit: string | null
+          full_letter: string
+          hook: string | null
+          id: string
+          job_description: string | null
+          model: string | null
+          notes: string | null
+          proof: string | null
+          resume_id: string | null
+          role: string
+          tone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alignment?: string | null
+          closing?: string | null
+          company: string
+          created_at?: string
+          culture_fit?: string | null
+          full_letter?: string
+          hook?: string | null
+          id?: string
+          job_description?: string | null
+          model?: string | null
+          notes?: string | null
+          proof?: string | null
+          resume_id?: string | null
+          role: string
+          tone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alignment?: string | null
+          closing?: string | null
+          company?: string
+          created_at?: string
+          culture_fit?: string | null
+          full_letter?: string
+          hook?: string | null
+          id?: string
+          job_description?: string | null
+          model?: string | null
+          notes?: string | null
+          proof?: string | null
+          resume_id?: string | null
+          role?: string
+          tone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
