@@ -871,3 +871,208 @@ const ComparisonTable = ({ enhancement }: { enhancement: Enhancement }) => {
   );
 };
 
+// ─── Needs Verification ──────────────────────────────────────────────────────
+// Detects AI-added quantified claims (percentages, currency, counts, multiples,
+// time savings) that DON'T appear in the original resume text. The user must
+// confirm these before using the resume — otherwise they'd be lying on paper.
+
+type VerifyClaim = {
+  text: string; // the full sentence/bullet
+  metric: string; // the specific number/figure ("15%", "₹100,000", "50 students")
+  source: string; // "Summary" / "Experience: Acme" / "Project: X" / "Achievement"
+  kind: "percent" | "currency" | "count" | "multiple" | "time";
+};
+
+// Match common metric patterns. Order matters — currency first, then percent, etc.
+const METRIC_PATTERNS: { kind: VerifyClaim["kind"]; re: RegExp }[] = [
+  // Currency: $1,200 · ₹100,000 · €5K · 1.2M USD
+  { kind: "currency", re: /(?:[$₹€£¥]\s?\d[\d,]*(?:\.\d+)?\s?[KMB]?\b|\b\d[\d,]*(?:\.\d+)?\s?[KMB]?\s?(?:USD|EUR|INR|GBP|JPY)\b)/gi },
+  // Percent: 15%, 38 %
+  { kind: "percent", re: /\b\d{1,3}(?:\.\d+)?\s?%/g },
+  // Multiples: 4x, 10×, 2.5x
+  { kind: "multiple", re: /\b\d{1,3}(?:\.\d+)?\s?[x×]\b/gi },
+  // Time savings: 30 hours/week, 2 days, 5 weeks, 6 months
+  { kind: "time", re: /\b\d{1,4}\s?(?:hours?|hrs?|days?|weeks?|months?|years?)(?:\/(?:week|day|month))?\b/gi },
+  // Counts: 50 students, 40+ stakeholders, 1,200 users, 6 A/B tests
+  { kind: "count", re: /\b\d{2,}[+]?\s?(?:[a-z][a-z-]{2,}(?:\s[a-z][a-z-]{2,})?)\b/gi },
+];
+
+function normalizeText(s: string): string {
+  return s.toLowerCase().replace(/[\s,]/g, "");
+}
+
+function extractMetrics(sentence: string): { metric: string; kind: VerifyClaim["kind"] }[] {
+  const found: { metric: string; kind: VerifyClaim["kind"] }[] = [];
+  const seen = new Set<string>();
+  for (const { kind, re } of METRIC_PATTERNS) {
+    const matches = sentence.match(re) ?? [];
+    for (const m of matches) {
+      const key = `${kind}:${normalizeText(m)}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      // Filter out generic noise from the "count" pattern (e.g. years like "2024")
+      if (kind === "count") {
+        const num = parseInt(m.replace(/[^\d]/g, ""), 10);
+        if (num >= 1900 && num <= 2100) continue; // looks like a year
+      }
+      found.push({ metric: m.trim(), kind });
+    }
+  }
+  return found;
+}
+
+function metricInOriginal(metric: string, kind: VerifyClaim["kind"], originalNorm: string): boolean {
+  if (!originalNorm) return false;
+  const norm = normalizeText(metric);
+  if (originalNorm.includes(norm)) return true;
+  // For currency / percent / multiple — also try just the bare number to catch
+  // formatting differences (e.g. "$100,000" vs "100000" vs "100K").
+  if (kind === "currency" || kind === "percent" || kind === "multiple" || kind === "time" || kind === "count") {
+    const digits = metric.match(/\d[\d.,]*/)?.[0]?.replace(/[\s,]/g, "");
+    if (digits && originalNorm.includes(digits)) return true;
+  }
+  return false;
+}
+
+function buildVerifyClaims(e: Enhancement, originalText: string): VerifyClaim[] {
+  const originalNorm = normalizeText(originalText ?? "");
+  const claims: VerifyClaim[] = [];
+  const pushFrom = (text: string, source: string) => {
+    if (!text) return;
+    for (const { metric, kind } of extractMetrics(text)) {
+      if (metricInOriginal(metric, kind, originalNorm)) continue;
+      claims.push({ text: text.trim(), metric, source, kind });
+    }
+  };
+
+  if (e.summary) pushFrom(e.summary, "Summary");
+  e.experience?.forEach((x) => {
+    const src = `Experience · ${x.company}`;
+    x.bullets?.forEach((b) => pushFrom(b, src));
+  });
+  e.projects?.forEach((p) => {
+    const src = `Project · ${p.name}`;
+    pushFrom(p.description ?? "", src);
+    if (p.impact) pushFrom(p.impact, src);
+  });
+  e.achievements?.forEach((a) => pushFrom(a, "Achievement"));
+
+  // De-dupe identical (text, metric) pairs
+  const seen = new Set<string>();
+  return claims.filter((c) => {
+    const key = `${c.source}|${c.metric}|${c.text}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+const KIND_LABEL: Record<VerifyClaim["kind"], string> = {
+  percent: "Percentage",
+  currency: "Amount",
+  count: "Count",
+  multiple: "Multiplier",
+  time: "Duration",
+};
+
+const NeedsVerificationPanel = ({
+  enhancement,
+  originalText,
+}: {
+  enhancement: Enhancement;
+  originalText: string;
+}) => {
+  const claims = useMemo(
+    () => buildVerifyClaims(enhancement, originalText),
+    [enhancement, originalText],
+  );
+
+  if (claims.length === 0) {
+    return (
+      <SectionCard className="border-[hsl(150_55%_45%/0.18)] bg-[hsl(150_55%_45%/0.04)]">
+        <div className="flex items-start gap-3">
+          <span className="mt-0.5 w-7 h-7 rounded-full bg-[hsl(150_55%_45%/0.14)] text-[hsl(150_45%_28%)] flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-3.5 h-3.5" />
+          </span>
+          <div>
+            <p className="text-[10.5px] tracking-[0.18em] uppercase text-[hsl(150_45%_28%)] font-medium">
+              No new claims to verify
+            </p>
+            <p className="mt-1.5 text-[13px] text-foreground/75 tracking-tight max-w-xl">
+              Every metric in your enhanced resume already appeared in your original.
+              We didn't invent any numbers.
+            </p>
+          </div>
+        </div>
+      </SectionCard>
+    );
+  }
+
+  // Show top ~12; collapse the rest behind a count.
+  const visible = claims.slice(0, 12);
+  const overflow = claims.length - visible.length;
+
+  return (
+    <SectionCard className="border-[hsl(35_92%_55%/0.22)] bg-[hsl(35_92%_55%/0.05)]">
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 w-7 h-7 rounded-full bg-[hsl(35_92%_55%/0.18)] text-[hsl(28_70%_38%)] flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-3.5 h-3.5" />
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-[hsl(28_70%_38%)] font-medium">
+            Needs your verification · {claims.length}
+          </p>
+          <p className="mt-1.5 text-[13.5px] text-foreground tracking-tight max-w-2xl">
+            The AI added stronger measurable claims that weren't in your original resume.
+            <span className="text-foreground/70"> Please verify each one is accurate before using — never put numbers on a resume you can't back up in an interview.</span>
+          </p>
+
+          <ul className="mt-4 space-y-2">
+            {visible.map((c, i) => (
+              <li
+                key={i}
+                className="rounded-xl bg-background/60 border border-foreground/[0.06] p-3.5"
+              >
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full tracking-tight bg-[hsl(35_92%_55%/0.14)] text-[hsl(28_70%_38%)]">
+                    {KIND_LABEL[c.kind]}
+                  </span>
+                  <span className="text-[11px] tracking-tight text-foreground/55">
+                    {c.source}
+                  </span>
+                  <span className="text-[12.5px] font-semibold tracking-tight text-foreground tabular-nums">
+                    {c.metric}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-[12.5px] leading-[1.5] text-foreground/75 tracking-tight">
+                  {highlightMetric(c.text, c.metric)}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          {overflow > 0 && (
+            <p className="mt-3 text-[11.5px] text-foreground/55 tracking-tight">
+              +{overflow} more claim{overflow === 1 ? "" : "s"} to verify in the document below.
+            </p>
+          )}
+        </div>
+      </div>
+    </SectionCard>
+  );
+};
+
+function highlightMetric(text: string, metric: string) {
+  const idx = text.toLowerCase().indexOf(metric.toLowerCase());
+  if (idx < 0) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-[hsl(35_92%_55%/0.22)] text-foreground rounded px-0.5">
+        {text.slice(idx, idx + metric.length)}
+      </mark>
+      {text.slice(idx + metric.length)}
+    </>
+  );
+}
+
