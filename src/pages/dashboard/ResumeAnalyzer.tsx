@@ -13,12 +13,28 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
+type Weakness = {
+  category:
+    | "lack_of_metrics"
+    | "weak_action_verbs"
+    | "too_generic"
+    | "missing_summary"
+    | "skills_mismatch"
+    | "ats_formatting"
+    | "grammar"
+    | "other";
+  title: string;
+  detail: string;
+  severity: "high" | "medium" | "low";
+};
+
 type Analysis = {
   id: string;
   resume_id: string;
   overall_score: number;
   ats_score: number;
   summary: string;
+  target_role?: string | null;
   extracted: {
     name?: string;
     headline?: string;
@@ -42,6 +58,23 @@ type Analysis = {
     risks?: string[];
   };
   quick_wins: { title: string; detail: string; impact: "high" | "medium" | "low" }[];
+  strengths?: { title: string; detail: string }[];
+  weaknesses?: Weakness[];
+  bullet_rewrites?: { before: string; after: string; why: string }[];
+  score_breakdown?: {
+    ats_compatibility?: number;
+    impact_statements?: number;
+    relevance?: number;
+    clarity?: number;
+    keyword_match?: number;
+  };
+  job_match?: {
+    target_role?: string;
+    match_percent?: number;
+    target_percent?: number;
+    missing_requirements?: string[];
+    matched_requirements?: string[];
+  };
   created_at: string;
 };
 
