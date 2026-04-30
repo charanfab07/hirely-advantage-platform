@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { Sparkles, RefreshCw, Wand2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Sparkles, RefreshCw, Wand2, Pencil, Maximize2, Minimize2 } from "lucide-react";
 import { SectionCard } from "./SectionCard";
+import { ResumeEditor, type EditableResume } from "./ResumeEditor";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -276,157 +277,290 @@ export const EnhancedResumePanel = ({
     );
   }
 
-  const before = enhancement.estimated_score_before ?? 0;
-  const after = enhancement.estimated_score_after ?? 0;
-  const lift = Math.max(0, after - before);
+  return (
+    <EnhancedResumeView
+      enhancement={enhancement}
+      className={className}
+      onUpdated={(e) => setEnhancement(e)}
+    />
+  );
+};
+
+// Adapter: Enhancement (DB shape) → EditableResume (editor shape)
+const toEditable = (e: Enhancement): EditableResume => ({
+  contact: {
+    name: e.contact?.name ?? "",
+    location: e.contact?.location ?? "",
+    email: e.contact?.email ?? "",
+    phone: e.contact?.phone ?? "",
+    links: (e.contact?.links ?? []).map((l) => ({ label: l.label ?? "", url: l.url ?? "" })),
+  },
+  headline: e.headline ?? "",
+  summary: e.summary ?? "",
+  skills: (e.skills ?? []).map((s) => ({ group: s.group, items: s.items ?? [] })),
+  experience: (e.experience ?? []).map((x) => ({
+    role: x.role ?? "",
+    company: x.company ?? "",
+    location: x.location ?? "",
+    dates: x.dates ?? "",
+    bullets: x.bullets ?? [],
+  })),
+  projects: (e.projects ?? []).map((p) => ({
+    name: p.name ?? "",
+    description: p.description ?? "",
+    tech: p.tech ?? [],
+    impact: p.impact ?? "",
+  })),
+  education: (e.education ?? []).map((ed) => ({
+    degree: ed.degree ?? "",
+    school: ed.school ?? "",
+    dates: ed.dates ?? "",
+    detail: ed.detail ?? "",
+  })),
+  achievements: e.achievements ?? [],
+});
+
+const EnhancedResumeView = ({
+  enhancement,
+  className,
+  onUpdated,
+}: {
+  enhancement: Enhancement;
+  className?: string;
+  onUpdated?: (e: Enhancement) => void;
+}) => {
+  const [editing, setEditing] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+
+  const editable = useMemo(() => toEditable(enhancement), [enhancement]);
+
+  // Esc closes fullscreen + lock body scroll
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [fullscreen]);
+
+  if (editing) {
+    return (
+      <div className={cn("space-y-4", className)}>
+        <ResumeEditor initial={editable} onClose={() => setEditing(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className={cn("space-y-4", className)}>
-      {/* THE RESUME — document preview */}
       <SectionCard className="!p-0 overflow-hidden">
-        <div className="px-7 sm:px-10 py-9 bg-white text-[#0E0B1F] font-serif">
-          {/* header */}
-          <div className="text-center">
-            <h1 className="text-[26px] font-semibold tracking-[-0.02em]">
-              {enhancement.contact?.name ?? "Your name"}
-            </h1>
-            {enhancement.headline && (
-              <p className="mt-1 text-[14px] text-[#0E0B1F]/70 tracking-tight">
-                {enhancement.headline}
-              </p>
-            )}
-            <p className="mt-1.5 text-[11.5px] text-[#0E0B1F]/55 tracking-tight">
-              {[
-                enhancement.contact?.location,
-                enhancement.contact?.email,
-                enhancement.contact?.phone,
-                ...(enhancement.contact?.links ?? []).map((l) => l.label),
-              ]
-                .filter(Boolean)
-                .join("  ·  ")}
+        {/* Toolbar */}
+        <div className="px-5 sm:px-6 pt-3 pb-2 flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+              Enhanced resume
+            </p>
+            <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
+              Tap edit to refine any section, or open full screen for a focused view.
             </p>
           </div>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => setEditing(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
+              title="Edit resume"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+              Edit
+            </button>
+            <button
+              onClick={() => setFullscreen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
+              title="Open full screen"
+            >
+              <Maximize2 className="w-3.5 h-3.5" />
+              Full screen
+            </button>
+          </div>
+        </div>
 
-          {/* summary */}
-          {enhancement.summary && (
-            <Section title="Summary">
-              <p className="text-[13px] leading-[1.55] text-[#0E0B1F]/85">{enhancement.summary}</p>
-            </Section>
-          )}
-
-          {/* skills */}
-          {enhancement.skills.length > 0 && (
-            <Section title="Skills">
-              <ul className="space-y-1">
-                {enhancement.skills.map((s, i) => (
-                  <li key={i} className="text-[13px] text-[#0E0B1F]/85">
-                    <span className="font-semibold">{s.group}:</span> {s.items.join(", ")}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {/* experience */}
-          {enhancement.experience.length > 0 && (
-            <Section title="Experience">
-              <ul className="space-y-4">
-                {enhancement.experience.map((e, i) => (
-                  <li key={i}>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="text-[13.5px] font-semibold">
-                        {e.role}{" "}
-                        <span className="font-normal text-[#0E0B1F]/65">— {e.company}</span>
-                      </p>
-                      <p className="text-[11.5px] text-[#0E0B1F]/55 shrink-0">{e.dates}</p>
-                    </div>
-                    {e.location && (
-                      <p className="text-[11.5px] text-[#0E0B1F]/55">{e.location}</p>
-                    )}
-                    <ul className="mt-1.5 space-y-1">
-                      {e.bullets.map((b, j) => (
-                        <li
-                          key={j}
-                          className="text-[12.5px] leading-[1.5] text-[#0E0B1F]/85 pl-3 relative"
-                        >
-                          <span className="absolute left-0 top-[9px] w-1 h-1 rounded-full bg-[#0E0B1F]/60" />
-                          {b}
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {/* projects */}
-          {enhancement.projects.length > 0 && (
-            <Section title="Projects">
-              <ul className="space-y-2.5">
-                {enhancement.projects.map((p, i) => (
-                  <li key={i}>
-                    <p className="text-[13px] font-semibold">
-                      {p.name}
-                      {p.tech?.length ? (
-                        <span className="ml-2 font-normal text-[11.5px] text-[#0E0B1F]/55">
-                          {p.tech.join(", ")}
-                        </span>
-                      ) : null}
-                    </p>
-                    <p className="text-[12.5px] leading-[1.5] text-[#0E0B1F]/85">
-                      {p.description}
-                      {p.impact ? <span className="text-[#0E0B1F]/65"> — {p.impact}</span> : null}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {/* education */}
-          {enhancement.education.length > 0 && (
-            <Section title="Education">
-              <ul className="space-y-2">
-                {enhancement.education.map((e, i) => (
-                  <li key={i}>
-                    <div className="flex items-baseline justify-between gap-3">
-                      <p className="text-[13px] font-semibold">{e.degree}</p>
-                      {e.dates && (
-                        <p className="text-[11.5px] text-[#0E0B1F]/55 shrink-0">{e.dates}</p>
-                      )}
-                    </div>
-                    <p className="text-[12.5px] text-[#0E0B1F]/70">{e.school}</p>
-                    {e.detail && (
-                      <p className="text-[11.5px] text-[#0E0B1F]/55">{e.detail}</p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {/* achievements */}
-          {enhancement.achievements.length > 0 && (
-            <Section title="Achievements">
-              <ul className="space-y-1">
-                {enhancement.achievements.map((a, i) => (
-                  <li
-                    key={i}
-                    className="text-[12.5px] leading-[1.5] text-[#0E0B1F]/85 pl-3 relative"
-                  >
-                    <span className="absolute left-0 top-[9px] w-1 h-1 rounded-full bg-[#0E0B1F]/60" />
-                    {a}
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
+        <div className="border-t border-foreground/[0.06]">
+          <ResumeDocument enhancement={enhancement} />
         </div>
       </SectionCard>
+
+      {/* Fullscreen preview */}
+      {fullscreen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col">
+          <div className="flex items-center justify-between gap-2 px-4 sm:px-6 py-2.5 border-b border-foreground/[0.08] bg-background/80">
+            <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/55 font-medium">
+              Enhanced resume — full screen
+            </p>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  setFullscreen(false);
+                  setEditing(true);
+                }}
+                className="inline-flex items-center gap-1.5 rounded-md border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
+                title="Edit"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Edit
+              </button>
+              <button
+                onClick={() => setFullscreen(false)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
+                title="Exit full screen (Esc)"
+              >
+                <Minimize2 className="w-3.5 h-3.5" />
+                Exit
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 overflow-auto py-8 px-4">
+            <div className="mx-auto max-w-[820px] bg-white rounded-lg shadow-sm overflow-hidden">
+              <ResumeDocument enhancement={enhancement} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
+
+const ResumeDocument = ({ enhancement }: { enhancement: Enhancement }) => (
+  <div className="px-7 sm:px-10 py-9 bg-white text-[#0E0B1F] font-serif">
+    {/* header */}
+    <div className="text-center">
+      <h1 className="text-[26px] font-semibold tracking-[-0.02em]">
+        {enhancement.contact?.name ?? "Your name"}
+      </h1>
+      {enhancement.headline && (
+        <p className="mt-1 text-[14px] text-[#0E0B1F]/70 tracking-tight">{enhancement.headline}</p>
+      )}
+      <p className="mt-1.5 text-[11.5px] text-[#0E0B1F]/55 tracking-tight">
+        {[
+          enhancement.contact?.location,
+          enhancement.contact?.email,
+          enhancement.contact?.phone,
+          ...(enhancement.contact?.links ?? []).map((l) => l.label),
+        ]
+          .filter(Boolean)
+          .join("  ·  ")}
+      </p>
+    </div>
+
+    {enhancement.summary && (
+      <Section title="Summary">
+        <p className="text-[13px] leading-[1.55] text-[#0E0B1F]/85">{enhancement.summary}</p>
+      </Section>
+    )}
+
+    {enhancement.skills.length > 0 && (
+      <Section title="Skills">
+        <ul className="space-y-1">
+          {enhancement.skills.map((s, i) => (
+            <li key={i} className="text-[13px] text-[#0E0B1F]/85">
+              <span className="font-semibold">{s.group}:</span> {s.items.join(", ")}
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
+
+    {enhancement.experience.length > 0 && (
+      <Section title="Experience">
+        <ul className="space-y-4">
+          {enhancement.experience.map((e, i) => (
+            <li key={i}>
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-[13.5px] font-semibold">
+                  {e.role} <span className="font-normal text-[#0E0B1F]/65">— {e.company}</span>
+                </p>
+                <p className="text-[11.5px] text-[#0E0B1F]/55 shrink-0">{e.dates}</p>
+              </div>
+              {e.location && <p className="text-[11.5px] text-[#0E0B1F]/55">{e.location}</p>}
+              <ul className="mt-1.5 space-y-1">
+                {e.bullets.map((b, j) => (
+                  <li
+                    key={j}
+                    className="text-[12.5px] leading-[1.5] text-[#0E0B1F]/85 pl-3 relative"
+                  >
+                    <span className="absolute left-0 top-[9px] w-1 h-1 rounded-full bg-[#0E0B1F]/60" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
+
+    {enhancement.projects.length > 0 && (
+      <Section title="Projects">
+        <ul className="space-y-2.5">
+          {enhancement.projects.map((p, i) => (
+            <li key={i}>
+              <p className="text-[13px] font-semibold">
+                {p.name}
+                {p.tech?.length ? (
+                  <span className="ml-2 font-normal text-[11.5px] text-[#0E0B1F]/55">
+                    {p.tech.join(", ")}
+                  </span>
+                ) : null}
+              </p>
+              <p className="text-[12.5px] leading-[1.5] text-[#0E0B1F]/85">
+                {p.description}
+                {p.impact ? <span className="text-[#0E0B1F]/65"> — {p.impact}</span> : null}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
+
+    {enhancement.education.length > 0 && (
+      <Section title="Education">
+        <ul className="space-y-2">
+          {enhancement.education.map((e, i) => (
+            <li key={i}>
+              <div className="flex items-baseline justify-between gap-3">
+                <p className="text-[13px] font-semibold">{e.degree}</p>
+                {e.dates && <p className="text-[11.5px] text-[#0E0B1F]/55 shrink-0">{e.dates}</p>}
+              </div>
+              <p className="text-[12.5px] text-[#0E0B1F]/70">{e.school}</p>
+              {e.detail && <p className="text-[11.5px] text-[#0E0B1F]/55">{e.detail}</p>}
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
+
+    {enhancement.achievements.length > 0 && (
+      <Section title="Achievements">
+        <ul className="space-y-1">
+          {enhancement.achievements.map((a, i) => (
+            <li
+              key={i}
+              className="text-[12.5px] leading-[1.5] text-[#0E0B1F]/85 pl-3 relative"
+            >
+              <span className="absolute left-0 top-[9px] w-1 h-1 rounded-full bg-[#0E0B1F]/60" />
+              {a}
+            </li>
+          ))}
+        </ul>
+      </Section>
+    )}
+  </div>
+);
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="mt-6">
