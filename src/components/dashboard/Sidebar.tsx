@@ -105,7 +105,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
 
 export const DashboardSidebar = () => {
   return (
-    <aside className="w-[240px] shrink-0 hidden md:flex flex-col px-5 py-7">
+    <aside className="w-[280px] shrink-0 hidden md:flex flex-col px-6 py-8">
       <SidebarBody />
     </aside>
   );
