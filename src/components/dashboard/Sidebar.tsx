@@ -39,7 +39,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] tracking-tight transition-colors",
+              "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13.5px] tracking-tight transition-colors",
               isActive
                 ? "bg-card/70 text-foreground font-medium shadow-[0_1px_0_hsl(0_0%_100%/1)_inset,0_1px_2px_hsl(var(--slate-ink)/0.06)]"
                 : "text-foreground/55 hover:text-foreground hover:bg-card/40",
