@@ -1087,6 +1087,7 @@ const CoverLetterGenerator = () => {
               doc={doc}
               update={update}
               hasLetter={hasLetter}
+              isEmpty={!hasLetter && jd.trim().length === 0}
               typo={typo}
               compact={false}
             />
