@@ -389,16 +389,22 @@ const CoverLetterGenerator = () => {
   };
 
   const downloadDocx = async () => {
-    const para = (text: string, opts: { bold?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
+    const docxFont = DOCX_FONT[typo.font];
+    // docx 'size' is half-points. preview px ≈ pt; 1pt = 2 half-points.
+    const sizeHalfPt = Math.round(typo.fontSize * 0.85 * 2);
+    const docxAlign = DOCX_ALIGN[typo.align];
+
+    const para = (text: string, opts: { bold?: boolean } = {}) =>
       new Paragraph({
-        alignment: opts.align,
-        spacing: { after: 200 },
+        alignment: docxAlign,
+        spacing: { after: 200, line: Math.round(typo.lineHeight * 240) },
         children: [
           new TextRun({
             text,
-            font: "Times New Roman",
-            size: 22, // 11pt
-            bold: opts.bold,
+            font: docxFont,
+            size: sizeHalfPt,
+            bold: opts.bold || typo.bold,
+            italics: typo.italic,
           }),
         ],
       });
@@ -406,14 +412,8 @@ const CoverLetterGenerator = () => {
     const blank = () =>
       new Paragraph({
         spacing: { after: 120 },
-        children: [new TextRun({ text: "", font: "Times New Roman", size: 22 })],
+        children: [new TextRun({ text: "", font: docxFont, size: sizeHalfPt })],
       });
-
-    const splitBlock = (text: string, opts: { bold?: boolean } = {}) =>
-      text
-        .split("\n")
-        .filter((l) => l.trim())
-        .map((l) => para(l, opts));
 
     const children: Paragraph[] = [];
 
@@ -459,7 +459,7 @@ const CoverLetterGenerator = () => {
     const docx = new DocxDocument({
       styles: {
         default: {
-          document: { run: { font: "Times New Roman", size: 22 } },
+          document: { run: { font: docxFont, size: sizeHalfPt } },
         },
       },
       sections: [
