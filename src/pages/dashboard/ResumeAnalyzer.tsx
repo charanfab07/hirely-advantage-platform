@@ -9,6 +9,7 @@ import { InsightsTriad, type InsightsColumn } from "@/components/dashboard/Insig
 import { QuickWins, type QuickWin } from "@/components/dashboard/QuickWins";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
+import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
