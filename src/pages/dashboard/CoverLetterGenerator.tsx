@@ -647,7 +647,6 @@ const CoverLetterGenerator = () => {
                   onChange={(v) => update("senderName", v)}
                   placeholder="Your full name"
                   bold
-                  disabled={!hasLetter && false}
                 />
                 <EditableLine
                   value={doc.senderEmail}
