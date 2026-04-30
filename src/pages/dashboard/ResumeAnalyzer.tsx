@@ -701,6 +701,15 @@ const ResumeAnalyzer = () => {
         </div>
       )}
 
+      {/* ENHANCED TAB */}
+      {tab === "enhanced" && (
+        <EnhancedResumePanel
+          className="mt-5"
+          resumeId={latest?.resume_id ?? null}
+          analysisId={latest?.id ?? null}
+        />
+      )}
+
       {/* TAILORED TAB */}
       {tab === "tailored" && (
         <TailoredEditsPanel
