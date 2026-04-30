@@ -695,128 +695,48 @@ const CoverLetterGenerator = () => {
 
         {/* Right: structured letter */}
         <SectionCard className="lg:col-span-7 p-0 overflow-hidden">
-          <div className="px-5 sm:px-6 pt-5 pb-4 flex items-center justify-between">
-            <div>
+          <div className="px-5 sm:px-6 pt-5 pb-4 flex items-center justify-between gap-3">
+            <div className="min-w-0">
               <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                 {hasLetter ? "Editable letter" : "Letter preview"}
               </p>
               <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
                 {hasLetter
-                  ? "Click any field to edit. Layout follows a standard business-letter format."
-                  : "Your letter will appear in standard business-letter format. Edit any block before downloading."}
+                  ? "Click any field to edit. Open full screen to format the letter."
+                  : "Your letter will appear in standard business-letter format."}
               </p>
             </div>
-            {hasLetter && (
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
-                onClick={generate}
-                disabled={generating}
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[12px] font-medium tracking-tight text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors disabled:opacity-50"
-                title="Regenerate"
+                onClick={() => setFullscreen(true)}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
+                title="Open full screen"
               >
-                <RefreshCw className={cn("w-3.5 h-3.5", generating && "animate-spin")} />
-                Regenerate
+                <Maximize2 className="w-3.5 h-3.5" />
+                Full screen
               </button>
-            )}
+              {hasLetter && (
+                <button
+                  onClick={generate}
+                  disabled={generating}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/60 hover:text-foreground hover:bg-foreground/[0.05] transition-colors disabled:opacity-50"
+                  title="Regenerate"
+                >
+                  <RefreshCw className={cn("w-3.5 h-3.5", generating && "animate-spin")} />
+                  Regenerate
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-4 sm:p-6">
-            {/* Letter sheet */}
-            <div className="mx-auto max-w-[640px] bg-background border border-foreground/[0.08] rounded-md shadow-sm px-8 sm:px-12 py-10 font-serif text-foreground">
-              {/* Sender block */}
-              <div className="text-[13px] leading-relaxed">
-                <EditableLine
-                  value={doc.senderName}
-                  onChange={(v) => update("senderName", v)}
-                  placeholder="Your full name"
-                  bold
-                />
-                <EditableLine
-                  value={doc.senderEmail}
-                  onChange={(v) => update("senderEmail", v)}
-                  placeholder="you@email.com"
-                />
-                <EditableLine
-                  value={doc.senderPhone}
-                  onChange={(v) => update("senderPhone", v)}
-                  placeholder="Phone"
-                />
-                <EditableLine
-                  value={doc.senderLocation}
-                  onChange={(v) => update("senderLocation", v)}
-                  placeholder="City, Country"
-                />
-              </div>
-
-              {/* Date */}
-              <div className="mt-6 text-[13px]">
-                <EditableLine
-                  value={doc.date}
-                  onChange={(v) => update("date", v)}
-                  placeholder="Date"
-                />
-              </div>
-
-              {/* Recipient block */}
-              <div className="mt-6 text-[13px] leading-relaxed">
-                <EditableLine
-                  value={doc.hiringManager}
-                  onChange={(v) => update("hiringManager", v)}
-                  placeholder="Hiring manager"
-                />
-                <EditableLine
-                  value={doc.companyName}
-                  onChange={(v) => update("companyName", v)}
-                  placeholder="Company name"
-                  bold
-                />
-                <EditableLine
-                  value={doc.companyAddress}
-                  onChange={(v) => update("companyAddress", v)}
-                  placeholder="Company address"
-                />
-              </div>
-
-              {/* Salutation */}
-              <div className="mt-6 text-[13.5px]">
-                <EditableLine
-                  value={doc.salutation}
-                  onChange={(v) => update("salutation", v)}
-                  placeholder={
-                    doc.hiringManager ? `Dear ${doc.hiringManager},` : "Dear Hiring Manager,"
-                  }
-                />
-              </div>
-
-              {/* Body */}
-              <textarea
-                value={doc.body}
-                onChange={(e) => update("body", e.target.value)}
-                rows={hasLetter ? Math.max(10, doc.body.split("\n").length + 2) : 10}
-                placeholder={
-                  hasLetter
-                    ? ""
-                    : "Your generated letter body will appear here.\n\nEach paragraph is separated by a blank line. Click Generate after pasting the JD."
-                }
-                className="mt-5 w-full bg-transparent border-0 outline-none resize-none text-[13.5px] leading-[1.7] text-foreground placeholder:text-foreground/35 font-serif"
-                style={{ minHeight: hasLetter ? undefined : 220 }}
-              />
-
-              {/* Sign-off */}
-              <div className="mt-2 text-[13.5px]">
-                <EditableLine
-                  value={doc.signOff}
-                  onChange={(v) => update("signOff", v)}
-                  placeholder="Sincerely,"
-                />
-                <div className="h-6" />
-                <EditableLine
-                  value={doc.senderName}
-                  onChange={(v) => update("senderName", v)}
-                  placeholder="Your full name"
-                  bold
-                />
-              </div>
-            </div>
+            <LetterSheet
+              doc={doc}
+              update={update}
+              hasLetter={hasLetter}
+              typo={typo}
+              compact
+            />
 
             {/* Action bar */}
             <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
@@ -885,6 +805,321 @@ const CoverLetterGenerator = () => {
             )}
           </div>
         </SectionCard>
+      </div>
+
+      {/* Fullscreen letter editor */}
+      {fullscreen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col">
+          {/* Toolbar */}
+          <div className="flex items-center gap-2 px-4 sm:px-6 py-2.5 border-b border-foreground/[0.08] bg-background/80 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <Type className="w-3.5 h-3.5 text-foreground/50" />
+              <select
+                value={typo.font}
+                onChange={(e) => updateTypo("font", e.target.value as FontKey)}
+                className="bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-2 py-1 text-[12.5px] text-foreground outline-none focus:border-foreground/20"
+              >
+                {(Object.keys(FONT_LABELS) as FontKey[]).map((k) => (
+                  <option key={k} value={k}>
+                    {FONT_LABELS[k]}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-1 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-1.5 py-0.5">
+              <button
+                onClick={() => updateTypo("fontSize", Math.max(10, typo.fontSize - 1))}
+                className="w-6 h-6 inline-flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/[0.06] rounded"
+                title="Decrease size"
+              >
+                −
+              </button>
+              <span className="text-[12px] tabular-nums w-7 text-center text-foreground/70">
+                {typo.fontSize}
+              </span>
+              <button
+                onClick={() => updateTypo("fontSize", Math.min(28, typo.fontSize + 1))}
+                className="w-6 h-6 inline-flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/[0.06] rounded"
+                title="Increase size"
+              >
+                +
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1.5">
+              <span className="text-[11px] text-foreground/50 tracking-tight">Line</span>
+              <select
+                value={typo.lineHeight}
+                onChange={(e) => updateTypo("lineHeight", Number(e.target.value))}
+                className="bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-2 py-1 text-[12.5px] text-foreground outline-none focus:border-foreground/20"
+              >
+                {[1.3, 1.5, 1.7, 2.0].map((v) => (
+                  <option key={v} value={v}>
+                    {v.toFixed(1)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center gap-0.5 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md p-0.5">
+              <ToolbarToggle
+                active={typo.bold}
+                onClick={() => updateTypo("bold", !typo.bold)}
+                title="Bold"
+              >
+                <Bold className="w-3.5 h-3.5" />
+              </ToolbarToggle>
+              <ToolbarToggle
+                active={typo.italic}
+                onClick={() => updateTypo("italic", !typo.italic)}
+                title="Italic"
+              >
+                <Italic className="w-3.5 h-3.5" />
+              </ToolbarToggle>
+            </div>
+
+            <div className="flex items-center gap-0.5 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md p-0.5">
+              <ToolbarToggle
+                active={typo.align === "left"}
+                onClick={() => updateTypo("align", "left")}
+                title="Align left"
+              >
+                <AlignLeft className="w-3.5 h-3.5" />
+              </ToolbarToggle>
+              <ToolbarToggle
+                active={typo.align === "center"}
+                onClick={() => updateTypo("align", "center")}
+                title="Align center"
+              >
+                <AlignCenter className="w-3.5 h-3.5" />
+              </ToolbarToggle>
+              <ToolbarToggle
+                active={typo.align === "justify"}
+                onClick={() => updateTypo("align", "justify")}
+                title="Justify"
+              >
+                <AlignJustify className="w-3.5 h-3.5" />
+              </ToolbarToggle>
+            </div>
+
+            <div className="ml-auto flex items-center gap-1.5">
+              <button
+                onClick={downloadPdf}
+                disabled={!hasLetter}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[12px] font-medium tracking-tight transition-colors",
+                  hasLetter
+                    ? "bg-foreground text-background hover:bg-foreground/90"
+                    : "bg-foreground/10 text-foreground/40 cursor-not-allowed",
+                )}
+              >
+                <Download className="w-3.5 h-3.5" /> PDF
+              </button>
+              <button
+                onClick={downloadDocx}
+                disabled={!hasLetter}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12px] font-medium tracking-tight transition-colors",
+                  hasLetter
+                    ? "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]"
+                    : "border-foreground/[0.06] text-foreground/30 cursor-not-allowed",
+                )}
+              >
+                <Download className="w-3.5 h-3.5" /> DOCX
+              </button>
+              <button
+                onClick={downloadTxt}
+                disabled={!hasLetter}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12px] font-medium tracking-tight transition-colors",
+                  hasLetter
+                    ? "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]"
+                    : "border-foreground/[0.06] text-foreground/30 cursor-not-allowed",
+                )}
+              >
+                <Download className="w-3.5 h-3.5" /> TXT
+              </button>
+              <button
+                onClick={() => setFullscreen(false)}
+                className="inline-flex items-center gap-1.5 rounded-md border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
+                title="Exit full screen (Esc)"
+              >
+                <Minimize2 className="w-3.5 h-3.5" />
+                Exit
+              </button>
+            </div>
+          </div>
+
+          {/* Sheet */}
+          <div className="flex-1 overflow-auto py-8 px-4">
+            <LetterSheet
+              doc={doc}
+              update={update}
+              hasLetter={hasLetter}
+              typo={typo}
+              compact={false}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const ToolbarToggle = ({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={cn(
+      "inline-flex items-center justify-center w-7 h-7 rounded transition-colors",
+      active
+        ? "bg-foreground text-background"
+        : "text-foreground/70 hover:text-foreground hover:bg-foreground/[0.06]",
+    )}
+  >
+    {children}
+  </button>
+);
+
+const LetterSheet = ({
+  doc,
+  update,
+  hasLetter,
+  typo,
+  compact,
+}: {
+  doc: LetterDoc;
+  update: <K extends keyof LetterDoc>(key: K, value: LetterDoc[K]) => void;
+  hasLetter: boolean;
+  typo: TypoSettings;
+  compact: boolean;
+}) => {
+  const sheetStyle: React.CSSProperties = {
+    fontFamily: FONT_STACKS[typo.font],
+    fontSize: `${typo.fontSize}px`,
+    lineHeight: typo.lineHeight,
+    fontWeight: typo.bold ? 600 : 400,
+    fontStyle: typo.italic ? "italic" : "normal",
+    textAlign: typo.align,
+  };
+
+  const maxW = compact ? "max-w-[640px]" : "max-w-[820px]";
+  const padX = compact ? "px-8 sm:px-12" : "px-10 sm:px-16";
+  const padY = compact ? "py-10" : "py-14";
+
+  return (
+    <div
+      className={cn(
+        "mx-auto bg-background border border-foreground/[0.08] rounded-md shadow-sm text-foreground",
+        maxW,
+        padX,
+        padY,
+      )}
+      style={sheetStyle}
+    >
+      {/* Sender block */}
+      <div>
+        <EditableLine
+          value={doc.senderName}
+          onChange={(v) => update("senderName", v)}
+          placeholder="Your full name"
+          accentBold
+        />
+        <EditableLine
+          value={doc.senderEmail}
+          onChange={(v) => update("senderEmail", v)}
+          placeholder="you@email.com"
+        />
+        <EditableLine
+          value={doc.senderPhone}
+          onChange={(v) => update("senderPhone", v)}
+          placeholder="Phone"
+        />
+        <EditableLine
+          value={doc.senderLocation}
+          onChange={(v) => update("senderLocation", v)}
+          placeholder="City, Country"
+        />
+      </div>
+
+      <div className="mt-6">
+        <EditableLine
+          value={doc.date}
+          onChange={(v) => update("date", v)}
+          placeholder="Date"
+        />
+      </div>
+
+      <div className="mt-6">
+        <EditableLine
+          value={doc.hiringManager}
+          onChange={(v) => update("hiringManager", v)}
+          placeholder="Hiring manager"
+        />
+        <EditableLine
+          value={doc.companyName}
+          onChange={(v) => update("companyName", v)}
+          placeholder="Company name"
+          accentBold
+        />
+        <EditableLine
+          value={doc.companyAddress}
+          onChange={(v) => update("companyAddress", v)}
+          placeholder="Company address"
+        />
+      </div>
+
+      <div className="mt-6">
+        <EditableLine
+          value={doc.salutation}
+          onChange={(v) => update("salutation", v)}
+          placeholder={
+            doc.hiringManager ? `Dear ${doc.hiringManager},` : "Dear Hiring Manager,"
+          }
+        />
+      </div>
+
+      <textarea
+        value={doc.body}
+        onChange={(e) => update("body", e.target.value)}
+        rows={hasLetter ? Math.max(10, doc.body.split("\n").length + 2) : 12}
+        placeholder={
+          hasLetter
+            ? ""
+            : "Your generated letter body will appear here.\n\nEach paragraph is separated by a blank line. Click Generate after pasting the JD."
+        }
+        className="mt-5 w-full bg-transparent border-0 outline-none resize-none text-foreground placeholder:text-foreground/35"
+        style={{
+          ...sheetStyle,
+          minHeight: hasLetter ? undefined : compact ? 220 : 360,
+        }}
+      />
+
+      <div className="mt-2">
+        <EditableLine
+          value={doc.signOff}
+          onChange={(v) => update("signOff", v)}
+          placeholder="Sincerely,"
+        />
+        <div className="h-6" />
+        <EditableLine
+          value={doc.senderName}
+          onChange={(v) => update("senderName", v)}
+          placeholder="Your full name"
+          accentBold
+        />
       </div>
     </div>
   );
