@@ -375,6 +375,9 @@ export const EnhancedResumePanel = ({
         </div>
       </SectionCard>
 
+      {/* ORIGINAL vs ENHANCED — section-by-section comparison */}
+      <ComparisonTable enhancement={enhancement} />
+
       {/* CHANGELOG */}
       {enhancement.changelog.length > 0 && (
         <SectionCard>
