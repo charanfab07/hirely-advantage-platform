@@ -9,6 +9,7 @@ import { InsightsTriad, type InsightsColumn } from "@/components/dashboard/Insig
 import { QuickWins, type QuickWin } from "@/components/dashboard/QuickWins";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
+import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -523,33 +524,7 @@ const ResumeAnalyzer = () => {
 
       {/* HISTORY TAB */}
       {tab === "versions" && (
-        <SectionCard className="mt-5 p-0 overflow-hidden">
-          <ul className="divide-y divide-foreground/[0.06]">
-            {analyses.map((a) => (
-              <li
-                key={a.id}
-                className="px-5 py-4 flex items-center justify-between gap-4"
-              >
-                <div className="min-w-0">
-                  <p className="text-[13.5px] font-medium tracking-tight">
-                    Score {a.overall_score} · ATS {a.ats_score}
-                  </p>
-                  <p className="text-[11.5px] text-foreground/50">
-                    {new Date(a.created_at).toLocaleString()}
-                  </p>
-                </div>
-                <p className="text-[12.5px] text-foreground/65 truncate max-w-[60%] hidden sm:block">
-                  {a.summary}
-                </p>
-              </li>
-            ))}
-            {!analyses.length && (
-              <li className="px-5 py-6 text-[13px] text-foreground/55">
-                No history yet. Upload a resume to start.
-              </li>
-            )}
-          </ul>
-        </SectionCard>
+        <TransformationPanel className="mt-5" versions={analyses} />
       )}
     </div>
   );
