@@ -25,6 +25,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   const [stage, setStage] = useState<Stage>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [targetRole, setTargetRole] = useState("");
 
   const stageLabel: Record<Stage, string> = {
     idle: "",
