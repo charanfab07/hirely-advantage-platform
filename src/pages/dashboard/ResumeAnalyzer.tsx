@@ -322,6 +322,29 @@ const ResumeAnalyzer = () => {
 
           {sparklineData && <ScoreSparkline className="mt-4" data={sparklineData} />}
 
+          {(latest.job_match?.match_percent != null || latest.score_breakdown) && (
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {latest.job_match?.match_percent != null && (
+                <JobMatchCard match={latest.job_match} />
+              )}
+              {latest.score_breakdown && (
+                <ScoreBreakdownCard breakdown={latest.score_breakdown} />
+              )}
+            </div>
+          )}
+
+          {!!latest.strengths?.length && (
+            <StrengthsCard className="mt-4" items={latest.strengths} />
+          )}
+
+          {!!latest.weaknesses?.length && (
+            <WeaknessesCard className="mt-4" items={latest.weaknesses} />
+          )}
+
+          {!!latest.bullet_rewrites?.length && (
+            <BulletRewritesCard className="mt-4" items={latest.bullet_rewrites} />
+          )}
+
           {insightsColumns && <InsightsTriad className="mt-4" columns={insightsColumns} />}
 
           {quickWins && <QuickWins className="mt-4" wins={quickWins} />}
