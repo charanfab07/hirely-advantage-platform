@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight } from "lucide-react";
+import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight, Sparkles } from "lucide-react";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 
@@ -16,6 +16,7 @@ import {
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
+import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -88,6 +89,7 @@ type Analysis = {
 
 const tabs = [
   { value: "score", label: "Score" },
+  { value: "enhanced", label: "Enhanced" },
   { value: "compare", label: "Compare" },
   { value: "extracted", label: "Extracted" },
   { value: "issues", label: "Issues" },
@@ -316,8 +318,16 @@ const ResumeAnalyzer = () => {
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <button
                 type="button"
+                onClick={() => setTab("enhanced")}
+                className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity inline-flex items-center gap-1.5"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Generate perfect resume
+              </button>
+              <button
+                type="button"
                 onClick={() => setTab("issues")}
-                className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+                className="px-4 py-2 rounded-full text-foreground/65 text-[12.5px] hover:bg-foreground/5 transition-colors"
               >
                 Fix top issues →
               </button>
@@ -689,6 +699,15 @@ const ResumeAnalyzer = () => {
             </ul>
           </SectionCard>
         </div>
+      )}
+
+      {/* ENHANCED TAB */}
+      {tab === "enhanced" && (
+        <EnhancedResumePanel
+          className="mt-5"
+          resumeId={latest?.resume_id ?? null}
+          analysisId={latest?.id ?? null}
+        />
       )}
 
       {/* TAILORED TAB */}

@@ -435,6 +435,69 @@ export type Database = {
           },
         ]
       }
+      resume_enhancements: {
+        Row: {
+          achievements: Json
+          added_keywords: Json
+          analysis_id: string | null
+          changelog: Json
+          contact: Json
+          created_at: string
+          education: Json
+          estimated_score_after: number | null
+          estimated_score_before: number | null
+          experience: Json
+          headline: string | null
+          id: string
+          model: string | null
+          projects: Json
+          resume_id: string
+          skills: Json
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          achievements?: Json
+          added_keywords?: Json
+          analysis_id?: string | null
+          changelog?: Json
+          contact?: Json
+          created_at?: string
+          education?: Json
+          estimated_score_after?: number | null
+          estimated_score_before?: number | null
+          experience?: Json
+          headline?: string | null
+          id?: string
+          model?: string | null
+          projects?: Json
+          resume_id: string
+          skills?: Json
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          achievements?: Json
+          added_keywords?: Json
+          analysis_id?: string | null
+          changelog?: Json
+          contact?: Json
+          created_at?: string
+          education?: Json
+          estimated_score_after?: number | null
+          estimated_score_before?: number | null
+          experience?: Json
+          headline?: string | null
+          id?: string
+          model?: string | null
+          projects?: Json
+          resume_id?: string
+          skills?: Json
+          summary?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       resume_tailorings: {
         Row: {
           analysis_id: string | null
