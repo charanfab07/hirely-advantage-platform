@@ -37,6 +37,92 @@ export type EditableResume = {
   achievements: string[];
 };
 
+// ===== Typography (font / size / placement) =====
+export type ResumeFontKey =
+  | "serif-times"
+  | "serif-georgia"
+  | "serif-cambria"
+  | "serif-garamond"
+  | "sans-inter"
+  | "sans-helvetica"
+  | "sans-arial"
+  | "sans-calibri"
+  | "sans-verdana"
+  | "mono-jetbrains";
+
+type AlignKey = "left" | "center" | "right" | "justify";
+
+export type ResumeTypography = {
+  font: ResumeFontKey;
+  sizeScale: number; // 0.85 .. 1.25 — multiplies all element sizes
+  lineHeight: number; // 1.3 .. 2.0
+  bodyAlign: Exclude<AlignKey, "right">; // left or justify (or center)
+  headerAlign: Exclude<AlignKey, "justify">; // header word-placement
+};
+
+const DEFAULT_TYPO: ResumeTypography = {
+  font: "serif-times",
+  sizeScale: 1,
+  lineHeight: 1.5,
+  bodyAlign: "left",
+  headerAlign: "center",
+};
+
+// CSS font-family stacks for the live preview
+const FONT_STACKS: Record<ResumeFontKey, string> = {
+  "serif-times": '"Times New Roman", Times, serif',
+  "serif-georgia": 'Georgia, "Iowan Old Style", serif',
+  "serif-cambria": 'Cambria, "Hoefler Text", serif',
+  "serif-garamond": '"EB Garamond", Garamond, serif',
+  "sans-inter": '"Inter", "Helvetica Neue", Arial, sans-serif',
+  "sans-helvetica": '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  "sans-arial": 'Arial, "Liberation Sans", sans-serif',
+  "sans-calibri": 'Calibri, "Carlito", sans-serif',
+  "sans-verdana": 'Verdana, Geneva, sans-serif',
+  "mono-jetbrains": '"JetBrains Mono", "Fira Code", ui-monospace, monospace',
+};
+
+const FONT_LABELS: Record<ResumeFontKey, string> = {
+  "serif-times": "Times New Roman",
+  "serif-georgia": "Georgia",
+  "serif-cambria": "Cambria",
+  "serif-garamond": "Garamond",
+  "sans-inter": "Inter",
+  "sans-helvetica": "Helvetica",
+  "sans-arial": "Arial",
+  "sans-calibri": "Calibri",
+  "sans-verdana": "Verdana",
+  "mono-jetbrains": "JetBrains Mono",
+};
+
+// jsPDF only ships Helvetica, Times, Courier — map our keys to the closest built-in.
+const PDF_FONT_FAMILY: Record<ResumeFontKey, "helvetica" | "times" | "courier"> = {
+  "serif-times": "times",
+  "serif-georgia": "times",
+  "serif-cambria": "times",
+  "serif-garamond": "times",
+  "sans-inter": "helvetica",
+  "sans-helvetica": "helvetica",
+  "sans-arial": "helvetica",
+  "sans-calibri": "helvetica",
+  "sans-verdana": "helvetica",
+  "mono-jetbrains": "courier",
+};
+
+// DOCX font names — Word will substitute if missing on user's machine.
+const DOCX_FONT_NAME: Record<ResumeFontKey, string> = {
+  "serif-times": "Times New Roman",
+  "serif-georgia": "Georgia",
+  "serif-cambria": "Cambria",
+  "serif-garamond": "Garamond",
+  "sans-inter": "Inter",
+  "sans-helvetica": "Helvetica",
+  "sans-arial": "Arial",
+  "sans-calibri": "Calibri",
+  "sans-verdana": "Verdana",
+  "mono-jetbrains": "JetBrains Mono",
+};
+
 const fieldCls =
   "w-full bg-transparent border border-foreground/10 hover:border-foreground/20 focus:border-foreground/40 focus:bg-white/60 rounded-md px-2.5 py-1.5 text-[13px] tracking-tight outline-none transition-colors";
 const textareaCls = cn(fieldCls, "resize-y min-h-[60px] leading-[1.5]");
