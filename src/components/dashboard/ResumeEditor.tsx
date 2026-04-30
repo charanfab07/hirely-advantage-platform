@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Download, FileText, FileType, Pencil, Eye, X } from "lucide-react";
+import { Plus, Trash2, Download, FileText, FileType, Pencil, Eye, X, Type, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
 import { SectionCard } from "./SectionCard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -37,6 +37,92 @@ export type EditableResume = {
   achievements: string[];
 };
 
+// ===== Typography (font / size / placement) =====
+export type ResumeFontKey =
+  | "serif-times"
+  | "serif-georgia"
+  | "serif-cambria"
+  | "serif-garamond"
+  | "sans-inter"
+  | "sans-helvetica"
+  | "sans-arial"
+  | "sans-calibri"
+  | "sans-verdana"
+  | "mono-jetbrains";
+
+type AlignKey = "left" | "center" | "right" | "justify";
+
+export type ResumeTypography = {
+  font: ResumeFontKey;
+  sizeScale: number; // 0.85 .. 1.25 — multiplies all element sizes
+  lineHeight: number; // 1.3 .. 2.0
+  bodyAlign: Exclude<AlignKey, "right">; // left or justify (or center)
+  headerAlign: Exclude<AlignKey, "justify">; // header word-placement
+};
+
+const DEFAULT_TYPO: ResumeTypography = {
+  font: "serif-times",
+  sizeScale: 1,
+  lineHeight: 1.5,
+  bodyAlign: "left",
+  headerAlign: "center",
+};
+
+// CSS font-family stacks for the live preview
+const FONT_STACKS: Record<ResumeFontKey, string> = {
+  "serif-times": '"Times New Roman", Times, serif',
+  "serif-georgia": 'Georgia, "Iowan Old Style", serif',
+  "serif-cambria": 'Cambria, "Hoefler Text", serif',
+  "serif-garamond": '"EB Garamond", Garamond, serif',
+  "sans-inter": '"Inter", "Helvetica Neue", Arial, sans-serif',
+  "sans-helvetica": '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  "sans-arial": 'Arial, "Liberation Sans", sans-serif',
+  "sans-calibri": 'Calibri, "Carlito", sans-serif',
+  "sans-verdana": 'Verdana, Geneva, sans-serif',
+  "mono-jetbrains": '"JetBrains Mono", "Fira Code", ui-monospace, monospace',
+};
+
+const FONT_LABELS: Record<ResumeFontKey, string> = {
+  "serif-times": "Times New Roman",
+  "serif-georgia": "Georgia",
+  "serif-cambria": "Cambria",
+  "serif-garamond": "Garamond",
+  "sans-inter": "Inter",
+  "sans-helvetica": "Helvetica",
+  "sans-arial": "Arial",
+  "sans-calibri": "Calibri",
+  "sans-verdana": "Verdana",
+  "mono-jetbrains": "JetBrains Mono",
+};
+
+// jsPDF only ships Helvetica, Times, Courier — map our keys to the closest built-in.
+const PDF_FONT_FAMILY: Record<ResumeFontKey, "helvetica" | "times" | "courier"> = {
+  "serif-times": "times",
+  "serif-georgia": "times",
+  "serif-cambria": "times",
+  "serif-garamond": "times",
+  "sans-inter": "helvetica",
+  "sans-helvetica": "helvetica",
+  "sans-arial": "helvetica",
+  "sans-calibri": "helvetica",
+  "sans-verdana": "helvetica",
+  "mono-jetbrains": "courier",
+};
+
+// DOCX font names — Word will substitute if missing on user's machine.
+const DOCX_FONT_NAME: Record<ResumeFontKey, string> = {
+  "serif-times": "Times New Roman",
+  "serif-georgia": "Georgia",
+  "serif-cambria": "Cambria",
+  "serif-garamond": "Garamond",
+  "sans-inter": "Inter",
+  "sans-helvetica": "Helvetica",
+  "sans-arial": "Arial",
+  "sans-calibri": "Calibri",
+  "sans-verdana": "Verdana",
+  "mono-jetbrains": "JetBrains Mono",
+};
+
 const fieldCls =
   "w-full bg-transparent border border-foreground/10 hover:border-foreground/20 focus:border-foreground/40 focus:bg-white/60 rounded-md px-2.5 py-1.5 text-[13px] tracking-tight outline-none transition-colors";
 const textareaCls = cn(fieldCls, "resize-y min-h-[60px] leading-[1.5]");
@@ -51,6 +137,10 @@ export const ResumeEditor = ({
 }) => {
   const [resume, setResume] = useState<EditableResume>(initial);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
+  const [typo, setTypo] = useState<ResumeTypography>(DEFAULT_TYPO);
+
+  const updateTypo = <K extends keyof ResumeTypography>(key: K, value: ResumeTypography[K]) =>
+    setTypo((t) => ({ ...t, [key]: value }));
 
   const update = <K extends keyof EditableResume>(key: K, value: EditableResume[K]) =>
     setResume((r) => ({ ...r, [key]: value }));
@@ -69,7 +159,7 @@ export const ResumeEditor = ({
 
   const handleDownloadPdf = () => {
     try {
-      const doc = renderPdf(resume);
+      const doc = renderPdf(resume, typo);
       doc.save(`${fileBase}.pdf`);
       toast.success("PDF downloaded");
     } catch (e) {
@@ -80,7 +170,7 @@ export const ResumeEditor = ({
 
   const handleDownloadDocx = async () => {
     try {
-      const doc = renderDocx(resume);
+      const doc = renderDocx(resume, typo);
       const blob = await Packer.toBlob(doc);
       saveAs(blob, `${fileBase}.docx`);
       toast.success("DOCX downloaded");
@@ -152,6 +242,101 @@ export const ResumeEditor = ({
             </button>
           )}
         </div>
+      </div>
+
+      {/* Typography toolbar — applies to preview, PDF and DOCX */}
+      <div className="flex items-center gap-2 flex-wrap px-5 py-2.5 border-b border-foreground/[0.06] bg-foreground/[0.015]">
+        <div className="flex items-center gap-1.5">
+          <Type className="w-3.5 h-3.5 text-foreground/50" />
+          <select
+            value={typo.font}
+            onChange={(e) => updateTypo("font", e.target.value as ResumeFontKey)}
+            className="bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-2 py-1 text-[12.5px] text-foreground outline-none focus:border-foreground/20"
+            title="Font family"
+          >
+            {(Object.keys(FONT_LABELS) as ResumeFontKey[]).map((k) => (
+              <option key={k} value={k}>
+                {FONT_LABELS[k]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-1 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-1.5 py-0.5">
+          <button
+            type="button"
+            onClick={() => updateTypo("sizeScale", Math.max(0.85, +(typo.sizeScale - 0.05).toFixed(2)))}
+            className="w-6 h-6 inline-flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/[0.06] rounded"
+            title="Decrease size"
+          >
+            −
+          </button>
+          <span className="text-[12px] tabular-nums w-10 text-center text-foreground/70">
+            {Math.round(typo.sizeScale * 100)}%
+          </span>
+          <button
+            type="button"
+            onClick={() => updateTypo("sizeScale", Math.min(1.25, +(typo.sizeScale + 0.05).toFixed(2)))}
+            className="w-6 h-6 inline-flex items-center justify-center text-foreground/70 hover:text-foreground hover:bg-foreground/[0.06] rounded"
+            title="Increase size"
+          >
+            +
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-foreground/50 tracking-tight">Line</span>
+          <select
+            value={typo.lineHeight}
+            onChange={(e) => updateTypo("lineHeight", Number(e.target.value))}
+            className="bg-foreground/[0.04] border border-foreground/[0.08] rounded-md px-2 py-1 text-[12.5px] text-foreground outline-none focus:border-foreground/20"
+          >
+            {[1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 2.0].map((v) => (
+              <option key={v} value={v}>
+                {v.toFixed(1)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex items-center gap-1.5 ml-1">
+          <span className="text-[11px] text-foreground/50 tracking-tight">Header</span>
+          <div className="flex items-center gap-0.5 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md p-0.5">
+            <AlignToggle active={typo.headerAlign === "left"} onClick={() => updateTypo("headerAlign", "left")} title="Header left">
+              <AlignLeft className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.headerAlign === "center"} onClick={() => updateTypo("headerAlign", "center")} title="Header center">
+              <AlignCenter className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.headerAlign === "right"} onClick={() => updateTypo("headerAlign", "right")} title="Header right">
+              <AlignRight className="w-3.5 h-3.5" />
+            </AlignToggle>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-foreground/50 tracking-tight">Body</span>
+          <div className="flex items-center gap-0.5 bg-foreground/[0.04] border border-foreground/[0.08] rounded-md p-0.5">
+            <AlignToggle active={typo.bodyAlign === "left"} onClick={() => updateTypo("bodyAlign", "left")} title="Body left">
+              <AlignLeft className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.bodyAlign === "center"} onClick={() => updateTypo("bodyAlign", "center")} title="Body center">
+              <AlignCenter className="w-3.5 h-3.5" />
+            </AlignToggle>
+            <AlignToggle active={typo.bodyAlign === "justify"} onClick={() => updateTypo("bodyAlign", "justify")} title="Body justify">
+              <AlignJustify className="w-3.5 h-3.5" />
+            </AlignToggle>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setTypo(DEFAULT_TYPO)}
+          className="ml-auto text-[11.5px] text-foreground/55 hover:text-foreground tracking-tight"
+          title="Reset typography"
+        >
+          Reset
+        </button>
       </div>
 
       {mode === "edit" ? (
@@ -594,7 +779,7 @@ export const ResumeEditor = ({
           </section>
         </div>
       ) : (
-        <ResumePreview resume={resume} />
+        <ResumePreview resume={resume} typo={typo} />
       )}
     </SectionCard>
   );
@@ -630,11 +815,54 @@ const AddBtn = ({ label, onClick }: { label: string; onClick: () => void }) => (
   </button>
 );
 
+const AlignToggle = ({
+  active,
+  onClick,
+  title,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={title}
+    className={cn(
+      "w-7 h-7 inline-flex items-center justify-center rounded transition-colors",
+      active
+        ? "bg-foreground text-background"
+        : "text-foreground/65 hover:text-foreground hover:bg-foreground/[0.06]",
+    )}
+  >
+    {children}
+  </button>
+);
+
 // ----- Live preview (matches the document preview style) -----
-const ResumePreview = ({ resume }: { resume: EditableResume }) => (
-  <div className="px-7 sm:px-10 py-9 bg-white text-[#0E0B1F] font-serif max-h-[80vh] overflow-y-auto">
-    <div className="text-center">
-      <h1 className="text-[26px] font-semibold tracking-[-0.02em]">
+const ResumePreview = ({
+  resume,
+  typo,
+}: {
+  resume: EditableResume;
+  typo: ResumeTypography;
+}) => {
+  const scale = typo.sizeScale;
+  // Helper to render an em-scaled, aligned size
+  const sz = (px: number) => `${(px * scale).toFixed(2)}px`;
+  const headerAlign =
+    typo.headerAlign === "left" ? "text-left" : typo.headerAlign === "right" ? "text-right" : "text-center";
+  const bodyAlign =
+    typo.bodyAlign === "center" ? "text-center" : typo.bodyAlign === "justify" ? "text-justify" : "text-left";
+  return (
+  <div
+    className={cn("px-7 sm:px-10 py-9 bg-white text-[#0E0B1F] max-h-[80vh] overflow-y-auto", bodyAlign)}
+    style={{ fontFamily: FONT_STACKS[typo.font], lineHeight: typo.lineHeight }}
+  >
+    <div className={headerAlign}>
+      <h1 className="font-semibold tracking-[-0.02em]" style={{ fontSize: sz(26) }}>
         {resume.contact.name || "Your name"}
       </h1>
       {resume.headline && (
@@ -743,7 +971,8 @@ const ResumePreview = ({ resume }: { resume: EditableResume }) => (
       </PreviewSection>
     )}
   </div>
-);
+  );
+};
 
 const PreviewSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="mt-6">
@@ -851,7 +1080,7 @@ function setFontSafe(
   }
 }
 
-function renderPdf(r: EditableResume): jsPDF {
+function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
@@ -860,6 +1089,32 @@ function renderPdf(r: EditableResume): jsPDF {
   let y = margin;
 
   const s = sanitizeForPdf;
+  const SC = typo.sizeScale;
+  const LH = typo.lineHeight / 1.5; // baseline 1.5 = neutral
+  const PDF_FAMILY = PDF_FONT_FAMILY[typo.font];
+
+  // Local font setter that respects user's chosen family + scale
+  const applyFont = (
+    weight: "normal" | "bold",
+    size: number,
+    color: [number, number, number],
+  ) => {
+    const scaled = size * SC;
+    doc.setFont(PDF_FAMILY, weight);
+    doc.setFontSize(scaled);
+    doc.setTextColor(color[0], color[1], color[2]);
+    doc.setLineWidth(0);
+    doc.setDrawColor(color[0], color[1], color[2]);
+    const anyDoc = doc as unknown as { setTextRenderingMode?: (m: number) => void };
+    if (typeof anyDoc.setTextRenderingMode === "function") anyDoc.setTextRenderingMode(0);
+  };
+
+  // Header anchor + alignment for top block
+  const headerX =
+    typo.headerAlign === "left" ? margin : typo.headerAlign === "right" ? pageW - margin : pageW / 2;
+  const headerAlignOpt: "left" | "center" | "right" = typo.headerAlign;
+  const bodyAlignOpt: "left" | "center" | "justify" =
+    typo.bodyAlign === "center" ? "center" : typo.bodyAlign === "justify" ? "justify" : "left";
 
   const ensureSpace = (h: number) => {
     if (y + h > pageH - margin) {
@@ -870,39 +1125,39 @@ function renderPdf(r: EditableResume): jsPDF {
 
   const writeText = (
     text: string,
-    opts: { size?: number; bold?: boolean; color?: [number, number, number]; gap?: number } = {},
+    opts: { size?: number; bold?: boolean; color?: [number, number, number]; gap?: number; align?: "left" | "center" | "justify" } = {},
   ) => {
-    const { size = 10, bold = false, color = [20, 20, 30], gap = 4 } = opts;
-    setFontSafe(doc, bold ? "bold" : "normal", size, color);
+    const { size = 10, bold = false, color = [20, 20, 30], gap = 4, align = bodyAlignOpt } = opts;
+    applyFont(bold ? "bold" : "normal", size, color);
     const lines = doc.splitTextToSize(s(text), maxW);
-    const lineH = size * 1.25;
+    const lineH = size * SC * 1.25 * LH;
     ensureSpace(lines.length * lineH + gap);
-    doc.text(lines, margin, y);
+    doc.text(lines, margin, y, { align, maxWidth: maxW });
     y += lines.length * lineH + gap;
   };
 
   const sectionTitle = (title: string) => {
-    y += 6;
-    ensureSpace(22);
-    setFontSafe(doc, "bold", 10, [80, 80, 100]);
+    y += 6 * LH;
+    ensureSpace(22 * LH);
+    applyFont("bold", 10, [80, 80, 100]);
     doc.text(s(title.toUpperCase()), margin, y);
-    y += 4;
+    y += 4 * SC * LH;
     doc.setDrawColor(200, 200, 210);
     doc.setLineWidth(0.5);
     doc.line(margin, y, pageW - margin, y);
-    y += 10;
+    y += 10 * SC * LH;
   };
 
-  // Header — name centered
+  // Header — name (alignment configurable)
   if (r.contact.name) {
-    setFontSafe(doc, "bold", 20, [15, 15, 25]);
-    doc.text(s(r.contact.name), pageW / 2, y, { align: "center" });
-    y += 22;
+    applyFont("bold", 20, [15, 15, 25]);
+    doc.text(s(r.contact.name), headerX, y, { align: headerAlignOpt });
+    y += 22 * SC * LH;
   }
   if (r.headline) {
-    setFontSafe(doc, "normal", 11, [80, 80, 100]);
-    doc.text(s(r.headline), pageW / 2, y, { align: "center" });
-    y += 14;
+    applyFont("normal", 11, [80, 80, 100]);
+    doc.text(s(r.headline), headerX, y, { align: headerAlignOpt });
+    y += 14 * SC * LH;
   }
   const contactBits = [
     r.contact.location,
@@ -913,11 +1168,11 @@ function renderPdf(r: EditableResume): jsPDF {
     .filter(Boolean)
     .map(s);
   if (contactBits.length) {
-    setFontSafe(doc, "normal", 9, [110, 110, 130]);
-    doc.text(contactBits.join("  |  "), pageW / 2, y, { align: "center" });
-    y += 14;
+    applyFont("normal", 9, [110, 110, 130]);
+    doc.text(contactBits.join("  |  "), headerX, y, { align: headerAlignOpt });
+    y += 14 * SC * LH;
   }
-  y += 4;
+  y += 4 * SC * LH;
 
   if (r.summary) {
     sectionTitle("Summary");
@@ -930,12 +1185,12 @@ function renderPdf(r: EditableResume): jsPDF {
       const groupLabel = `${s(sk.group)}: `;
       const itemsText = s(sk.items.join(", "));
       // Measure bold group label width, then lay out items as wrapped text starting after it.
-      setFontSafe(doc, "bold", 10, [20, 20, 30]);
+      applyFont("bold", 10, [20, 20, 30]);
       const groupW = doc.getTextWidth(groupLabel);
-      const lineH = 12.5;
+      const lineH = 12.5 * SC * LH;
       const firstLineMaxW = Math.max(40, maxW - groupW);
       // Wrap items: first line shorter (after label), subsequent lines full width.
-      setFontSafe(doc, "normal", 10, [30, 30, 40]);
+      applyFont("normal", 10, [30, 30, 40]);
       const firstWrap = doc.splitTextToSize(itemsText, firstLineMaxW);
       const firstLine = firstWrap[0] ?? "";
       const remainder = itemsText.slice(firstLine.length).trim();
@@ -943,10 +1198,10 @@ function renderPdf(r: EditableResume): jsPDF {
       const totalLines = 1 + restLines.length;
       ensureSpace(totalLines * lineH + 2);
       // Draw bold group label
-      setFontSafe(doc, "bold", 10, [20, 20, 30]);
+      applyFont("bold", 10, [20, 20, 30]);
       doc.text(groupLabel, margin, y);
       // Draw items normal
-      setFontSafe(doc, "normal", 10, [30, 30, 40]);
+      applyFont("normal", 10, [30, 30, 40]);
       doc.text(firstLine, margin + groupW, y);
       let yy = y + lineH;
       restLines.forEach((ln: string) => {
@@ -960,45 +1215,45 @@ function renderPdf(r: EditableResume): jsPDF {
   if (r.experience.length) {
     sectionTitle("Experience");
     r.experience.forEach((x) => {
-      ensureSpace(28);
-      setFontSafe(doc, "bold", 11, [20, 20, 30]);
+      ensureSpace(28 * SC * LH);
+      applyFont("bold", 11, [20, 20, 30]);
       const head = `${s(x.role)} - ${s(x.company)}`;
       doc.text(head, margin, y);
       if (x.dates) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(x.dates), pageW - margin, y, { align: "right" });
       }
-      y += 13;
+      y += 13 * SC * LH;
       if (x.location) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(x.location), margin, y);
-        y += 12;
+        y += 12 * SC * LH;
       }
       x.bullets.filter(Boolean).forEach((b) => {
-        setFontSafe(doc, "normal", 10, [30, 30, 40]);
+        applyFont("normal", 10, [30, 30, 40]);
         const lines = doc.splitTextToSize(`- ${s(b)}`, maxW - 10);
         const h = lines.length * 12 + 2;
         ensureSpace(h);
         doc.text(lines, margin + 8, y);
         y += h;
       });
-      y += 4;
+      y += 4 * SC * LH;
     });
   }
 
   if (r.projects.length) {
     sectionTitle("Projects");
     r.projects.forEach((p) => {
-      ensureSpace(24);
-      setFontSafe(doc, "bold", 10.5, [20, 20, 30]);
+      ensureSpace(24 * SC * LH);
+      applyFont("bold", 10.5, [20, 20, 30]);
       const pname = s(p.name);
       doc.text(pname, margin, y);
       if (p.tech.length) {
         const w = doc.getTextWidth(pname);
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(`  ${s(p.tech.join(", "))}`, margin + w, y);
       }
-      y += 13;
+      y += 13 * SC * LH;
       const body = `${p.description}${p.impact ? ` - ${p.impact}` : ""}`;
       writeText(body, { size: 10, gap: 6 });
     });
@@ -1007,30 +1262,30 @@ function renderPdf(r: EditableResume): jsPDF {
   if (r.education.length) {
     sectionTitle("Education");
     r.education.forEach((ed) => {
-      ensureSpace(24);
-      setFontSafe(doc, "bold", 10.5, [20, 20, 30]);
+      ensureSpace(24 * SC * LH);
+      applyFont("bold", 10.5, [20, 20, 30]);
       doc.text(s(ed.degree), margin, y);
       if (ed.dates) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(ed.dates), pageW - margin, y, { align: "right" });
       }
-      y += 13;
-      setFontSafe(doc, "normal", 10, [60, 60, 80]);
+      y += 13 * SC * LH;
+      applyFont("normal", 10, [60, 60, 80]);
       doc.text(s(ed.school), margin, y);
-      y += 12;
+      y += 12 * SC * LH;
       if (ed.detail) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(ed.detail), margin, y);
-        y += 12;
+        y += 12 * SC * LH;
       }
-      y += 2;
+      y += 2 * SC * LH;
     });
   }
 
   if (r.achievements.length) {
     sectionTitle("Achievements");
     r.achievements.filter(Boolean).forEach((a) => {
-      setFontSafe(doc, "normal", 10, [30, 30, 40]);
+      applyFont("normal", 10, [30, 30, 40]);
       const lines = doc.splitTextToSize(`- ${s(a)}`, maxW - 10);
       const h = lines.length * 12 + 2;
       ensureSpace(h);
@@ -1043,22 +1298,39 @@ function renderPdf(r: EditableResume): jsPDF {
 }
 
 // ----- DOCX -----
-function renderDocx(r: EditableResume): DocxDocument {
+function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
   const children: Paragraph[] = [];
+  const SC = typo.sizeScale;
+  const FONT = DOCX_FONT_NAME[typo.font];
+  // half-points: docx 'size' is in half-points; multiply by SC
+  const sz = (n: number) => Math.round(n * SC);
+  const headerAlignment =
+    typo.headerAlign === "left"
+      ? AlignmentType.LEFT
+      : typo.headerAlign === "right"
+      ? AlignmentType.RIGHT
+      : AlignmentType.CENTER;
+  const bodyAlignment =
+    typo.bodyAlign === "center"
+      ? AlignmentType.CENTER
+      : typo.bodyAlign === "justify"
+      ? AlignmentType.JUSTIFIED
+      : AlignmentType.LEFT;
+
 
   if (r.contact.name) {
     children.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text: r.contact.name, bold: true, size: 36 })],
+        alignment: headerAlignment,
+        children: [new TextRun({ font: FONT, text: r.contact.name, bold: true, size: sz(36) })],
       }),
     );
   }
   if (r.headline) {
     children.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
-        children: [new TextRun({ text: r.headline, size: 22, color: "555770" })],
+        alignment: headerAlignment,
+        children: [new TextRun({ font: FONT, text: r.headline, size: sz(22), color: "555770" })],
       }),
     );
   }
@@ -1071,9 +1343,9 @@ function renderDocx(r: EditableResume): DocxDocument {
   if (contactBits.length) {
     children.push(
       new Paragraph({
-        alignment: AlignmentType.CENTER,
+        alignment: headerAlignment,
         children: [
-          new TextRun({ text: contactBits.join("  ·  "), size: 18, color: "777890" }),
+          new TextRun({ font: FONT, text: contactBits.join("  ·  "), size: sz(18), color: "777890" }),
         ],
         spacing: { after: 200 },
       }),
@@ -1088,13 +1360,13 @@ function renderDocx(r: EditableResume): DocxDocument {
         bottom: { color: "CCCCD0", style: "single", size: 6, space: 1 },
       },
       children: [
-        new TextRun({ text: title.toUpperCase(), bold: true, size: 20, color: "505070" }),
+        new TextRun({ font: FONT, text: title.toUpperCase(), bold: true, size: sz(20), color: "505070" }),
       ],
     });
 
   if (r.summary) {
     children.push(sectionHeading("Summary"));
-    children.push(new Paragraph({ children: [new TextRun({ text: r.summary, size: 20 })] }));
+    children.push(new Paragraph({ children: [new TextRun({ font: FONT, text: r.summary, size: sz(20) })] }));
   }
 
   if (r.skills.length) {
@@ -1102,9 +1374,10 @@ function renderDocx(r: EditableResume): DocxDocument {
     r.skills.forEach((s) => {
       children.push(
         new Paragraph({
+          alignment: bodyAlignment,
           children: [
-            new TextRun({ text: `${s.group}: `, bold: true, size: 20 }),
-            new TextRun({ text: s.items.join(", "), size: 20 }),
+            new TextRun({ font: FONT, text: `${s.group}: `, bold: true, size: sz(20) }),
+            new TextRun({ font: FONT, text: s.items.join(", "), size: sz(20) }),
           ],
         }),
       );
@@ -1118,22 +1391,24 @@ function renderDocx(r: EditableResume): DocxDocument {
         new Paragraph({
           spacing: { before: 120 },
           children: [
-            new TextRun({ text: `${x.role} — ${x.company}`, bold: true, size: 22 }),
-            ...(x.dates ? [new TextRun({ text: `   ${x.dates}`, size: 18, color: "777890" })] : []),
+            new TextRun({ font: FONT, text: `${x.role} — ${x.company}`, bold: true, size: sz(22) }),
+            ...(x.dates ? [new TextRun({ font: FONT, text: `   ${x.dates}`, size: sz(18), color: "777890" })] : []),
           ],
         }),
       );
       if (x.location) {
         children.push(
           new Paragraph({
-            children: [new TextRun({ text: x.location, size: 18, color: "777890" })],
+            alignment: bodyAlignment,
+            children: [new TextRun({ font: FONT, text: x.location, size: sz(18), color: "777890" })],
           }),
         );
       }
       x.bullets.filter(Boolean).forEach((b) => {
         children.push(
           new Paragraph({
-            children: [new TextRun({ text: `• ${b}`, size: 20 })],
+            alignment: bodyAlignment,
+            children: [new TextRun({ font: FONT, text: `• ${b}`, size: sz(20) })],
             indent: { left: 240 },
           }),
         );
@@ -1148,19 +1423,21 @@ function renderDocx(r: EditableResume): DocxDocument {
         new Paragraph({
           spacing: { before: 100 },
           children: [
-            new TextRun({ text: p.name, bold: true, size: 21 }),
+            new TextRun({ font: FONT, text: p.name, bold: true, size: sz(21) }),
             ...(p.tech.length
-              ? [new TextRun({ text: `  ${p.tech.join(", ")}`, size: 18, color: "777890" })]
+              ? [new TextRun({ font: FONT, text: `  ${p.tech.join(", ")}`, size: sz(18), color: "777890" })]
               : []),
           ],
         }),
       );
       children.push(
         new Paragraph({
+          alignment: bodyAlignment,
           children: [
             new TextRun({
+              font: FONT,
               text: `${p.description}${p.impact ? ` — ${p.impact}` : ""}`,
-              size: 20,
+              size: sz(20),
             }),
           ],
         }),
@@ -1175,18 +1452,19 @@ function renderDocx(r: EditableResume): DocxDocument {
         new Paragraph({
           spacing: { before: 100 },
           children: [
-            new TextRun({ text: ed.degree, bold: true, size: 21 }),
-            ...(ed.dates ? [new TextRun({ text: `   ${ed.dates}`, size: 18, color: "777890" })] : []),
+            new TextRun({ font: FONT, text: ed.degree, bold: true, size: sz(21) }),
+            ...(ed.dates ? [new TextRun({ font: FONT, text: `   ${ed.dates}`, size: sz(18), color: "777890" })] : []),
           ],
         }),
       );
       children.push(
-        new Paragraph({ children: [new TextRun({ text: ed.school, size: 20, color: "555770" })] }),
+        new Paragraph({ children: [new TextRun({ font: FONT, text: ed.school, size: sz(20), color: "555770" })] }),
       );
       if (ed.detail) {
         children.push(
           new Paragraph({
-            children: [new TextRun({ text: ed.detail, size: 18, color: "777890" })],
+            alignment: bodyAlignment,
+            children: [new TextRun({ font: FONT, text: ed.detail, size: sz(18), color: "777890" })],
           }),
         );
       }
@@ -1198,7 +1476,8 @@ function renderDocx(r: EditableResume): DocxDocument {
     r.achievements.filter(Boolean).forEach((a) => {
       children.push(
         new Paragraph({
-          children: [new TextRun({ text: `• ${a}`, size: 20 })],
+          alignment: bodyAlignment,
+          children: [new TextRun({ font: FONT, text: `• ${a}`, size: sz(20) })],
           indent: { left: 240 },
         }),
       );
@@ -1207,7 +1486,7 @@ function renderDocx(r: EditableResume): DocxDocument {
 
   return new DocxDocument({
     styles: {
-      default: { document: { run: { font: "Calibri", size: 20 } } },
+      default: { document: { run: { font: "Calibri", size: sz(20) } } },
     },
     sections: [
       {
