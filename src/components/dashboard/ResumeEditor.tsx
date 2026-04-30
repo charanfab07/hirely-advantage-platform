@@ -1357,7 +1357,7 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 240, after: 100 },
       border: {
-        bottom: { color: "CCCCD0", style: "single", size: sz(6), space: 1 },
+        bottom: { color: "CCCCD0", style: "single", size: 6, space: 1 },
       },
       children: [
         new TextRun({ font: FONT, text: title.toUpperCase(), bold: true, size: sz(20), color: "505070" }),
