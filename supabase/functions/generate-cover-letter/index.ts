@@ -110,19 +110,108 @@ function fallbackKeywords(text: string, n = 14): string[] {
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([w]) => w);
 }
 
+// Common abbreviation ↔ expansion pairs (both directions).
+const ABBREVIATIONS: Record<string, string[]> = {
+  "js": ["javascript"], "javascript": ["js"],
+  "ts": ["typescript"], "typescript": ["ts"],
+  "py": ["python"],
+  "k8s": ["kubernetes"], "kubernetes": ["k8s"],
+  "ml": ["machine learning"], "machine learning": ["ml"],
+  "ai": ["artificial intelligence"], "artificial intelligence": ["ai"],
+  "nlp": ["natural language processing"],
+  "cv": ["computer vision"],
+  "ds": ["data science"], "data science": ["ds"],
+  "da": ["data analysis", "data analyst"],
+  "pm": ["product manager", "product management", "project manager"],
+  "ux": ["user experience"], "ui": ["user interface"],
+  "qa": ["quality assurance"],
+  "ci/cd": ["cicd", "ci cd", "continuous integration", "continuous delivery", "continuous deployment"],
+  "cicd": ["ci/cd", "ci cd"],
+  "aws": ["amazon web services"],
+  "gcp": ["google cloud platform", "google cloud"],
+  "kpi": ["kpis", "key performance indicator", "key performance indicators"],
+  "sql": ["mysql", "postgresql", "postgres"],
+  "postgres": ["postgresql"], "postgresql": ["postgres"],
+  "node": ["nodejs", "node.js"], "nodejs": ["node", "node.js"],
+  "react": ["reactjs", "react.js"],
+  "vue": ["vuejs", "vue.js"],
+  "next": ["nextjs", "next.js"],
+  "rest": ["restful", "rest api", "rest apis"],
+  "api": ["apis"],
+  "saas": ["software as a service"],
+  "b2b": ["business to business"],
+  "b2c": ["business to consumer"],
+  "etl": ["extract transform load"],
+  "oop": ["object oriented programming", "object-oriented programming"],
+  "tdd": ["test driven development", "test-driven development"],
+  "ab testing": ["a/b testing", "a b testing", "ab tests"],
+  "a/b testing": ["ab testing", "ab tests"],
+};
+
+// Lightweight stemmer: collapse common English suffixes so plurals/verb-forms
+// share a stem. Not Porter-perfect, but good enough for keyword coverage.
+function stem(word: string): string {
+  let w = word.toLowerCase();
+  if (w.length <= 3) return w;
+  const suffixes = [
+    "ization","izations","isation","isations",
+    "ingly","ation","ations","ments","ness",
+    "ities","ying","ies","ied",
+    "ment","able","ible",
+    "ing","edly","ed",
+    "ly","es","s",
+  ];
+  for (const suf of suffixes) {
+    if (w.length - suf.length >= 3 && w.endsWith(suf)) {
+      w = w.slice(0, -suf.length);
+      break;
+    }
+  }
+  return w;
+}
+
+function tokenize(s: string): string[] {
+  return normalize(s).split(" ").filter(Boolean);
+}
+
+function phraseStem(phrase: string): string {
+  return tokenize(phrase).map(stem).join(" ");
+}
+
+// Variants we'll consider equivalent to a given keyword.
+function expandKeyword(kw: string): string[] {
+  const base = normalize(kw);
+  if (!base) return [];
+  const variants = new Set<string>([base]);
+  if (ABBREVIATIONS[base]) {
+    for (const v of ABBREVIATIONS[base]) variants.add(normalize(v));
+  }
+  variants.add(base.replace(/[-/.]/g, " "));
+  variants.add(base.replace(/[-/. ]/g, ""));
+  return [...variants].filter(Boolean);
+}
+
 function findMatches(letter: string, keywords: string[]) {
-  const norm = " " + normalize(letter) + " ";
+  const letterTokens = tokenize(letter);
+  const stemmedLetter = " " + letterTokens.map(stem).join(" ") + " ";
+  const rawLetter = " " + letterTokens.join(" ") + " ";
+
   const matched: string[] = [];
   const missing: string[] = [];
+
   for (const kw of keywords) {
-    const k = normalize(kw);
-    if (!k) continue;
-    // word-boundary-ish match
-    if (norm.includes(" " + k + " ") || norm.includes(" " + k + ".") || norm.includes(" " + k + ",") || norm.includes(k)) {
-      matched.push(kw);
-    } else {
-      missing.push(kw);
+    const variants = expandKeyword(kw);
+    let hit = false;
+    for (const v of variants) {
+      if (!v) continue;
+      // Exact phrase (handles abbreviations and short tokens).
+      if (rawLetter.includes(" " + v + " ")) { hit = true; break; }
+      // Stemmed phrase (handles plurals + verb forms).
+      const vStem = phraseStem(v);
+      if (vStem && stemmedLetter.includes(" " + vStem + " ")) { hit = true; break; }
     }
+    if (hit) matched.push(kw);
+    else missing.push(kw);
   }
   return { matched, missing };
 }
