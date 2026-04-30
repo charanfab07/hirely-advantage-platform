@@ -38,7 +38,7 @@ Tone parameter changes voice but never breaks the rules:
 - direct:   short sentences, no fluff
 - formal:   polished, executive
 
-Hard length cap: full_letter ≤ 350 words.
+Hard length cap: full_letter ≤ 360 words. The user prompt may set a tighter target — always respect the tighter one.
 
 ALWAYS respond by calling the generate_cover_letter tool.`;
 
