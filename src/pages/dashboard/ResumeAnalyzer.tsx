@@ -5,7 +5,7 @@ import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { StatStrip } from "@/components/dashboard/StatStrip";
 import { TodayCard } from "@/components/dashboard/TodayCard";
-import { ScoreSparkline } from "@/components/dashboard/ScoreSparkline";
+
 import { InsightsTriad, type InsightsColumn } from "@/components/dashboard/InsightsTriad";
 import { QuickWins, type QuickWin } from "@/components/dashboard/QuickWins";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
