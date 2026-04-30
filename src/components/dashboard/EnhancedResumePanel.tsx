@@ -83,15 +83,8 @@ export const EnhancedResumePanel = ({
   const [enhancement, setEnhancement] = useState<Enhancement | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
-  const [editing, setEditing] = useState(false);
-
-  const editableResume = useMemo<EditableResume | null>(
-    () => (enhancement ? toEditable(enhancement) : null),
-    [enhancement],
-  );
 
   // Load latest enhancement for this resume
   useEffect(() => {
