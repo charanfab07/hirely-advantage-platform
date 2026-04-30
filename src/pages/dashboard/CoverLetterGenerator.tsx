@@ -1022,16 +1022,16 @@ const LetterSheet = ({
       <textarea
         value={doc.body}
         onChange={(e) => update("body", e.target.value)}
-        rows={hasLetter ? Math.max(10, doc.body.split("\n").length + 2) : 12}
+        rows={hasLetter ? Math.max(6, doc.body.split("\n").length + 1) : 6}
         placeholder={
           hasLetter
             ? ""
             : "Your generated letter body will appear here.\n\nEach paragraph is separated by a blank line. Click Generate after pasting the JD."
         }
-        className="mt-5 w-full bg-transparent border-0 outline-none resize-none text-foreground placeholder:text-foreground/35"
+        className="mt-3 w-full bg-transparent border-0 outline-none resize-none text-foreground placeholder:text-foreground/35"
         style={{
           ...sheetStyle,
-          minHeight: hasLetter ? undefined : compact ? 220 : 360,
+          minHeight: hasLetter ? undefined : compact ? 110 : 360,
         }}
       />
 
