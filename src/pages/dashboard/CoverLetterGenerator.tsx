@@ -307,7 +307,7 @@ const CoverLetterGenerator = () => {
   };
 
   const downloadDocx = async () => {
-    const para = (text: string, opts: { bold?: boolean; align?: AlignmentType } = {}) =>
+    const para = (text: string, opts: { bold?: boolean; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
       new Paragraph({
         alignment: opts.align,
         spacing: { after: 200 },
