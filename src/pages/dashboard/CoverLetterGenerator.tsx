@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Sparkles, Loader2, Copy, Check, Trash2, FileText, Target, Globe } from "lucide-react";
+import { Sparkles, Loader2, Copy, Check, Trash2, FileText, Target, Globe, FileCheck2, Award, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
@@ -79,6 +79,12 @@ const CoverLetterGenerator = () => {
   const [generating, setGenerating] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [hasResume, setHasResume] = useState(false);
+  const [resumeMeta, setResumeMeta] = useState<{
+    name: string | null;
+    fileName: string | null;
+    strengths: string[];
+    bestAchievement: string | null;
+  }>({ name: null, fileName: null, strengths: [], bestAchievement: null });
 
   // form
   const [company, setCompany] = useState("");
@@ -104,7 +110,7 @@ const CoverLetterGenerator = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: l }, { data: r }] = await Promise.all([
+      const [{ data: l }, { data: r }, { data: profile }] = await Promise.all([
         supabase
           .from("cover_letters")
           .select("*")
@@ -112,15 +118,54 @@ const CoverLetterGenerator = () => {
           .limit(20),
         supabase
           .from("resumes")
-          .select("id")
+          .select("id, file_name")
           .order("created_at", { ascending: false })
           .limit(1),
+        supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("user_id", user.id)
+          .maybeSingle(),
       ]);
       setLetters((l ?? []) as unknown as Letter[]);
       if (l?.[0]) setActiveId(l[0].id);
       if (r?.[0]) {
         setResumeId(r[0].id);
         setHasResume(true);
+
+        // Fetch latest analysis for this resume to extract strengths + best achievement
+        const { data: analysis } = await supabase
+          .from("resume_analyses")
+          .select("strengths, bullet_rewrites, extracted")
+          .eq("resume_id", r[0].id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const strengthsRaw = (analysis?.strengths ?? []) as unknown[];
+        const strengths = strengthsRaw
+          .map((s) => (typeof s === "string" ? s : (s as { text?: string; title?: string; label?: string })?.text ?? (s as { title?: string }).title ?? (s as { label?: string }).label))
+          .filter((s): s is string => typeof s === "string" && s.length > 0)
+          .slice(0, 5);
+
+        // Best achievement: prefer first bullet_rewrite "after", else first strength, else null
+        const rewrites = (analysis?.bullet_rewrites ?? []) as Array<{ after?: string; rewrite?: string; text?: string }>;
+        const bestAchievement =
+          rewrites.find((b) => b?.after)?.after ??
+          rewrites.find((b) => b?.rewrite)?.rewrite ??
+          rewrites.find((b) => b?.text)?.text ??
+          strengths[0] ??
+          null;
+
+        const extracted = (analysis?.extracted ?? {}) as { name?: string; full_name?: string; contact?: { name?: string } };
+        const extractedName = extracted.name ?? extracted.full_name ?? extracted.contact?.name ?? null;
+
+        setResumeMeta({
+          name: profile?.display_name ?? extractedName ?? null,
+          fileName: r[0].file_name ?? null,
+          strengths,
+          bestAchievement,
+        });
       }
     })();
   }, [user?.id]);
@@ -234,11 +279,64 @@ const CoverLetterGenerator = () => {
               <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                 Compose
               </p>
-              <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
-                {hasResume
-                  ? "Using your latest uploaded resume for real achievements."
-                  : "Tip: upload a resume first for proof statements with real metrics."}
-              </p>
+              {hasResume ? (
+                <div className="mt-3 rounded-xl border border-emerald-500/20 bg-emerald-500/[0.06] p-3.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="mt-0.5 h-7 w-7 shrink-0 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                      <FileCheck2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[10.5px] tracking-[0.18em] uppercase text-emerald-700/80 dark:text-emerald-400/80 font-medium">
+                        Resume connected
+                      </p>
+                      <p className="mt-0.5 text-[13px] font-medium tracking-tight text-foreground truncate">
+                        {resumeMeta.name
+                          ? `${resumeMeta.name}'s Resume`
+                          : resumeMeta.fileName ?? "Your latest resume"}
+                      </p>
+
+                      {resumeMeta.strengths.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium flex items-center gap-1.5">
+                            <Zap className="w-3 h-3" /> Extracted strengths
+                          </p>
+                          <div className="mt-1.5 flex flex-wrap gap-1.5">
+                            {resumeMeta.strengths.map((s, i) => (
+                              <span
+                                key={i}
+                                className="inline-flex items-center rounded-md bg-foreground/[0.05] border border-foreground/[0.08] px-2 py-0.5 text-[11.5px] text-foreground/75 tracking-tight"
+                              >
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {resumeMeta.bestAchievement && (
+                        <div className="mt-3">
+                          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium flex items-center gap-1.5">
+                            <Award className="w-3 h-3" /> Best achievement detected
+                          </p>
+                          <p className="mt-1 text-[12.5px] leading-snug text-foreground/75 tracking-tight">
+                            “{resumeMeta.bestAchievement}”
+                          </p>
+                        </div>
+                      )}
+
+                      {resumeMeta.strengths.length === 0 && !resumeMeta.bestAchievement && (
+                        <p className="mt-1 text-[12px] text-foreground/55 tracking-tight">
+                          Run a resume analysis to surface your strengths and best achievement here.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
+                  Tip: upload a resume first for proof statements with real metrics.
+                </p>
+              )}
             </div>
 
             <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-3">
