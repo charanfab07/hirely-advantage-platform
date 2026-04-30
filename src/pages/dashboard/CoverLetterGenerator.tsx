@@ -1157,12 +1157,12 @@ const EditableLine = ({
   value,
   onChange,
   placeholder,
-  bold,
+  accentBold,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
-  bold?: boolean;
+  accentBold?: boolean;
 }) => (
   <input
     type="text"
@@ -1170,9 +1170,10 @@ const EditableLine = ({
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     className={cn(
-      "block w-full bg-transparent border-0 outline-none px-0 py-0.5 text-foreground placeholder:text-foreground/35 focus:bg-foreground/[0.03] rounded-sm transition-colors font-serif",
-      bold && "font-semibold",
+      "block w-full bg-transparent border-0 outline-none px-0 py-0.5 text-foreground placeholder:text-foreground/35 focus:bg-foreground/[0.03] rounded-sm transition-colors",
+      accentBold && "font-semibold",
     )}
+    style={{ font: "inherit", color: "inherit", textAlign: "inherit" }}
   />
 );
 
