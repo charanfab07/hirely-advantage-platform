@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { LogOut, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight } from "lucide-react";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 
