@@ -54,7 +54,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
                   isActive ? "bg-[hsl(258_38%_52%)]" : "bg-transparent",
                 )}
               />
-              <Icon className="w-3.5 h-3.5 opacity-70" />
+              <Icon className="w-4 h-4 opacity-70" />
               {label}
             </>
           )}
