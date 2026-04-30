@@ -392,13 +392,41 @@ const CoverLetterGenerator = () => {
     }
     setGenerating(true);
     try {
+      // Resolve sender details from auth + latest resume at generation time.
+      let senderFill = {
+        senderName:
+          (user.user_metadata?.full_name as string | undefined) ||
+          (user.user_metadata?.name as string | undefined) ||
+          "",
+        senderEmail: user.email || "",
+        senderPhone: "",
+        senderLocation: "",
+      };
+      if (resumeId) {
+        const { data: resumeRow } = await supabase
+          .from("resumes")
+          .select("raw_text")
+          .eq("id", resumeId)
+          .maybeSingle();
+        if (resumeRow?.raw_text) {
+          const parsed = parseResumeContact(resumeRow.raw_text);
+          senderFill = {
+            senderName: senderFill.senderName || parsed.name || "",
+            senderEmail: senderFill.senderEmail || parsed.email || "",
+            senderPhone: parsed.phone || "",
+            senderLocation: parsed.location || "",
+          };
+        }
+      }
+      const jdParsed = parseJobDescription(jd);
+
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
         body: {
-          company: doc.companyName.trim() || "the company",
+          company: (doc.companyName.trim() || jdParsed.company || "the company"),
           role: "this role",
           tone,
           job_description: jd.trim(),
-          hiring_manager: doc.hiringManager.trim() || undefined,
+          hiring_manager: (doc.hiringManager.trim() || jdParsed.hiringManager || undefined),
           resume_id: resumeId ?? undefined,
         },
       });
@@ -408,11 +436,18 @@ const CoverLetterGenerator = () => {
       const full = (data as { letter?: { full_letter?: string } })?.letter?.full_letter ?? "";
       if (!full) throw new Error("No letter returned");
 
-      const salutation = guessSalutation(doc.hiringManager);
+      const hiringManager = doc.hiringManager || jdParsed.hiringManager || "";
+      const salutation = guessSalutation(hiringManager);
       const body = extractBody(full, salutation);
 
       setDoc((d) => ({
         ...d,
+        senderName: d.senderName || senderFill.senderName,
+        senderEmail: d.senderEmail || senderFill.senderEmail,
+        senderPhone: d.senderPhone || senderFill.senderPhone,
+        senderLocation: d.senderLocation || senderFill.senderLocation,
+        companyName: d.companyName || jdParsed.company || "",
+        hiringManager: d.hiringManager || jdParsed.hiringManager || "",
         salutation,
         body,
         signOff: d.signOff || "Sincerely,",
