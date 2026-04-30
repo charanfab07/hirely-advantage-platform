@@ -870,6 +870,7 @@ const CoverLetterGenerator = () => {
               doc={doc}
               update={update}
               hasLetter={hasLetter}
+              isEmpty={!hasLetter && jd.trim().length === 0}
               typo={typo}
               compact
             />
@@ -1086,6 +1087,7 @@ const CoverLetterGenerator = () => {
               doc={doc}
               update={update}
               hasLetter={hasLetter}
+              isEmpty={!hasLetter && jd.trim().length === 0}
               typo={typo}
               compact={false}
             />
@@ -1126,12 +1128,14 @@ const LetterSheet = ({
   doc,
   update,
   hasLetter,
+  isEmpty = false,
   typo,
   compact,
 }: {
   doc: LetterDoc;
   update: <K extends keyof LetterDoc>(key: K, value: LetterDoc[K]) => void;
   hasLetter: boolean;
+  isEmpty?: boolean;
   typo: TypoSettings;
   compact: boolean;
 }) => {
@@ -1147,6 +1151,27 @@ const LetterSheet = ({
   const maxW = compact ? "max-w-[600px]" : "max-w-[820px]";
   const padX = compact ? "px-6 sm:px-8" : "px-10 sm:px-16";
   const padY = compact ? "py-5" : "py-14";
+
+  if (isEmpty) {
+    return (
+      <div
+        className={cn(
+          "mx-auto bg-background border border-dashed border-foreground/15 rounded-md text-foreground/50 flex items-center justify-center text-center",
+          maxW,
+          padX,
+        )}
+        style={{ minHeight: compact ? 360 : 560 }}
+      >
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-foreground/70">Your cover letter will appear here</p>
+          <p className="text-xs text-foreground/45">
+            Paste a job description on the left, then click Generate.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div
