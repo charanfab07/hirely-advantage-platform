@@ -81,13 +81,14 @@ export const EnhancedResumePanel = ({
   analysisId: string | null;
 }) => {
   const [enhancement, setEnhancement] = useState<Enhancement | null>(null);
+  const [originalText, setOriginalText] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
 
-  // Load latest enhancement for this resume
+  // Load latest enhancement + original resume text in parallel
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
@@ -96,14 +97,18 @@ export const EnhancedResumePanel = ({
         return;
       }
       setLoading(true);
-      const { data } = await supabase
-        .from("resume_enhancements")
-        .select("*")
-        .eq("resume_id", resumeId)
-        .order("created_at", { ascending: false })
-        .limit(1);
+      const [enhRes, resumeRes] = await Promise.all([
+        supabase
+          .from("resume_enhancements")
+          .select("*")
+          .eq("resume_id", resumeId)
+          .order("created_at", { ascending: false })
+          .limit(1),
+        supabase.from("resumes").select("raw_text").eq("id", resumeId).single(),
+      ]);
       if (cancelled) return;
-      setEnhancement(((data ?? [])[0] as unknown as Enhancement) ?? null);
+      setEnhancement(((enhRes.data ?? [])[0] as unknown as Enhancement) ?? null);
+      setOriginalText(((resumeRes.data as any)?.raw_text as string) ?? "");
       setLoading(false);
     };
     load();
@@ -111,6 +116,7 @@ export const EnhancedResumePanel = ({
       cancelled = true;
     };
   }, [resumeId]);
+
 
   const handleGenerate = async (roleOverride?: string) => {
     if (!resumeId) {
