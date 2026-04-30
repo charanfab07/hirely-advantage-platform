@@ -218,6 +218,18 @@ const CoverLetterGenerator = () => {
                 />
               </div>
 
+              <Field
+                label="Company URL (optional)"
+                value={companyUrl}
+                onChange={setCompanyUrl}
+                placeholder="linear.app"
+                disabled={generating}
+              />
+              <p className="-mt-2 text-[11px] text-foreground/45 tracking-tight flex items-center gap-1">
+                <Globe className="w-3 h-3" />
+                We'll pull the company mission for sharper culture-fit matching.
+              </p>
+
               <div>
                 <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Tone
