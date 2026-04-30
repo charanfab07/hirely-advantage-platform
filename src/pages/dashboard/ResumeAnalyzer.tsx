@@ -83,6 +83,7 @@ const tabs = [
   { value: "score", label: "Score" },
   { value: "extracted", label: "Extracted" },
   { value: "issues", label: "Issues" },
+  { value: "tailored", label: "Tailored" },
   { value: "versions", label: "History" },
 ];
 
