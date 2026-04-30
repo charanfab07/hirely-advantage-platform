@@ -86,6 +86,15 @@ const CoverLetterGenerator = () => {
   const [role, setRole] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
   const [jd, setJd] = useState("");
+  const [hiringManager, setHiringManager] = useState("");
+  const [strongestAchievement, setStrongestAchievement] = useState("");
+  const [length, setLength] = useState<Length>("medium");
+  const [experienceLevel, setExperienceLevel] = useState<ExperienceLevel>("junior");
+  const [letterStyle, setLetterStyle] = useState<LetterStyle>("modern");
+  const [includeSalary, setIncludeSalary] = useState(false);
+  const [salaryExpectation, setSalaryExpectation] = useState("");
+  const [mentionRelocation, setMentionRelocation] = useState(false);
+  const [relocationPreference, setRelocationPreference] = useState<"remote" | "relocate" | "hybrid" | "onsite">("remote");
 
   const tabs = [
     { value: "compose", label: "Compose" },
