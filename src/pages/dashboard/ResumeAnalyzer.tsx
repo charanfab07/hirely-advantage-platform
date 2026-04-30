@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { LogOut, Search } from "lucide-react";
+import { Link } from "react-router-dom";
+import { LogOut, Search, Mail, Mic, Target, RefreshCw, ArrowUpRight } from "lucide-react";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 
@@ -176,7 +177,7 @@ const ResumeAnalyzer = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-[1180px] mx-auto">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-4">
         <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
@@ -205,21 +206,31 @@ const ResumeAnalyzer = () => {
         </div>
       </div>
 
-      {/* Headline */}
-      <h1 className="mt-3 text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
-        From ignored to{" "}
-        <span
-          style={{
-            background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          interviewed
-        </span>
-        .
-      </h1>
+      {/* Headline + companion */}
+      <div className="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-end">
+        <h1 className="text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
+          From ignored to{" "}
+          <span
+            style={{
+              background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            interviewed
+          </span>
+          .
+        </h1>
+
+        {latest && (
+          <HeadlineCompanion
+            createdAt={latest.created_at}
+            score={latest.overall_score}
+            count={analyses.length}
+          />
+        )}
+      </div>
 
       {/* Upload only visible until first analysis exists */}
       {user && !latest && (
@@ -250,7 +261,7 @@ const ResumeAnalyzer = () => {
         <>
           {/* HERO — everything that matters at a glance, in one card */}
           <SectionCard className="mt-5">
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_220px] gap-5 lg:gap-7 items-end">
               <div className="min-w-0">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Resume readiness
@@ -265,7 +276,7 @@ const ResumeAnalyzer = () => {
               </div>
 
               {/* Inline stat pills — no separate StatStrip card */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 md:gap-2.5 md:max-w-[420px] w-full md:w-auto">
+              <div className="grid grid-cols-2 lg:grid-cols-2 gap-2 md:gap-2.5 lg:max-w-[260px] w-full lg:w-auto">
                 <MiniStat label="ATS" value={`${latest.ats_score}`} accent={latest.ats_score >= 80} />
                 <MiniStat
                   label="Match"
@@ -286,6 +297,9 @@ const ResumeAnalyzer = () => {
                   }`}
                 />
               </div>
+
+              {/* Trajectory rail */}
+              <ScoreTrajectory analyses={analyses} />
             </div>
 
             <div className="mt-4 h-[3px] rounded-full bg-foreground/[0.06]">
@@ -325,6 +339,9 @@ const ResumeAnalyzer = () => {
 
           {/* ACT — top 3 quick wins surfaced front and center */}
           {quickWins && <QuickWins className="mt-4" wins={quickWins} />}
+
+          {/* Suite shortcuts — quiet next-best-step strip */}
+          <SuiteShortcuts />
 
           {/* DEEP DIVES — collapsed by default. User opens only what they want. */}
           <SectionCard className="mt-4 p-0 overflow-hidden">
@@ -667,6 +684,12 @@ const ResumeAnalyzer = () => {
       {tab === "versions" && (
         <TransformationPanel className="mt-5" versions={analyses} />
       )}
+
+      {/* Footer rail — anchors the page so it never ends in raw whitespace */}
+      <DashboardFooterRail
+        lastSync={latest?.created_at}
+        analysesCount={analyses.length}
+      />
     </div>
   );
 };
@@ -925,6 +948,162 @@ const SEVERITY_TONE: Record<Weakness["severity"], string> = {
   medium: "bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]",
   low: "bg-[hsl(258_45%_58%/0.10)] text-[hsl(258_38%_42%)]",
 };
+
+// ----- HeadlineCompanion: small "last analyzed" card paired with the headline -----
+const formatRelative = (iso?: string) => {
+  if (!iso) return "—";
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+};
+
+const HeadlineCompanion = ({
+  createdAt,
+  score,
+  count,
+}: {
+  createdAt: string;
+  score: number;
+  count: number;
+}) => (
+  <div className="hidden lg:block rounded-2xl bg-card/55 backdrop-blur-xl border border-white/70 px-4 py-3.5 shadow-[0_1px_0_hsl(0_0%_100%/0.85)_inset]">
+    <div className="flex items-center justify-between">
+      <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
+        Last analyzed
+      </p>
+      <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[hsl(258_45%_58%/0.10)] text-[hsl(258_38%_42%)] tabular-nums">
+        {score}
+      </span>
+    </div>
+    <p className="mt-1.5 text-[14px] font-medium tracking-tight text-foreground tabular-nums">
+      {formatRelative(createdAt)}
+    </p>
+    <p className="mt-0.5 text-[11.5px] text-foreground/50 tracking-tight">
+      {count} {count === 1 ? "version" : "versions"} on file
+    </p>
+  </div>
+);
+
+// ----- ScoreTrajectory: tiny right-rail trend in the hero card -----
+const ScoreTrajectory = ({ analyses }: { analyses: Analysis[] }) => {
+  // analyses are newest-first; reverse for left→right reading
+  const series = analyses.slice(0, 6).map((a) => a.overall_score).reverse();
+  const hasTrend = series.length >= 2;
+  const delta = hasTrend ? series[series.length - 1] - series[0] : 0;
+
+  if (!hasTrend) {
+    return (
+      <div className="hidden lg:flex flex-col justify-end h-full">
+        <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
+          Trajectory
+        </p>
+        <p className="mt-2 text-[12.5px] text-foreground/55 tracking-tight">
+          First analysis · upload again to track lift.
+        </p>
+      </div>
+    );
+  }
+
+  const w = 100;
+  const h = 32;
+  const min = Math.min(...series) - 2;
+  const max = Math.max(...series) + 2;
+  const pts = series.map((v, i) => {
+    const x = (i / (series.length - 1)) * w;
+    const y = h - ((v - min) / Math.max(1, max - min)) * h;
+    return [x, y] as const;
+  });
+  const linePath = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x.toFixed(2)},${y.toFixed(2)}`).join(" ");
+  const [lx, ly] = pts[pts.length - 1];
+
+  return (
+    <div className="hidden lg:flex flex-col justify-end h-full">
+      <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
+        Trajectory
+      </p>
+      <div className="mt-1.5 flex items-baseline gap-2">
+        <p className="text-[18px] font-semibold tracking-[-0.02em] text-foreground tabular-nums leading-none">
+          {series[0]} <span className="text-foreground/30">→</span> {series[series.length - 1]}
+        </p>
+        <span
+          className={cn(
+            "text-[11px] font-medium tabular-nums",
+            delta >= 0 ? "text-[hsl(150_45%_32%)]" : "text-[hsl(0_60%_45%)]",
+          )}
+        >
+          {delta >= 0 ? "+" : ""}
+          {delta} pts
+        </span>
+      </div>
+      <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="mt-2 w-full h-8" aria-hidden>
+        <path d={linePath} fill="none" stroke="#6D54B3" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+        <circle cx={lx} cy={ly} r="2.4" fill="#fff" stroke="#6D54B3" strokeWidth="1.4" vectorEffect="non-scaling-stroke" />
+      </svg>
+      <p className="mt-1 text-[10.5px] text-foreground/40 tracking-tight">
+        Last {series.length} analyses
+      </p>
+    </div>
+  );
+};
+
+// ----- SuiteShortcuts: low-key next-best-step strip across the suite -----
+const SuiteShortcuts = () => {
+  const items = [
+    { to: "/app/interview-prep", icon: Mic, label: "Practice an interview", hint: "Voice-first mock with feedback" },
+    { to: "/app/cover-letter", icon: Mail, label: "Draft a cover letter", hint: "Tailored to a specific role" },
+    { to: "/app/applications", icon: Target, label: "Track applications", hint: "Stay on top of every loop" },
+  ];
+  return (
+    <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+      {items.map(({ to, icon: Icon, label, hint }) => (
+        <Link
+          key={to}
+          to={to}
+          className="group flex items-center gap-3 rounded-2xl bg-card/40 backdrop-blur-xl border border-white/60 px-4 py-3 hover:bg-card/70 transition-colors"
+        >
+          <span className="w-8 h-8 rounded-xl bg-foreground/[0.04] flex items-center justify-center text-foreground/70 shrink-0">
+            <Icon className="w-3.5 h-3.5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[12.5px] font-medium tracking-tight text-foreground truncate">
+              {label}
+            </p>
+            <p className="text-[11px] text-foreground/50 tracking-tight truncate">
+              {hint}
+            </p>
+          </div>
+          <ArrowUpRight className="w-3.5 h-3.5 text-foreground/30 group-hover:text-foreground/60 transition-colors shrink-0" />
+        </Link>
+      ))}
+    </div>
+  );
+};
+
+// ----- DashboardFooterRail: thin closing rail at the bottom of the page -----
+const DashboardFooterRail = ({
+  lastSync,
+  analysesCount,
+}: {
+  lastSync?: string;
+  analysesCount: number;
+}) => (
+  <div className="mt-10 pt-5 border-t border-foreground/[0.06] flex flex-wrap items-center justify-between gap-3 text-[11px] tracking-tight text-foreground/45">
+    <div className="flex items-center gap-2">
+      <RefreshCw className="w-3 h-3" />
+      <span>Last sync · {lastSync ? formatRelative(lastSync) : "—"}</span>
+    </div>
+    <span className="tabular-nums">
+      {analysesCount} {analysesCount === 1 ? "resume" : "resumes"} analyzed
+    </span>
+    <span className="text-foreground/35">Hirely v1.0</span>
+  </div>
+);
 
 
 export default ResumeAnalyzer;

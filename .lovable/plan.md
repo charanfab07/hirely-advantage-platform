@@ -1,85 +1,81 @@
-# Above-the-fold upgrade — Resume Analyzer
+# Fill the dashboard's empty space — minimally
 
-## Goal
-Make the dashboard's first viewport feel like a complete morning status page, not a marketing card. Two concrete additions:
+The Resume Analyzer dashboard currently has a centered `max-w-6xl` column on a wide canvas. After we condensed the Score tab into a hero + accordion, the page often ends short — leaving a big quiet area at the bottom on desktop, and a thin band of unused width to the right of the headline. Goal: make the page feel **composed and intentional** at any scroll depth, while staying minimal.
 
-1. A third hero column (**Today** card) next to Score and Interviews.
-2. A slim **30-day score sparkline** strip above the pipeline stats, giving visual proof of "+12 pts".
+## What we'll change
 
-No backend changes. Pure UI, mock data, fits the existing aurora/glass system.
+### 1. Headline row — pair it with a "Today" companion (right side)
+Right now the headline `From ignored to interviewed.` sits alone with whitespace to its right. We'll keep the headline on the left and add a small, quiet companion card on the right (desktop only) that shows:
+- Last analyzed: relative time (e.g. "2h ago")
+- Resume filename / version chip
+- A subtle "Re-analyze" ghost link (opens upload again)
 
-## New layout
+Two-column grid: `lg:grid-cols-[1fr_280px]`. Mobile stays single column. No new data fetching — uses `latest` we already have.
 
-Current hero is `grid-cols-3` (Score 2 / Interviews 1). Switching to a 12-column grid gives room for the third column without crowding:
+### 2. Hero card — give it a quiet right-rail
+Inside the hero `SectionCard`, the score+stats row leaves a noticeable gap between the stats grid and the card edge on desktop. We'll widen the inner layout to a 3-column grid on `lg`:
+- **Left (40%)**: score number + summary
+- **Middle (35%)**: 2×2 mini stats (already there)
+- **Right (25%)**: a tiny vertical "Score trajectory" — last 3 analyses as a 3-dot sparkline using the existing `ScoreSparkline` component, with delta (+4, etc.). Falls back to a "First analysis" pill when only one exists.
+
+Reuses `ScoreSparkline` (already in the codebase) and `analyses` array we already query.
+
+### 3. After Quick Wins — add a low-key "Next best step" strip
+A single horizontal row (not a card) with three small chips that pull from existing data:
+- "Tailor to a role" (→ tailored tab)
+- "Practice an interview" (→ /app/interview-prep)
+- "Draft a cover letter" (→ /app/cover-letter)
+
+Each chip is icon + label + a single muted descriptor line. This visually closes the page on desktop and gives the user a clear next action across the suite — the dashboard stops feeling like a dead-end.
+
+### 4. Bottom — a thin "Footer rail"
+A faint horizontal rail at the bottom of the page with three muted items, each ~12px text:
+- "Last sync · {time}"
+- "Resumes analyzed · {count}"
+- "Hirely v1.0"
+
+This anchors the page so the canvas never ends in raw whitespace.
+
+### 5. Widen the content column slightly
+Bump the analyzer container from `max-w-6xl` to `max-w-[1180px]` and increase outer padding rhythm. Combined with the right-side companions above, this fills the wide canvas without feeling crowded.
+
+## What we will NOT do
+- No new sections, no new fetches, no new tabs.
+- No decorative illustrations or hero blobs (we already have the mesh background).
+- No expanding the sidebar.
+- No changes to mobile layout beyond stacking — it's already tight.
+
+## Files to touch
+
+- `src/pages/dashboard/ResumeAnalyzer.tsx` — headline row → 2-col, hero → 3-col rail, add Next-best-step chip row, add footer rail, container width.
+- `src/components/dashboard/ScoreSparkline.tsx` — reuse as-is (read first to confirm props).
+- (Possibly) a small new helper component `DashboardFooterRail.tsx` if the JSX gets long. Otherwise inline.
+
+No DB, edge function, or schema changes.
+
+## Visual sketch
 
 ```text
-┌────────────────────────────┬───────────────┬───────────┐
-│ Score                      │ Interviews    │ Today     │
-│ (col-span 7)               │ (col-span 3)  │ (span 2)  │
-│ 94/100, gradient bar, CTAs │ dark, "5",    │ "1 task   │
-│                            │ Open prep →   │ due", mini│
-│                            │               │ checklist │
-└────────────────────────────┴───────────────┴───────────┘
-┌──────────────────────────────────────────────────────────┐
-│ Score · last 30 days   82 → 94   +12 pts        sparkline│
-└──────────────────────────────────────────────────────────┘
-┌──────────────────────────────────────────────────────────┐
-│ Applied 28 │ Screening 11 │ Interview 5 │ Offer 1        │
-└──────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│  TUE · APRIL 30                                  🔍  ⎋  U  │
+│                                                              │
+│  From ignored to interviewed.       ┌──────────────────┐     │
+│                                     │ Last analyzed 2h │     │
+│                                     │ resume_v3.pdf    │     │
+│                                     │ Re-analyze →     │     │
+│                                     └──────────────────┘     │
+│  [ Score | Extracted | Issues | Tailored | History ]         │
+│                                                              │
+│  ┌────────── Hero card ────────────────────────────────┐    │
+│  │  78/100        │  ATS  Match  │  • • •   +4 vs last│    │
+│  │  summary…      │  Skills Iss. │  trajectory         │    │
+│  └─────────────────────────────────────────────────────┘    │
+│  Quick wins · 3                                              │
+│  [ Tailor a role ] [ Practice interview ] [ Draft letter ]   │
+│  Deep dive ▾                                                 │
+│  ─────────────────────────────────────────────────────────   │
+│  Last sync · 2h ago      4 resumes analyzed      Hirely v1.0 │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-Below `lg`, it collapses to single column in a sensible order: Score → Today → Interviews → Sparkline → Stats.
-
-## New components
-
-### `src/components/dashboard/TodayCard.tsx`
-- Eyebrow "Today" + small `done/total` badge top-right.
-- Big number `{pending.length}` followed by "task due / tasks due".
-- A highlighted **focus task** row (first pending task) inside a soft inner card: title + duration ("Polish Linear cover letter · 12 min").
-- A 3-row mini checklist: violet-filled circle with check for done, hairline circle for open. Done items get strike-through and dimmed text.
-- Footer link "View all →" in violet.
-- Default mock tasks:
-  - "Polish Linear cover letter" · 12 min · pending  ← focus
-  - "Confirm Wed 2:30 with Karri" · 2 min · done
-  - "Run STAR drill · leadership" · 15 min · pending
-- Uses `SectionCard` glass tone for visual continuity with Score card.
-
-### `src/components/dashboard/ScoreSparkline.tsx`
-- Pure inline SVG (no chart lib — keeps the bundle clean).
-- Eyebrow: "Score · last 30 days"; large readout: `82 → 94` with violet `+12 pts` pill.
-- Right side (sm+): faint "30 daily snapshots" caption.
-- 100×28 viewBox area chart:
-  - Line stroke uses the same black→violet gradient as the Score progress bar (`#0E0B1F → #6D54B3`).
-  - Subtle violet area fill underneath (22% → 0% opacity).
-  - White-fill / violet-stroke dot at the latest point ("today" marker).
-  - `vector-effect="non-scaling-stroke"` so the line stays crisp when the SVG stretches.
-- Default data: realistic 30-point ramp from 82 to 94 with small noise; component accepts `data?: number[]` for later real data.
-
-## Resume Analyzer wiring
-
-In `src/pages/dashboard/ResumeAnalyzer.tsx` (Score tab only):
-
-1. Replace the existing 3-col hero grid with `grid-cols-1 lg:grid-cols-12 gap-4`.
-2. Score card → `lg:col-span-7`.
-3. Interviews card → `lg:col-span-3`.
-4. New `<TodayCard />` → `lg:col-span-2` (will read 2-of-12, which is narrow on huge screens; on `lg` it stays comfortably readable).
-5. After the hero row, add `<ScoreSparkline />` as a full-width strip with `mt-4`.
-6. The existing `<StatStrip />` follows the sparkline.
-
-The Score card itself gets one small refinement: drop its bottom "Beats 89% of senior PM resumes" line down to a tighter `mt-2` so the card height roughly matches the new Today card column visually.
-
-## Responsive
-
-- `<lg` (≤1023px): everything stacks. Sparkline still renders full-width and looks great because the SVG is fluid.
-- `sm` (≥640px): Today card stays comfortably sized; the 28-data-point line is dense enough to look like a real trend, not a stub.
-- `prefers-reduced-motion` is unaffected — these are static visuals, no animation added.
-
-## Out of scope (saved for next pass)
-- Real task model / persistence.
-- Real score history (will plug in once we have a scoring backend).
-- Strengths / Gaps / Risks card and Quick Wins — separate bundle.
-
-## Files touched
-- **NEW** `src/components/dashboard/TodayCard.tsx`
-- **NEW** `src/components/dashboard/ScoreSparkline.tsx`
-- **EDIT** `src/pages/dashboard/ResumeAnalyzer.tsx` — restructure hero grid + insert sparkline
+Approve and I'll implement.
