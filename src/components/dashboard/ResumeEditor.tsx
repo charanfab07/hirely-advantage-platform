@@ -1080,7 +1080,7 @@ function setFontSafe(
   }
 }
 
-function renderPdf(r: EditableResume): jsPDF {
+function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
@@ -1089,6 +1089,32 @@ function renderPdf(r: EditableResume): jsPDF {
   let y = margin;
 
   const s = sanitizeForPdf;
+  const SC = typo.sizeScale;
+  const LH = typo.lineHeight / 1.5; // baseline 1.5 = neutral
+  const PDF_FAMILY = PDF_FONT_FAMILY[typo.font];
+
+  // Local font setter that respects user's chosen family + scale
+  const applyFont = (
+    weight: "normal" | "bold",
+    size: number,
+    color: [number, number, number],
+  ) => {
+    const scaled = size * SC;
+    doc.setFont(PDF_FAMILY, weight);
+    doc.setFontSize(scaled);
+    doc.setTextColor(color[0], color[1], color[2]);
+    doc.setLineWidth(0);
+    doc.setDrawColor(color[0], color[1], color[2]);
+    const anyDoc = doc as unknown as { setTextRenderingMode?: (m: number) => void };
+    if (typeof anyDoc.setTextRenderingMode === "function") anyDoc.setTextRenderingMode(0);
+  };
+
+  // Header anchor + alignment for top block
+  const headerX =
+    typo.headerAlign === "left" ? margin : typo.headerAlign === "right" ? pageW - margin : pageW / 2;
+  const headerAlignOpt: "left" | "center" | "right" = typo.headerAlign;
+  const bodyAlignOpt: "left" | "center" | "justify" =
+    typo.bodyAlign === "center" ? "center" : typo.bodyAlign === "justify" ? "justify" : "left";
 
   const ensureSpace = (h: number) => {
     if (y + h > pageH - margin) {
@@ -1099,21 +1125,21 @@ function renderPdf(r: EditableResume): jsPDF {
 
   const writeText = (
     text: string,
-    opts: { size?: number; bold?: boolean; color?: [number, number, number]; gap?: number } = {},
+    opts: { size?: number; bold?: boolean; color?: [number, number, number]; gap?: number; align?: "left" | "center" | "justify" } = {},
   ) => {
-    const { size = 10, bold = false, color = [20, 20, 30], gap = 4 } = opts;
-    setFontSafe(doc, bold ? "bold" : "normal", size, color);
+    const { size = 10, bold = false, color = [20, 20, 30], gap = 4, align = bodyAlignOpt } = opts;
+    applyFont(bold ? "bold" : "normal", size, color);
     const lines = doc.splitTextToSize(s(text), maxW);
-    const lineH = size * 1.25;
+    const lineH = size * SC * 1.25 * LH;
     ensureSpace(lines.length * lineH + gap);
-    doc.text(lines, margin, y);
+    doc.text(lines, margin, y, { align, maxWidth: maxW });
     y += lines.length * lineH + gap;
   };
 
   const sectionTitle = (title: string) => {
-    y += 6;
-    ensureSpace(22);
-    setFontSafe(doc, "bold", 10, [80, 80, 100]);
+    y += 6 * LH;
+    ensureSpace(22 * LH);
+    applyFont("bold", 10, [80, 80, 100]);
     doc.text(s(title.toUpperCase()), margin, y);
     y += 4;
     doc.setDrawColor(200, 200, 210);
@@ -1122,16 +1148,16 @@ function renderPdf(r: EditableResume): jsPDF {
     y += 10;
   };
 
-  // Header — name centered
+  // Header — name (alignment configurable)
   if (r.contact.name) {
-    setFontSafe(doc, "bold", 20, [15, 15, 25]);
-    doc.text(s(r.contact.name), pageW / 2, y, { align: "center" });
-    y += 22;
+    applyFont("bold", 20, [15, 15, 25]);
+    doc.text(s(r.contact.name), headerX, y, { align: headerAlignOpt });
+    y += 22 * SC * LH;
   }
   if (r.headline) {
-    setFontSafe(doc, "normal", 11, [80, 80, 100]);
-    doc.text(s(r.headline), pageW / 2, y, { align: "center" });
-    y += 14;
+    applyFont("normal", 11, [80, 80, 100]);
+    doc.text(s(r.headline), headerX, y, { align: headerAlignOpt });
+    y += 14 * SC * LH;
   }
   const contactBits = [
     r.contact.location,
@@ -1142,9 +1168,9 @@ function renderPdf(r: EditableResume): jsPDF {
     .filter(Boolean)
     .map(s);
   if (contactBits.length) {
-    setFontSafe(doc, "normal", 9, [110, 110, 130]);
-    doc.text(contactBits.join("  |  "), pageW / 2, y, { align: "center" });
-    y += 14;
+    applyFont("normal", 9, [110, 110, 130]);
+    doc.text(contactBits.join("  |  "), headerX, y, { align: headerAlignOpt });
+    y += 14 * SC * LH;
   }
   y += 4;
 
