@@ -340,6 +340,9 @@ const ResumeAnalyzer = () => {
           {/* ACT — top 3 quick wins surfaced front and center */}
           {quickWins && <QuickWins className="mt-4" wins={quickWins} />}
 
+          {/* Suite shortcuts — quiet next-best-step strip */}
+          <SuiteShortcuts />
+
           {/* DEEP DIVES — collapsed by default. User opens only what they want. */}
           <SectionCard className="mt-4 p-0 overflow-hidden">
             <div className="px-5 sm:px-6 py-4 border-b border-foreground/[0.06]">
