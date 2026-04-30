@@ -1,4 +1,4 @@
-// Cover letter generator — produces a structured 5-part cover letter via Lovable AI.
+// Cover letter generator — produces a structured, personalized 5-part cover letter via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -18,16 +18,19 @@ HARD BANS — never use any of these openings or phrases:
 - "To Whom It May Concern"
 - Any sentence that starts the letter with "I".
 
-INSTEAD, write a strong hook that opens with the candidate's perspective on the company, the role, or a sharp observation. Example shape:
-"When I saw your opening for a Product Analyst, I immediately recognized an opportunity to apply my experience in data-driven decision making to a team that values innovation."
+INSTEAD, write a strong hook that opens with the candidate's perspective on the company, the role, or a sharp observation.
 
 Structure the letter into FIVE parts and return them BOTH as separate fields and assembled into 'full_letter' (greeting + 4–5 paragraphs + sign-off):
-
-1. hook            — Strong opening (does NOT start with "I"). Reference the company/role specifically. 2–3 sentences.
+1. hook            — Strong opening (does NOT start with "I"). 2–3 sentences.
 2. alignment       — Map 2–3 of the candidate's most relevant skills directly to what the JD asks for. 2–4 sentences.
 3. proof           — One concrete achievement with a real metric from the resume. 2–3 sentences.
-4. culture_fit     — A specific, researched-feeling reason the candidate fits THIS company's values, mission, or product. Avoid clichés like "dynamic team". 2–3 sentences.
-5. closing         — Confident close. Suggests a next step (a 20-min chat, a question about the role). Not "I look forward to hearing from you." 1–2 sentences.
+4. culture_fit     — A specific reason the candidate fits THIS company's mission/values. Avoid clichés. 2–3 sentences.
+5. closing         — Confident close. Suggests a next step. 1–2 sentences.
+
+PERSONALIZATION ENGINE — you will be given: (a) extracted JD keywords, (b) candidate skills from resume, (c) the company mission. You MUST:
+- Naturally weave AT LEAST 70% of the provided "must_use_keywords" into the letter using their exact wording (case-insensitive). Don't list them — embed them.
+- Reference the company mission specifically in 'culture_fit' (paraphrased, not quoted).
+- Only use skills the candidate actually has from their resume.
 
 Tone parameter changes voice but never breaks the rules:
 - confident: clear, direct, slightly bold
@@ -35,7 +38,7 @@ Tone parameter changes voice but never breaks the rules:
 - direct:   short sentences, no fluff
 - formal:   polished, executive
 
-Hard length cap: full_letter ≤ 350 words. Each section is real prose, not bullet points.
+Hard length cap: full_letter ≤ 350 words.
 
 ALWAYS respond by calling the generate_cover_letter tool.`;
 
@@ -43,24 +46,17 @@ const TOOL_SCHEMA = {
   type: "function",
   function: {
     name: "generate_cover_letter",
-    description: "Return a structured, role-specific cover letter.",
+    description: "Return a structured, personalized cover letter.",
     parameters: {
       type: "object",
       properties: {
-        hook: { type: "string", description: "Opening paragraph. Must NOT start with 'I'." },
-        alignment: { type: "string", description: "Skills↔JD alignment paragraph." },
-        proof: { type: "string", description: "Concrete achievement with metric." },
-        culture_fit: { type: "string", description: "Why this candidate fits THIS company." },
-        closing: { type: "string", description: "Confident close suggesting a next step." },
-        full_letter: {
-          type: "string",
-          description:
-            "Assembled letter: greeting line, then the 5 sections as flowing paragraphs, then sign-off. ≤350 words.",
-        },
-        notes: {
-          type: "string",
-          description: "≤180 chars. Plain-English note: why this letter works for THIS role.",
-        },
+        hook: { type: "string" },
+        alignment: { type: "string" },
+        proof: { type: "string" },
+        culture_fit: { type: "string" },
+        closing: { type: "string" },
+        full_letter: { type: "string", description: "Assembled letter, ≤350 words." },
+        notes: { type: "string", description: "≤180 chars on why this letter works for this role." },
       },
       required: ["hook", "alignment", "proof", "culture_fit", "closing", "full_letter", "notes"],
       additionalProperties: false,
@@ -68,7 +64,94 @@ const TOOL_SCHEMA = {
   },
 };
 
+const KEYWORD_TOOL = {
+  type: "function",
+  function: {
+    name: "extract_personalization",
+    description: "Extract keywords from a job description and skills from a resume.",
+    parameters: {
+      type: "object",
+      properties: {
+        jd_keywords: {
+          type: "array",
+          description: "10–18 most important hard skills, tools, methodologies, and role-specific terms from the JD. Lowercase, deduped, no generic words like 'team' or 'communication'.",
+          items: { type: "string" },
+        },
+        resume_skills: {
+          type: "array",
+          description: "10–25 concrete skills/tools the candidate demonstrably has based on resume. Lowercase.",
+          items: { type: "string" },
+        },
+      },
+      required: ["jd_keywords", "resume_skills"],
+      additionalProperties: false,
+    },
+  },
+};
+
 const ALLOWED_TONES = new Set(["confident", "warm", "direct", "formal"]);
+
+const STOPWORDS = new Set([
+  "the","a","an","and","or","but","of","to","for","in","on","at","by","with","from","as","is","are","be","this","that","we","you","our","your","their","they","it","its",
+]);
+
+function normalize(s: string) {
+  return s.toLowerCase().replace(/[^a-z0-9+#./\- ]+/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function fallbackKeywords(text: string, n = 14): string[] {
+  const t = normalize(text);
+  if (!t) return [];
+  const counts = new Map<string, number>();
+  for (const w of t.split(" ")) {
+    if (w.length < 3 || STOPWORDS.has(w)) continue;
+    counts.set(w, (counts.get(w) ?? 0) + 1);
+  }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, n).map(([w]) => w);
+}
+
+function findMatches(letter: string, keywords: string[]) {
+  const norm = " " + normalize(letter) + " ";
+  const matched: string[] = [];
+  const missing: string[] = [];
+  for (const kw of keywords) {
+    const k = normalize(kw);
+    if (!k) continue;
+    // word-boundary-ish match
+    if (norm.includes(" " + k + " ") || norm.includes(" " + k + ".") || norm.includes(" " + k + ",") || norm.includes(k)) {
+      matched.push(kw);
+    } else {
+      missing.push(kw);
+    }
+  }
+  return { matched, missing };
+}
+
+async function fetchCompanyMission(url: string): Promise<string> {
+  try {
+    const u = new URL(url);
+    const res = await fetch(u.toString(), {
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; CoverLetterBot/1.0)" },
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) return "";
+    const html = await res.text();
+    // Strip tags, scripts, styles
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    // Prefer meta description if present
+    const metaMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)/i);
+    const meta = metaMatch?.[1] ?? "";
+    return (meta + " " + text).slice(0, 4000);
+  } catch (e) {
+    console.warn("fetchCompanyMission failed", e);
+    return "";
+  }
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -95,6 +178,7 @@ Deno.serve(async (req) => {
       job_description,
       tone = "confident",
       resume_id,
+      company_url,
     } = body ?? {};
 
     if (
@@ -125,16 +209,91 @@ Deno.serve(async (req) => {
 
     const jd = (job_description ?? "").toString().slice(0, 6000);
 
+    // ---- Personalization step 1: company mission from URL (best-effort) ----
+    let companyMission = "";
+    let safeCompanyUrl: string | null = null;
+    if (typeof company_url === "string" && company_url.trim()) {
+      const raw = company_url.trim();
+      const withProto = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+      try {
+        new URL(withProto);
+        safeCompanyUrl = withProto;
+        companyMission = await fetchCompanyMission(withProto);
+      } catch {
+        safeCompanyUrl = null;
+      }
+    }
+
+    // ---- Personalization step 2: extract JD keywords + resume skills via AI ----
+    let jdKeywords: string[] = [];
+    let resumeSkills: string[] = [];
+    if (jd || resumeText) {
+      try {
+        const kwResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash-lite",
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Extract job keywords and resume skills. Be precise — only concrete tools, technologies, methodologies, and role-specific terms. Skip soft generics. Always lowercase. Always call the tool.",
+              },
+              {
+                role: "user",
+                content: `JOB DESCRIPTION:\n${jd || "(none provided)"}\n\nRESUME:\n${resumeText || "(none provided)"}`,
+              },
+            ],
+            tools: [KEYWORD_TOOL],
+            tool_choice: { type: "function", function: { name: "extract_personalization" } },
+          }),
+        });
+        if (kwResp.ok) {
+          const kwData = await kwResp.json();
+          const kwArgs = kwData?.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+          if (kwArgs) {
+            const parsed = JSON.parse(kwArgs);
+            jdKeywords = Array.isArray(parsed.jd_keywords)
+              ? parsed.jd_keywords.map((s: string) => s.toLowerCase().trim()).filter(Boolean).slice(0, 18)
+              : [];
+            resumeSkills = Array.isArray(parsed.resume_skills)
+              ? parsed.resume_skills.map((s: string) => s.toLowerCase().trim()).filter(Boolean).slice(0, 25)
+              : [];
+          }
+        }
+      } catch (e) {
+        console.warn("Keyword extraction failed, falling back", e);
+      }
+    }
+    if (!jdKeywords.length && jd) jdKeywords = fallbackKeywords(jd, 12);
+    if (!resumeSkills.length && resumeText) resumeSkills = fallbackKeywords(resumeText, 18);
+
+    // Keywords the candidate genuinely has (intersection) — these are MUST-USE
+    const skillSet = new Set(resumeSkills.map((s) => s.toLowerCase()));
+    const mustUse = jdKeywords.filter((k) => skillSet.has(k.toLowerCase())).slice(0, 10);
+
+    // ---- Personalization step 3: generate the letter with all context ----
     const userPrompt = `Write a cover letter for:
 Company: ${company.trim()}
 Role: ${role.trim()}
 Tone: ${safeTone}
 
-${jd ? `--- JOB DESCRIPTION ---\n${jd}\n` : "(No JD pasted — infer typical expectations for this role at this company.)"}
+${jd ? `--- JOB DESCRIPTION ---\n${jd}\n` : "(No JD pasted — infer typical expectations.)"}
 
-${resumeText ? `--- CANDIDATE'S RESUME (use real achievements & metrics from here) ---\n${resumeText}` : "(No resume attached — keep proof generic but plausible, never fabricate specific employers.)"}
+${companyMission ? `--- COMPANY MISSION / CONTEXT (from ${safeCompanyUrl}) ---\n${companyMission}\n` : ""}
 
-Now call generate_cover_letter. Remember: NO banned openings. The hook must NOT start with "I".`;
+${resumeText ? `--- CANDIDATE'S RESUME ---\n${resumeText}` : "(No resume — keep proof generic, never fabricate employers.)"}
+
+--- PERSONALIZATION HINTS ---
+JD keywords: ${jdKeywords.join(", ") || "(none)"}
+Candidate's real skills: ${resumeSkills.join(", ") || "(none)"}
+must_use_keywords (use ≥70%, exact wording, naturally embedded): ${mustUse.join(", ") || "(none)"}
+
+Now call generate_cover_letter. The hook must NOT start with "I".`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -178,6 +337,15 @@ Now call generate_cover_letter. Remember: NO banned openings. The hook must NOT 
       return json({ error: "AI returned invalid JSON" }, 500);
     }
 
+    // ---- Personalization step 4: compute keyword coverage of the final letter ----
+    const fullLetter: string = parsed.full_letter ?? "";
+    const { matched, missing } = jdKeywords.length
+      ? findMatches(fullLetter, jdKeywords)
+      : { matched: [] as string[], missing: [] as string[] };
+    const matchScore = jdKeywords.length
+      ? Math.round((matched.length / jdKeywords.length) * 100)
+      : null;
+
     const { data: inserted, error: insertErr } = await supabase
       .from("cover_letters")
       .insert({
@@ -185,6 +353,8 @@ Now call generate_cover_letter. Remember: NO banned openings. The hook must NOT 
         resume_id: resume_id ?? null,
         company: company.trim(),
         role: role.trim(),
+        company_url: safeCompanyUrl,
+        company_mission: companyMission ? companyMission.slice(0, 2000) : null,
         job_description: jd || null,
         tone: safeTone,
         hook: parsed.hook ?? "",
@@ -192,8 +362,13 @@ Now call generate_cover_letter. Remember: NO banned openings. The hook must NOT 
         proof: parsed.proof ?? "",
         culture_fit: parsed.culture_fit ?? "",
         closing: parsed.closing ?? "",
-        full_letter: parsed.full_letter ?? "",
+        full_letter: fullLetter,
         notes: parsed.notes ?? "",
+        jd_keywords: jdKeywords,
+        resume_skills: resumeSkills,
+        matched_keywords: matched,
+        missing_keywords: missing,
+        match_score: matchScore,
         model: "google/gemini-2.5-flash",
       })
       .select()
