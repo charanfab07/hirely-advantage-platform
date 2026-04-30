@@ -206,21 +206,31 @@ const ResumeAnalyzer = () => {
         </div>
       </div>
 
-      {/* Headline */}
-      <h1 className="mt-3 text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
-        From ignored to{" "}
-        <span
-          style={{
-            background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          interviewed
-        </span>
-        .
-      </h1>
+      {/* Headline + companion */}
+      <div className="mt-3 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-end">
+        <h1 className="text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
+          From ignored to{" "}
+          <span
+            style={{
+              background: "linear-gradient(120deg,#0E0B1F,#6D54B3,#0E0B1F)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            interviewed
+          </span>
+          .
+        </h1>
+
+        {latest && (
+          <HeadlineCompanion
+            createdAt={latest.created_at}
+            score={latest.overall_score}
+            count={analyses.length}
+          />
+        )}
+      </div>
 
       {/* Upload only visible until first analysis exists */}
       {user && !latest && (
