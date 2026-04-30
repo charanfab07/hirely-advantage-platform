@@ -35,6 +35,8 @@ const DEFAULT_WINS: Win[] = [
   },
 ];
 
+export type QuickWin = Win;
+
 type QuickWinsProps = HTMLAttributes<HTMLDivElement> & {
   wins?: Win[];
 };
