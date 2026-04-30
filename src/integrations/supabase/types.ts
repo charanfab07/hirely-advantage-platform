@@ -44,45 +44,63 @@ export type Database = {
       resume_analyses: {
         Row: {
           ats_score: number | null
+          bullet_rewrites: Json
           created_at: string
           extracted: Json
           id: string
           insights: Json
           issues: Json
+          job_match: Json
           model: string | null
           overall_score: number | null
           quick_wins: Json
           resume_id: string
+          score_breakdown: Json
+          strengths: Json
           summary: string | null
+          target_role: string | null
           user_id: string
+          weaknesses: Json
         }
         Insert: {
           ats_score?: number | null
+          bullet_rewrites?: Json
           created_at?: string
           extracted?: Json
           id?: string
           insights?: Json
           issues?: Json
+          job_match?: Json
           model?: string | null
           overall_score?: number | null
           quick_wins?: Json
           resume_id: string
+          score_breakdown?: Json
+          strengths?: Json
           summary?: string | null
+          target_role?: string | null
           user_id: string
+          weaknesses?: Json
         }
         Update: {
           ats_score?: number | null
+          bullet_rewrites?: Json
           created_at?: string
           extracted?: Json
           id?: string
           insights?: Json
           issues?: Json
+          job_match?: Json
           model?: string | null
           overall_score?: number | null
           quick_wins?: Json
           resume_id?: string
+          score_breakdown?: Json
+          strengths?: Json
           summary?: string | null
+          target_role?: string | null
           user_id?: string
+          weaknesses?: Json
         }
         Relationships: [
           {
