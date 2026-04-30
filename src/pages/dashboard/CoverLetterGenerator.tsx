@@ -8,6 +8,29 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 type Tone = "confident" | "warm" | "direct" | "formal";
+type Length = "short" | "medium" | "detailed";
+type ExperienceLevel = "fresher" | "intern" | "junior" | "experienced";
+type LetterStyle = "modern" | "formal" | "startup" | "corporate";
+
+const LENGTHS: { value: Length; label: string; hint: string }[] = [
+  { value: "short", label: "Short", hint: "~150 words" },
+  { value: "medium", label: "Medium", hint: "~250 words" },
+  { value: "detailed", label: "Detailed", hint: "~350 words" },
+];
+
+const EXPERIENCE_LEVELS: { value: ExperienceLevel; label: string }[] = [
+  { value: "fresher", label: "Fresher" },
+  { value: "intern", label: "Intern" },
+  { value: "junior", label: "Junior" },
+  { value: "experienced", label: "Experienced" },
+];
+
+const LETTER_STYLES: { value: LetterStyle; label: string; hint: string }[] = [
+  { value: "modern", label: "Modern", hint: "Clean & current" },
+  { value: "formal", label: "Formal", hint: "Traditional polish" },
+  { value: "startup", label: "Startup", hint: "Scrappy & punchy" },
+  { value: "corporate", label: "Corporate", hint: "Buttoned-up" },
+];
 
 type Letter = {
   id: string;
