@@ -287,22 +287,7 @@ const ResumeAnalyzer = () => {
               </div>
             </SectionCard>
 
-            <SectionCard tone="dark" className="lg:col-span-3 flex flex-col">
-              <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
-                Interviews
-              </p>
-              <p className="text-[64px] leading-none font-semibold tracking-[-0.045em] mt-2">5</p>
-              <p className="text-[12.5px] text-white/70 mt-2">2 scheduled this week</p>
-              <Link
-                to="/app/interview-prep"
-                className="mt-auto pt-5 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-full text-[12.5px] font-medium hover:opacity-90 transition-opacity"
-                style={{ background: "#C8B6FF", color: "#0E0B1F" }}
-              >
-                Open prep <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </SectionCard>
-
-            <TodayCard className="lg:col-span-2" />
+            <TodayCard className="lg:col-span-4" />
           </div>
 
           
