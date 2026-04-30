@@ -1,6 +1,5 @@
 // Client-side resume text extraction. Runs entirely in the browser.
 import * as pdfjsLib from "pdfjs-dist";
-// @ts-expect-error - bundler resolves the worker URL
 import pdfWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import mammoth from "mammoth";
 
@@ -47,8 +46,7 @@ export async function extractResumeText(file: File): Promise<string> {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
       const pageText = content.items
-        // @ts-expect-error - pdfjs item shape
-        .map((it) => ("str" in it ? it.str : ""))
+        .map((it) => ("str" in it ? (it as { str: string }).str : ""))
         .join(" ");
       parts.push(pageText);
     }
