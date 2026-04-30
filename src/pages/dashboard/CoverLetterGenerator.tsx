@@ -79,6 +79,12 @@ const CoverLetterGenerator = () => {
   const [generating, setGenerating] = useState(false);
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [hasResume, setHasResume] = useState(false);
+  const [resumeMeta, setResumeMeta] = useState<{
+    name: string | null;
+    fileName: string | null;
+    strengths: string[];
+    bestAchievement: string | null;
+  }>({ name: null, fileName: null, strengths: [], bestAchievement: null });
 
   // form
   const [company, setCompany] = useState("");
