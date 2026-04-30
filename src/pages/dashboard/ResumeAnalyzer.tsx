@@ -742,7 +742,7 @@ const WeaknessesCard = ({
   <SectionCard className={cn("p-0 overflow-hidden", className)}>
     <div className="px-5 sm:px-6 pt-5 pb-3 flex items-center justify-between">
       <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-        Weaknesses
+        Refinement opportunities
       </p>
       <span className="text-[10px] font-medium px-2 py-0.5 rounded-full tracking-tight bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]">
         {items.length}
