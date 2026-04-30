@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2 } from "lucide-react";
+import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
 import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
@@ -74,7 +75,7 @@ const QUESTION_BANK: { type: QuestionType; label: string; questions: string[] }[
 
 const tabs = [
   { value: "practice", label: "Practice" },
-  { value: "history", label: "History" },
+  { value: "mock", label: "Mock interview" },
 ];
 
 const InterviewPrep = () => {
@@ -213,8 +214,14 @@ const InterviewPrep = () => {
       </p>
 
       <div className="mt-6">
-        <SegmentedTabs tabs={[...tabs, { value: "history", label: "History", count: history.length || undefined }]} value={tab} onChange={setTab} />
+        <SegmentedTabs
+          tabs={[...tabs, { value: "history", label: "History", count: history.length || undefined }]}
+          value={tab}
+          onChange={setTab}
+        />
       </div>
+
+      {tab === "mock" && <div className="mt-5"><MockInterviewPanel resumeId={resumeId} /></div>}
 
       {tab === "practice" && (
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
