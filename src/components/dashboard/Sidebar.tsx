@@ -25,7 +25,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
   <>
     <div className="flex items-center mb-9 px-2">
-      <LogoLockup size="text-[17px]" />
+      <LogoLockup size="text-xl font-sans" />
     </div>
 
     <SectionLabel>Suite</SectionLabel>
