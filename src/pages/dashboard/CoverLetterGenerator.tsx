@@ -623,7 +623,7 @@ const CoverLetterGenerator = () => {
 
         {/* Right: structured letter */}
         <SectionCard className="lg:col-span-7 p-0 overflow-hidden">
-          <div className="px-5 sm:px-6 pt-5 pb-4 flex items-center justify-between gap-3">
+          <div className="px-5 sm:px-6 pt-3 pb-2 flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                 {hasLetter ? "Editable letter" : "Letter preview"}
@@ -657,7 +657,7 @@ const CoverLetterGenerator = () => {
             </div>
           </div>
 
-          <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-4 sm:p-6">
+          <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
             <LetterSheet
               doc={doc}
               update={update}
@@ -724,13 +724,6 @@ const CoverLetterGenerator = () => {
               </div>
             </div>
 
-            {!hasLetter && (
-              <div className="mx-auto mt-4 max-w-[640px] text-[12px] text-foreground/45 tracking-tight flex items-center gap-1.5">
-                <FileText className="w-3 h-3" />
-                Tip: fill in your details on the left first — they'll appear in the letter
-                automatically.
-              </div>
-            )}
           </div>
         </SectionCard>
       </div>
