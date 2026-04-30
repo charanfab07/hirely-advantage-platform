@@ -209,7 +209,7 @@ const CoverLetterGenerator = () => {
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [typo, setTypo] = useState<TypoSettings>({
-    font: "serif",
+    font: "times",
     fontSize: 14,
     lineHeight: 1.7,
     align: "left",
