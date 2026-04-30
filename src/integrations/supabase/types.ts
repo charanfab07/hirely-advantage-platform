@@ -179,6 +179,119 @@ export type Database = {
         }
         Relationships: []
       }
+      mock_interview_sessions: {
+        Row: {
+          created_at: string
+          difficulty: string
+          duration_minutes: number
+          ended_at: string | null
+          focus: string
+          id: string
+          improvements: Json
+          model: string | null
+          overall_score: number | null
+          resume_id: string | null
+          started_at: string
+          status: string
+          strengths: Json
+          summary: string | null
+          target_role: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          difficulty?: string
+          duration_minutes?: number
+          ended_at?: string | null
+          focus?: string
+          id?: string
+          improvements?: Json
+          model?: string | null
+          overall_score?: number | null
+          resume_id?: string | null
+          started_at?: string
+          status?: string
+          strengths?: Json
+          summary?: string | null
+          target_role?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          difficulty?: string
+          duration_minutes?: number
+          ended_at?: string | null
+          focus?: string
+          id?: string
+          improvements?: Json
+          model?: string | null
+          overall_score?: number | null
+          resume_id?: string | null
+          started_at?: string
+          status?: string
+          strengths?: Json
+          summary?: string | null
+          target_role?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mock_interview_turns: {
+        Row: {
+          answer: string | null
+          created_at: string
+          feedback: string | null
+          follow_up_hint: string | null
+          id: string
+          question: string
+          question_kind: string
+          score: number | null
+          session_id: string
+          turn_index: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answer?: string | null
+          created_at?: string
+          feedback?: string | null
+          follow_up_hint?: string | null
+          id?: string
+          question: string
+          question_kind?: string
+          score?: number | null
+          session_id: string
+          turn_index: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answer?: string | null
+          created_at?: string
+          feedback?: string | null
+          follow_up_hint?: string | null
+          id?: string
+          question?: string
+          question_kind?: string
+          score?: number | null
+          session_id?: string
+          turn_index?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mock_interview_turns_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "mock_interview_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
