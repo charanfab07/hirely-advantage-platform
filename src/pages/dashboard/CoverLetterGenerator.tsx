@@ -110,7 +110,7 @@ const CoverLetterGenerator = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: l }, { data: r }] = await Promise.all([
+      const [{ data: l }, { data: r }, { data: profile }] = await Promise.all([
         supabase
           .from("cover_letters")
           .select("*")
@@ -118,15 +118,54 @@ const CoverLetterGenerator = () => {
           .limit(20),
         supabase
           .from("resumes")
-          .select("id")
+          .select("id, file_name")
           .order("created_at", { ascending: false })
           .limit(1),
+        supabase
+          .from("profiles")
+          .select("display_name")
+          .eq("user_id", user.id)
+          .maybeSingle(),
       ]);
       setLetters((l ?? []) as unknown as Letter[]);
       if (l?.[0]) setActiveId(l[0].id);
       if (r?.[0]) {
         setResumeId(r[0].id);
         setHasResume(true);
+
+        // Fetch latest analysis for this resume to extract strengths + best achievement
+        const { data: analysis } = await supabase
+          .from("resume_analyses")
+          .select("strengths, bullet_rewrites, extracted")
+          .eq("resume_id", r[0].id)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const strengthsRaw = (analysis?.strengths ?? []) as unknown[];
+        const strengths = strengthsRaw
+          .map((s) => (typeof s === "string" ? s : (s as { text?: string; title?: string; label?: string })?.text ?? (s as { title?: string }).title ?? (s as { label?: string }).label))
+          .filter((s): s is string => typeof s === "string" && s.length > 0)
+          .slice(0, 5);
+
+        // Best achievement: prefer first bullet_rewrite "after", else first strength, else null
+        const rewrites = (analysis?.bullet_rewrites ?? []) as Array<{ after?: string; rewrite?: string; text?: string }>;
+        const bestAchievement =
+          rewrites.find((b) => b?.after)?.after ??
+          rewrites.find((b) => b?.rewrite)?.rewrite ??
+          rewrites.find((b) => b?.text)?.text ??
+          strengths[0] ??
+          null;
+
+        const extracted = (analysis?.extracted ?? {}) as { name?: string; full_name?: string; contact?: { name?: string } };
+        const extractedName = extracted.name ?? extracted.full_name ?? extracted.contact?.name ?? null;
+
+        setResumeMeta({
+          name: profile?.display_name ?? extractedName ?? null,
+          fileName: r[0].file_name ?? null,
+          strengths,
+          bestAchievement,
+        });
       }
     })();
   }, [user?.id]);
