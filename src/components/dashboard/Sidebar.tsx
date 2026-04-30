@@ -144,7 +144,7 @@ export const MobileSidebar = ({
         aria-label="Close sidebar"
         onClick={onClose}
         className={cn(
-          "absolute inset-0 bg-foreground/30 backdrop-blur-sm transition-opacity duration-300",
+          "absolute inset-0 bg-foreground/30 backdrop-blur-sm transition-opacity duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]",
           open ? "opacity-100" : "opacity-0",
         )}
       />
@@ -157,7 +157,7 @@ export const MobileSidebar = ({
           "absolute left-0 top-0 h-full w-[260px] bg-background/95 backdrop-blur-xl",
           "border-r border-border/60 shadow-2xl",
           "flex flex-col px-5 py-7",
-          "transition-transform duration-300 ease-out will-change-transform",
+          "transition-transform duration-500 [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)] will-change-transform",
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
