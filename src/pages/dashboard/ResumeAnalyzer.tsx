@@ -493,7 +493,7 @@ const ResumeAnalyzer = () => {
 
           <SectionCard className="md:col-span-2">
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-              Weak bullets · {latest.issues?.weak_bullets?.length ?? 0}
+              Bullets to sharpen · {latest.issues?.weak_bullets?.length ?? 0}
             </p>
             <ul className="mt-3 space-y-3">
               {(latest.issues?.weak_bullets ?? []).map((b, i) => (
@@ -505,7 +505,7 @@ const ResumeAnalyzer = () => {
                 </li>
               ))}
               {!latest.issues?.weak_bullets?.length && (
-                <p className="text-[13px] text-foreground/55">No weak bullets — solid work.</p>
+                <p className="text-[13px] text-foreground/55">Every bullet is pulling its weight — beautifully done.</p>
               )}
             </ul>
           </SectionCard>
@@ -716,14 +716,14 @@ const StrengthsCard = ({
 
 // ----- Weaknesses card -----
 const WEAKNESS_LABEL: Record<Weakness["category"], string> = {
-  lack_of_metrics: "Lack of metrics",
-  weak_action_verbs: "Weak verbs",
-  too_generic: "Too generic",
-  missing_summary: "Missing summary",
-  skills_mismatch: "Skills mismatch",
-  ats_formatting: "ATS formatting",
-  grammar: "Grammar",
-  other: "Other",
+  lack_of_metrics: "Quantify impact",
+  weak_action_verbs: "Stronger verbs",
+  too_generic: "Add specificity",
+  missing_summary: "Add a summary",
+  skills_mismatch: "Skills alignment",
+  ats_formatting: "ATS polish",
+  grammar: "Language polish",
+  other: "Refinement",
 };
 
 const SEVERITY_TONE: Record<Weakness["severity"], string> = {
@@ -742,7 +742,7 @@ const WeaknessesCard = ({
   <SectionCard className={cn("p-0 overflow-hidden", className)}>
     <div className="px-5 sm:px-6 pt-5 pb-3 flex items-center justify-between">
       <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-        Weaknesses
+        Refinement opportunities
       </p>
       <span className="text-[10px] font-medium px-2 py-0.5 rounded-full tracking-tight bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]">
         {items.length}
