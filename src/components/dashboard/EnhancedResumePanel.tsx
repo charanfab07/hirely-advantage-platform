@@ -75,6 +75,8 @@ export const EnhancedResumePanel = ({
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [customRole, setCustomRole] = useState("");
 
   // Load latest enhancement for this resume
   useEffect(() => {
