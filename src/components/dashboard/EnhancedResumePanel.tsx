@@ -182,8 +182,11 @@ export const EnhancedResumePanel = ({
     );
   }
 
-  // No enhancement yet — generation hero
+  // No enhancement yet — generation hero with role selector
   if (!enhancement) {
+    const isCustom = selectedRole === "__custom__";
+    const canGenerate =
+      !!selectedRole && (!isCustom || customRole.trim().length >= 2);
     return (
       <SectionCard className={cn("relative overflow-hidden", className)} tone="dark">
         <div
@@ -202,15 +205,64 @@ export const EnhancedResumePanel = ({
             Get the perfect version of your resume.
           </h2>
           <p className="mt-3 text-[13.5px] leading-[1.55] text-white/70 max-w-lg tracking-tight">
-            We'll rewrite every weak bullet, quantify your impact, fix every ATS issue, inject the
-            keywords you're missing, and hand you a recruiter-ready document — all in one click.
+            ATS scoring depends on the role you're targeting. Pick the role you're applying for —
+            we'll then rewrite every weak bullet, fix every ATS issue, and tailor keywords specifically
+            for that role.
           </p>
+
+          <div className="mt-6">
+            <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
+              Which role are you applying for?
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {ROLE_OPTIONS.map((role) => {
+                const active = selectedRole === role;
+                return (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setSelectedRole(role)}
+                    className={cn(
+                      "px-3.5 py-2 rounded-full text-[12.5px] tracking-tight border transition-colors",
+                      active
+                        ? "bg-white text-foreground border-white"
+                        : "bg-white/5 text-white/85 border-white/15 hover:bg-white/10",
+                    )}
+                  >
+                    {role}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => setSelectedRole("__custom__")}
+                className={cn(
+                  "px-3.5 py-2 rounded-full text-[12.5px] tracking-tight border transition-colors",
+                  isCustom
+                    ? "bg-white text-foreground border-white"
+                    : "bg-white/5 text-white/85 border-white/15 hover:bg-white/10",
+                )}
+              >
+                Other…
+              </button>
+            </div>
+            {isCustom && (
+              <input
+                type="text"
+                value={customRole}
+                onChange={(e) => setCustomRole(e.target.value.slice(0, 80))}
+                placeholder="e.g. Backend Engineer, Product Designer…"
+                className="mt-3 w-full max-w-md px-3.5 py-2 rounded-lg bg-white/10 border border-white/15 text-[13px] text-white placeholder:text-white/40 outline-none focus:border-white/40 transition-colors"
+              />
+            )}
+          </div>
+
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
               type="button"
-              onClick={handleGenerate}
-              disabled={generating}
-              className="px-5 py-2.5 rounded-full bg-white text-foreground text-[13px] font-medium tracking-tight hover:bg-white/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+              onClick={() => handleGenerate()}
+              disabled={generating || !canGenerate}
+              className="px-5 py-2.5 rounded-full bg-white text-foreground text-[13px] font-medium tracking-tight hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {generating ? (
                 <>
@@ -225,7 +277,9 @@ export const EnhancedResumePanel = ({
               )}
             </button>
             <span className="text-[11.5px] text-white/50 tracking-tight">
-              Takes ~15 seconds. We never invent jobs or credentials.
+              {canGenerate
+                ? "Takes ~15 seconds. We never invent jobs or credentials."
+                : "Pick a target role to continue."}
             </span>
           </div>
         </div>
