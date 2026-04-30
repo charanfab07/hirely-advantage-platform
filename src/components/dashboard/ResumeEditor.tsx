@@ -1141,11 +1141,11 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
     ensureSpace(22 * LH);
     applyFont("bold", 10, [80, 80, 100]);
     doc.text(s(title.toUpperCase()), margin, y);
-    y += 4;
+    y += 4 * SC * LH;
     doc.setDrawColor(200, 200, 210);
     doc.setLineWidth(0.5);
     doc.line(margin, y, pageW - margin, y);
-    y += 10;
+    y += 10 * SC * LH;
   };
 
   // Header — name (alignment configurable)
@@ -1172,7 +1172,7 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
     doc.text(contactBits.join("  |  "), headerX, y, { align: headerAlignOpt });
     y += 14 * SC * LH;
   }
-  y += 4;
+  y += 4 * SC * LH;
 
   if (r.summary) {
     sectionTitle("Summary");
@@ -1185,12 +1185,12 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
       const groupLabel = `${s(sk.group)}: `;
       const itemsText = s(sk.items.join(", "));
       // Measure bold group label width, then lay out items as wrapped text starting after it.
-      setFontSafe(doc, "bold", 10, [20, 20, 30]);
+      applyFont("bold", 10, [20, 20, 30]);
       const groupW = doc.getTextWidth(groupLabel);
-      const lineH = 12.5;
+      const lineH = 12.5 * SC * LH;
       const firstLineMaxW = Math.max(40, maxW - groupW);
       // Wrap items: first line shorter (after label), subsequent lines full width.
-      setFontSafe(doc, "normal", 10, [30, 30, 40]);
+      applyFont("normal", 10, [30, 30, 40]);
       const firstWrap = doc.splitTextToSize(itemsText, firstLineMaxW);
       const firstLine = firstWrap[0] ?? "";
       const remainder = itemsText.slice(firstLine.length).trim();
@@ -1198,10 +1198,10 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
       const totalLines = 1 + restLines.length;
       ensureSpace(totalLines * lineH + 2);
       // Draw bold group label
-      setFontSafe(doc, "bold", 10, [20, 20, 30]);
+      applyFont("bold", 10, [20, 20, 30]);
       doc.text(groupLabel, margin, y);
       // Draw items normal
-      setFontSafe(doc, "normal", 10, [30, 30, 40]);
+      applyFont("normal", 10, [30, 30, 40]);
       doc.text(firstLine, margin + groupW, y);
       let yy = y + lineH;
       restLines.forEach((ln: string) => {
@@ -1215,45 +1215,45 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
   if (r.experience.length) {
     sectionTitle("Experience");
     r.experience.forEach((x) => {
-      ensureSpace(28);
-      setFontSafe(doc, "bold", 11, [20, 20, 30]);
+      ensureSpace(28 * SC * LH);
+      applyFont("bold", 11, [20, 20, 30]);
       const head = `${s(x.role)} - ${s(x.company)}`;
       doc.text(head, margin, y);
       if (x.dates) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(x.dates), pageW - margin, y, { align: "right" });
       }
-      y += 13;
+      y += 13 * SC * LH;
       if (x.location) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(x.location), margin, y);
-        y += 12;
+        y += 12 * SC * LH;
       }
       x.bullets.filter(Boolean).forEach((b) => {
-        setFontSafe(doc, "normal", 10, [30, 30, 40]);
+        applyFont("normal", 10, [30, 30, 40]);
         const lines = doc.splitTextToSize(`- ${s(b)}`, maxW - 10);
         const h = lines.length * 12 + 2;
         ensureSpace(h);
         doc.text(lines, margin + 8, y);
         y += h;
       });
-      y += 4;
+      y += 4 * SC * LH;
     });
   }
 
   if (r.projects.length) {
     sectionTitle("Projects");
     r.projects.forEach((p) => {
-      ensureSpace(24);
-      setFontSafe(doc, "bold", 10.5, [20, 20, 30]);
+      ensureSpace(24 * SC * LH);
+      applyFont("bold", 10.5, [20, 20, 30]);
       const pname = s(p.name);
       doc.text(pname, margin, y);
       if (p.tech.length) {
         const w = doc.getTextWidth(pname);
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(`  ${s(p.tech.join(", "))}`, margin + w, y);
       }
-      y += 13;
+      y += 13 * SC * LH;
       const body = `${p.description}${p.impact ? ` - ${p.impact}` : ""}`;
       writeText(body, { size: 10, gap: 6 });
     });
@@ -1262,30 +1262,30 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
   if (r.education.length) {
     sectionTitle("Education");
     r.education.forEach((ed) => {
-      ensureSpace(24);
-      setFontSafe(doc, "bold", 10.5, [20, 20, 30]);
+      ensureSpace(24 * SC * LH);
+      applyFont("bold", 10.5, [20, 20, 30]);
       doc.text(s(ed.degree), margin, y);
       if (ed.dates) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(ed.dates), pageW - margin, y, { align: "right" });
       }
-      y += 13;
-      setFontSafe(doc, "normal", 10, [60, 60, 80]);
+      y += 13 * SC * LH;
+      applyFont("normal", 10, [60, 60, 80]);
       doc.text(s(ed.school), margin, y);
-      y += 12;
+      y += 12 * SC * LH;
       if (ed.detail) {
-        setFontSafe(doc, "normal", 9, [110, 110, 130]);
+        applyFont("normal", 9, [110, 110, 130]);
         doc.text(s(ed.detail), margin, y);
-        y += 12;
+        y += 12 * SC * LH;
       }
-      y += 2;
+      y += 2 * SC * LH;
     });
   }
 
   if (r.achievements.length) {
     sectionTitle("Achievements");
     r.achievements.filter(Boolean).forEach((a) => {
-      setFontSafe(doc, "normal", 10, [30, 30, 40]);
+      applyFont("normal", 10, [30, 30, 40]);
       const lines = doc.splitTextToSize(`- ${s(a)}`, maxW - 10);
       const h = lines.length * 12 + 2;
       ensureSpace(h);
