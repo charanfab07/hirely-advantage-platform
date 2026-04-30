@@ -88,6 +88,7 @@ type Analysis = {
 
 const tabs = [
   { value: "score", label: "Score" },
+  { value: "compare", label: "Compare" },
   { value: "extracted", label: "Extracted" },
   { value: "issues", label: "Issues" },
   { value: "tailored", label: "Tailored" },
