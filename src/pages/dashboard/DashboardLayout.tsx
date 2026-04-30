@@ -1,12 +1,23 @@
-import { useLocation, Outlet } from "react-router-dom";
+import { useLocation, Outlet, Navigate } from "react-router-dom";
 import { useState } from "react";
 import { Menu } from "lucide-react";
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { DashboardSidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
+import { useAuth } from "@/hooks/useAuth";
 
 const DashboardLayout = () => {
   const { pathname } = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-foreground/50 text-sm">
+        Loading…
+      </div>
+    );
+  }
+  if (!user) return <Navigate to="/auth" replace />;
 
   return (
     <div className="relative min-h-screen overflow-x-hidden font-display">
