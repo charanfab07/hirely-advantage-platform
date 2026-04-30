@@ -91,7 +91,13 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
       setStage("analyzing");
       const { data: fnData, error: fnErr } = await supabase.functions.invoke(
         "analyze-resume",
-        { body: { resume_id: resumeRow.id, raw_text: text } },
+        {
+          body: {
+            resume_id: resumeRow.id,
+            raw_text: text,
+            target_role: targetRole.trim() || undefined,
+          },
+        },
       );
       if (fnErr) {
         // Try to extract a useful error message
