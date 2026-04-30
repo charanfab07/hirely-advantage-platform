@@ -210,6 +210,20 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
         )}
       </button>
 
+      <div className="border-t border-foreground/[0.06] px-6 sm:px-7 py-3 flex items-center gap-3">
+        <span className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium shrink-0">
+          Target role
+        </span>
+        <input
+          type="text"
+          value={targetRole}
+          onChange={(e) => setTargetRole(e.target.value)}
+          disabled={busy}
+          placeholder="e.g. Senior PM at Linear (optional — sharpens job-match %)"
+          className="flex-1 bg-transparent text-[13px] text-foreground placeholder:text-foreground/35 outline-none tracking-tight"
+        />
+      </div>
+
       <input
         ref={inputRef}
         type="file"
