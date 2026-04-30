@@ -23,11 +23,11 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
   <>
-    <div className="flex items-center gap-2 mb-9 px-2">
-      <div className="w-7 h-7 rounded-[9px] bg-foreground flex items-center justify-center text-background text-[11px] font-semibold">
+    <div className="flex items-center gap-2.5 mb-9 px-2">
+      <div className="w-8 h-8 rounded-[10px] bg-foreground flex items-center justify-center text-background text-[12px] font-semibold">
         H
       </div>
-      <span className="font-semibold tracking-[-0.02em] text-foreground text-[14.5px]">Hirely</span>
+      <span className="font-semibold tracking-[-0.02em] text-foreground text-[15.5px]">Hirely</span>
     </div>
 
     <SectionLabel>Suite</SectionLabel>
