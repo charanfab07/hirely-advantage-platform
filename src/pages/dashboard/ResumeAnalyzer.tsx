@@ -177,7 +177,7 @@ const ResumeAnalyzer = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-[1180px] mx-auto">
       {/* Top bar */}
       <div className="flex items-center justify-between gap-4">
         <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
