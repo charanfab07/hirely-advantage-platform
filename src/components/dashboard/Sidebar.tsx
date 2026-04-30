@@ -22,7 +22,7 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 
 export const DashboardSidebar = () => {
   return (
-    <aside className="w-[210px] shrink-0 hidden md:flex flex-col px-4 py-6">
+    <aside className="w-[240px] shrink-0 hidden md:flex flex-col px-5 py-7">
       <div className="flex items-center gap-2 mb-9 px-2">
         <div className="w-7 h-7 rounded-[9px] bg-foreground flex items-center justify-center text-background text-[11px] font-semibold">
           H
