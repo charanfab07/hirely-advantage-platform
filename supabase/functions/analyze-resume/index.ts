@@ -1,4 +1,4 @@
-// Resume analyzer — extracts structured info & insights via Lovable AI.
+// Resume analyzer — deep, hiring-manager style review via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -7,22 +7,64 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are a senior tech hiring manager and ATS expert.
-You review resumes the way a real reviewer would: ruthlessly, fairly, with concrete next steps.
-Always respond by calling the analyze_resume tool with structured data. Never reply with prose.
-Score honestly — most resumes score 60–80. Reserve 90+ for genuinely strong, quantified resumes.`;
+const SYSTEM_PROMPT = `You are a senior tech hiring manager and ATS expert reviewing a resume the way a real reviewer would: ruthlessly, fairly, with concrete next steps.
+
+Your job is to make the candidate FEEL the review. Be specific. Quote their actual words. Never give vague advice like "add metrics" — instead, take their bullet and rewrite it with a realistic, plausible metric ("Managed social media accounts" → "Managed 5 social media accounts, increasing engagement by 42% in 6 months").
+
+Always respond by calling the analyze_resume tool. Never reply with prose.
+
+Scoring rubric (overall_score, 0–100):
+- 90–100: Exceptional. Quantified, senior-level, ATS-perfect, tailored.
+- 75–89: Strong. Mostly quantified, clear progression, minor fixes.
+- 60–74: Average. Responsibilities-heavy, generic verbs, gaps in metrics.
+- <60: Needs significant rework.
+
+Most resumes score 60–80. Be honest. Reserve 90+ for genuinely strong, quantified resumes.
+
+score_breakdown sub-scores must each be 0–100 and roughly justify overall_score.
+
+If a target_role is provided, evaluate job_match.match_percent honestly against typical requirements for that role and list specific missing_requirements.`;
 
 const TOOL_SCHEMA = {
   type: "function",
   function: {
     name: "analyze_resume",
-    description: "Return a complete structured analysis of the candidate's resume.",
+    description: "Return a complete, deep structured analysis of the candidate's resume.",
     parameters: {
       type: "object",
       properties: {
         overall_score: { type: "number", description: "0–100 overall readiness" },
         ats_score: { type: "number", description: "0–100 ATS compatibility" },
-        summary: { type: "string", description: "One-sentence verdict, ≤140 chars" },
+        summary: { type: "string", description: "One-sentence verdict, ≤140 chars, specific not generic" },
+
+        score_breakdown: {
+          type: "object",
+          description: "Sub-scores 0–100 that justify overall_score.",
+          properties: {
+            ats_compatibility: { type: "number" },
+            impact_statements: { type: "number" },
+            relevance: { type: "number" },
+            clarity: { type: "number" },
+            keyword_match: { type: "number" },
+          },
+          required: ["ats_compatibility", "impact_statements", "relevance", "clarity", "keyword_match"],
+          additionalProperties: false,
+        },
+
+        job_match: {
+          type: "object",
+          description: "Match against the target role (if given). Otherwise generic for resume's apparent target.",
+          properties: {
+            target_role: { type: "string" },
+            match_percent: { type: "number", description: "0–100" },
+            target_percent: { type: "number", description: "Realistic reachable % after fixes, 0–100" },
+            missing_requirements: { type: "array", items: { type: "string" } },
+            matched_requirements: { type: "array", items: { type: "string" } },
+          },
+          required: ["match_percent", "missing_requirements", "matched_requirements"],
+          additionalProperties: false,
+        },
+
         extracted: {
           type: "object",
           properties: {
@@ -51,10 +93,7 @@ const TOOL_SCHEMA = {
               type: "array",
               items: {
                 type: "object",
-                properties: {
-                  name: { type: "string" },
-                  description: { type: "string" },
-                },
+                properties: { name: { type: "string" }, description: { type: "string" } },
                 required: ["name"],
                 additionalProperties: false,
               },
@@ -77,6 +116,64 @@ const TOOL_SCHEMA = {
           required: ["skills", "keywords", "experience", "education"],
           additionalProperties: false,
         },
+
+        strengths: {
+          type: "array",
+          description: "3–5 specific strengths. Each must reference something concrete from the resume.",
+          items: {
+            type: "object",
+            properties: {
+              title: { type: "string", description: "≤8 words, e.g. 'Strong project diversity'" },
+              detail: { type: "string", description: "≤160 chars, cite specifics from resume" },
+            },
+            required: ["title", "detail"],
+            additionalProperties: false,
+          },
+        },
+
+        weaknesses: {
+          type: "array",
+          description: "3–6 categorized weaknesses. Be ruthlessly specific.",
+          items: {
+            type: "object",
+            properties: {
+              category: {
+                type: "string",
+                enum: [
+                  "lack_of_metrics",
+                  "weak_action_verbs",
+                  "too_generic",
+                  "missing_summary",
+                  "skills_mismatch",
+                  "ats_formatting",
+                  "grammar",
+                  "other",
+                ],
+              },
+              title: { type: "string", description: "≤10 words" },
+              detail: { type: "string", description: "≤220 chars, quote the resume when possible" },
+              severity: { type: "string", enum: ["high", "medium", "low"] },
+            },
+            required: ["category", "title", "detail", "severity"],
+            additionalProperties: false,
+          },
+        },
+
+        bullet_rewrites: {
+          type: "array",
+          description: "2–5 concrete before/after rewrites of weak bullets. Use plausible realistic metrics.",
+          items: {
+            type: "object",
+            properties: {
+              before: { type: "string" },
+              after: { type: "string" },
+              why: { type: "string", description: "≤140 chars" },
+            },
+            required: ["before", "after", "why"],
+            additionalProperties: false,
+          },
+        },
+
         issues: {
           type: "object",
           properties: {
@@ -85,10 +182,7 @@ const TOOL_SCHEMA = {
               type: "array",
               items: {
                 type: "object",
-                properties: {
-                  text: { type: "string" },
-                  reason: { type: "string" },
-                },
+                properties: { text: { type: "string" }, reason: { type: "string" } },
                 required: ["text", "reason"],
                 additionalProperties: false,
               },
@@ -106,16 +200,18 @@ const TOOL_SCHEMA = {
           ],
           additionalProperties: false,
         },
+
         insights: {
           type: "object",
           properties: {
-            strengths: { type: "array", items: { type: "string" }, description: "2 concise bullets" },
-            gaps: { type: "array", items: { type: "string" }, description: "2 concise bullets" },
-            risks: { type: "array", items: { type: "string" }, description: "2 concise bullets" },
+            strengths: { type: "array", items: { type: "string" } },
+            gaps: { type: "array", items: { type: "string" } },
+            risks: { type: "array", items: { type: "string" } },
           },
           required: ["strengths", "gaps", "risks"],
           additionalProperties: false,
         },
+
         quick_wins: {
           type: "array",
           description: "Top 3 single-tap improvements, highest impact first.",
@@ -135,7 +231,12 @@ const TOOL_SCHEMA = {
         "overall_score",
         "ats_score",
         "summary",
+        "score_breakdown",
+        "job_match",
         "extracted",
+        "strengths",
+        "weaknesses",
+        "bullet_rewrites",
         "issues",
         "insights",
         "quick_wins",
@@ -150,9 +251,7 @@ Deno.serve(async (req) => {
 
   try {
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      return json({ error: "Missing Authorization header" }, 401);
-    }
+    if (!authHeader) return json({ error: "Missing Authorization header" }, 401);
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const anonKey = Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? Deno.env.get("SUPABASE_ANON_KEY")!;
@@ -165,12 +264,11 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json();
-    const { resume_id, raw_text } = body ?? {};
+    const { resume_id, raw_text, target_role } = body ?? {};
     if (!resume_id || typeof raw_text !== "string" || raw_text.trim().length < 50) {
       return json({ error: "resume_id and meaningful raw_text are required" }, 400);
     }
 
-    // Confirm resume belongs to user (RLS will enforce, but be explicit)
     const { data: resumeRow, error: resumeErr } = await supabase
       .from("resumes")
       .select("id, user_id")
@@ -184,6 +282,9 @@ Deno.serve(async (req) => {
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
 
     const truncated = raw_text.slice(0, 18000);
+    const targetLine = target_role
+      ? `Target role: ${String(target_role).slice(0, 120)}`
+      : `Target role: (infer from resume — likely the candidate's most recent / highest title).`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -197,7 +298,7 @@ Deno.serve(async (req) => {
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Analyze this resume and call analyze_resume.\n\n--- RESUME TEXT ---\n${truncated}`,
+            content: `Analyze this resume and call analyze_resume.\n\n${targetLine}\n\n--- RESUME TEXT ---\n${truncated}`,
           },
         ],
         tools: [TOOL_SCHEMA],
@@ -206,12 +307,8 @@ Deno.serve(async (req) => {
     });
 
     if (!aiResp.ok) {
-      if (aiResp.status === 429) {
-        return json({ error: "Rate limit exceeded. Try again in a moment." }, 429);
-      }
-      if (aiResp.status === 402) {
-        return json({ error: "AI credits exhausted. Add credits in workspace usage." }, 402);
-      }
+      if (aiResp.status === 429) return json({ error: "Rate limit exceeded. Try again in a moment." }, 429);
+      if (aiResp.status === 402) return json({ error: "AI credits exhausted. Add credits in workspace usage." }, 402);
       const t = await aiResp.text();
       console.error("AI gateway error:", aiResp.status, t);
       return json({ error: "AI analysis failed" }, 500);
@@ -232,7 +329,6 @@ Deno.serve(async (req) => {
       return json({ error: "AI returned invalid JSON" }, 500);
     }
 
-    // Persist
     const { data: inserted, error: insertErr } = await supabase
       .from("resume_analyses")
       .insert({
@@ -245,6 +341,12 @@ Deno.serve(async (req) => {
         issues: parsed.issues ?? {},
         insights: parsed.insights ?? {},
         quick_wins: parsed.quick_wins ?? [],
+        strengths: parsed.strengths ?? [],
+        weaknesses: parsed.weaknesses ?? [],
+        bullet_rewrites: parsed.bullet_rewrites ?? [],
+        score_breakdown: parsed.score_breakdown ?? {},
+        job_match: parsed.job_match ?? {},
+        target_role: target_role ?? null,
         model: "google/gemini-2.5-flash",
       })
       .select()
