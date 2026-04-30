@@ -175,6 +175,21 @@ const CoverLetterGenerator = () => {
     }));
   }, [user?.id]);
 
+  // Esc closes fullscreen + lock body scroll while open
+  useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [fullscreen]);
+
   const update = <K extends keyof LetterDoc>(key: K, value: LetterDoc[K]) =>
     setDoc((d) => ({ ...d, [key]: value }));
 
