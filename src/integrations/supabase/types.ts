@@ -19,16 +19,23 @@ export type Database = {
           alignment: string | null
           closing: string | null
           company: string
+          company_mission: string | null
+          company_url: string | null
           created_at: string
           culture_fit: string | null
           full_letter: string
           hook: string | null
           id: string
+          jd_keywords: Json
           job_description: string | null
+          match_score: number | null
+          matched_keywords: Json
+          missing_keywords: Json
           model: string | null
           notes: string | null
           proof: string | null
           resume_id: string | null
+          resume_skills: Json
           role: string
           tone: string
           updated_at: string
@@ -38,16 +45,23 @@ export type Database = {
           alignment?: string | null
           closing?: string | null
           company: string
+          company_mission?: string | null
+          company_url?: string | null
           created_at?: string
           culture_fit?: string | null
           full_letter?: string
           hook?: string | null
           id?: string
+          jd_keywords?: Json
           job_description?: string | null
+          match_score?: number | null
+          matched_keywords?: Json
+          missing_keywords?: Json
           model?: string | null
           notes?: string | null
           proof?: string | null
           resume_id?: string | null
+          resume_skills?: Json
           role: string
           tone?: string
           updated_at?: string
@@ -57,16 +71,23 @@ export type Database = {
           alignment?: string | null
           closing?: string | null
           company?: string
+          company_mission?: string | null
+          company_url?: string | null
           created_at?: string
           culture_fit?: string | null
           full_letter?: string
           hook?: string | null
           id?: string
+          jd_keywords?: Json
           job_description?: string | null
+          match_score?: number | null
+          matched_keywords?: Json
+          missing_keywords?: Json
           model?: string | null
           notes?: string | null
           proof?: string | null
           resume_id?: string | null
+          resume_skills?: Json
           role?: string
           tone?: string
           updated_at?: string
