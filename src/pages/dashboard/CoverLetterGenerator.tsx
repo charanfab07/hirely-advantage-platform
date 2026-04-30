@@ -42,7 +42,21 @@ type LetterDoc = {
   signOff: string;
 };
 
-type FontKey = "serif" | "sans" | "mono";
+type FontKey =
+  | "times"
+  | "georgia"
+  | "cambria"
+  | "garamond"
+  | "bookman"
+  | "inter"
+  | "helvetica"
+  | "arial"
+  | "calibri"
+  | "verdana"
+  | "tahoma"
+  | "trebuchet"
+  | "jetbrains"
+  | "courier";
 type AlignKey = "left" | "center" | "justify";
 
 type TypoSettings = {
@@ -55,27 +69,71 @@ type TypoSettings = {
 };
 
 const FONT_STACKS: Record<FontKey, string> = {
-  serif: '"Times New Roman", Georgia, "Cambria", serif',
-  sans: '"Inter", "Helvetica Neue", Arial, sans-serif',
-  mono: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace',
+  times: '"Times New Roman", Times, serif',
+  georgia: 'Georgia, "Iowan Old Style", serif',
+  cambria: 'Cambria, "Hoefler Text", serif',
+  garamond: '"EB Garamond", Garamond, "Apple Garamond", serif',
+  bookman: '"Bookman Old Style", "URW Bookman L", serif',
+  inter: '"Inter", "Helvetica Neue", Arial, sans-serif',
+  helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  arial: 'Arial, "Liberation Sans", sans-serif',
+  calibri: 'Calibri, "Carlito", "Trebuchet MS", sans-serif',
+  verdana: 'Verdana, Geneva, sans-serif',
+  tahoma: 'Tahoma, "DejaVu Sans", sans-serif',
+  trebuchet: '"Trebuchet MS", "Lucida Sans", sans-serif',
+  jetbrains: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace',
+  courier: '"Courier New", Courier, monospace',
 };
 
 const FONT_LABELS: Record<FontKey, string> = {
-  serif: "Serif",
-  sans: "Sans",
-  mono: "Mono",
+  times: "Times New Roman",
+  georgia: "Georgia",
+  cambria: "Cambria",
+  garamond: "Garamond",
+  bookman: "Bookman",
+  inter: "Inter",
+  helvetica: "Helvetica",
+  arial: "Arial",
+  calibri: "Calibri",
+  verdana: "Verdana",
+  tahoma: "Tahoma",
+  trebuchet: "Trebuchet MS",
+  jetbrains: "JetBrains Mono",
+  courier: "Courier New",
 };
 
-// Map our preview font choice -> the font name jsPDF / Word should use.
+// jsPDF has 3 built-in font families. Map each choice to the closest match.
 const PDF_FONT: Record<FontKey, "times" | "helvetica" | "courier"> = {
-  serif: "times",
-  sans: "helvetica",
-  mono: "courier",
+  times: "times",
+  georgia: "times",
+  cambria: "times",
+  garamond: "times",
+  bookman: "times",
+  inter: "helvetica",
+  helvetica: "helvetica",
+  arial: "helvetica",
+  calibri: "helvetica",
+  verdana: "helvetica",
+  tahoma: "helvetica",
+  trebuchet: "helvetica",
+  jetbrains: "courier",
+  courier: "courier",
 };
 const DOCX_FONT: Record<FontKey, string> = {
-  serif: "Times New Roman",
-  sans: "Calibri",
-  mono: "Courier New",
+  times: "Times New Roman",
+  georgia: "Georgia",
+  cambria: "Cambria",
+  garamond: "Garamond",
+  bookman: "Bookman Old Style",
+  inter: "Inter",
+  helvetica: "Helvetica",
+  arial: "Arial",
+  calibri: "Calibri",
+  verdana: "Verdana",
+  tahoma: "Tahoma",
+  trebuchet: "Trebuchet MS",
+  jetbrains: "JetBrains Mono",
+  courier: "Courier New",
 };
 const DOCX_ALIGN: Record<AlignKey, (typeof AlignmentType)[keyof typeof AlignmentType]> = {
   left: AlignmentType.LEFT,
