@@ -671,7 +671,91 @@ const ResumeAnalyzer = () => {
   );
 };
 
-const toneClass: Record<"amber" | "violet" | "green", string> = {
+// ----- MiniStat: compact inline stat pill -----
+const MiniStat = ({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: boolean;
+}) => (
+  <div
+    className={cn(
+      "rounded-xl px-3 py-2 border",
+      accent
+        ? "bg-[hsl(258_45%_58%/0.08)] border-[hsl(258_45%_58%/0.18)]"
+        : "bg-foreground/[0.025] border-foreground/[0.06]",
+    )}
+  >
+    <p className="text-[9.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+      {label}
+    </p>
+    <p
+      className={cn(
+        "mt-0.5 text-[18px] font-semibold tracking-[-0.02em] tabular-nums",
+        accent ? "text-[hsl(258_38%_42%)]" : "text-foreground",
+      )}
+    >
+      {value}
+    </p>
+  </div>
+);
+
+// ----- DeepDiveItem: collapsible accordion row used inside the "Deep dive" card -----
+const DEEP_DIVE_TONE: Record<"green" | "amber" | "violet", string> = {
+  green: "bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]",
+  amber: "bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]",
+  violet: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
+};
+
+const DeepDiveItem = ({
+  value,
+  title,
+  count,
+  tone,
+  preview,
+  isLast,
+  children,
+}: {
+  value: string;
+  title: string;
+  count: number | string;
+  tone: "green" | "amber" | "violet";
+  preview?: string;
+  isLast?: boolean;
+  children: React.ReactNode;
+}) => (
+  <AccordionItem
+    value={value}
+    className={cn("border-b border-foreground/[0.06]", isLast && "border-b-0")}
+  >
+    <AccordionTrigger className="hover:no-underline py-3.5 px-2 sm:px-3 group">
+      <div className="flex items-center gap-3 min-w-0 flex-1 text-left">
+        <span
+          className={cn(
+            "text-[10px] font-medium px-2 py-0.5 rounded-full tracking-tight shrink-0",
+            DEEP_DIVE_TONE[tone],
+          )}
+        >
+          {count}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-[13.5px] font-medium tracking-tight text-foreground">{title}</p>
+          {preview && (
+            <p className="mt-0.5 text-[11.5px] text-foreground/50 tracking-tight truncate">
+              {preview}
+            </p>
+          )}
+        </div>
+      </div>
+    </AccordionTrigger>
+    <AccordionContent className="px-2 sm:px-3 pb-4">{children}</AccordionContent>
+  </AccordionItem>
+);
+
+
   amber: "bg-[hsl(35_92%_55%/0.12)] text-[hsl(28_70%_38%)]",
   violet: "bg-[hsl(258_45%_58%/0.12)] text-[hsl(258_38%_42%)]",
   green: "bg-[hsl(150_55%_45%/0.10)] text-[hsl(150_45%_28%)]",
