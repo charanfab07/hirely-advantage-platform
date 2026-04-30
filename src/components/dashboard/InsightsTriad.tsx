@@ -12,6 +12,8 @@ type Column = {
   items: Item[];
 };
 
+export type InsightsColumn = Column;
+
 const TONE: Record<Tone, { dot: string; chip: string; label: string }> = {
   green: {
     dot: "bg-[hsl(150_55%_45%)] shadow-[0_0_0_3px_hsl(150_55%_45%/0.16)]",
