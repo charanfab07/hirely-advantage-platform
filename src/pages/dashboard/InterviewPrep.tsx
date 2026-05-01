@@ -169,6 +169,7 @@ const InterviewPrep = () => {
         focus_area: q.focus_area,
         difficulty: q.difficulty,
       });
+      ent.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
     } finally {
