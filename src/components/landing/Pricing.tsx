@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Check, Sparkles, Rocket, Zap, Building2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Reveal } from "./Reveal";
 import { SectionHeader } from "./SectionHeader";
 import { cn } from "@/lib/utils";
 import type { AppPlan } from "@/lib/entitlements";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 type Plan = {
   id: string;
@@ -115,6 +119,37 @@ type PricingProps = {
 
 export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }: PricingProps) => {
   const [cadence, setCadence] = useState<(typeof cadences)[number]["id"]>("monthly");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handlePlanClick = async (planId: string) => {
+    if (planId === currentPlan) return;
+    if (planId === "teams") {
+      window.location.href = "mailto:sales@hirely.app?subject=Teams%20plan%20inquiry";
+      return;
+    }
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setBusyId(planId);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ plan: planId as AppPlan })
+      .eq("user_id", user.id);
+    setBusyId(null);
+    if (error) {
+      toast({ title: "Couldn't switch plan", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: planId === "free" ? "Switched to Free" : `You're now on ${planId[0].toUpperCase()}${planId.slice(1)}`,
+      description: "Your new limits are active immediately.",
+    });
+    navigate("/dashboard");
+  };
 
   const wrapperClass =
     variant === "landing"
@@ -235,7 +270,8 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
 
                   <button
                     type="button"
-                    disabled={plan.id === currentPlan}
+                    disabled={plan.id === currentPlan || busyId === plan.id}
+                    onClick={() => handlePlanClick(plan.id)}
                     className={cn(
                       "mt-auto w-full inline-flex items-center justify-center gap-2 rounded-full text-[13.5px] font-medium px-5 py-3 transition-all",
                       plan.id === currentPlan
@@ -243,10 +279,16 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
                         : plan.highlight
                           ? "bg-foreground text-background hover:opacity-90"
                           : "glass hover:bg-foreground hover:text-background",
+                      busyId === plan.id && "opacity-60 cursor-wait",
                     )}
                   >
-                    {plan.id === currentPlan ? "Current plan" : plan.cta}
+                    {plan.id === currentPlan
+                      ? "Current plan"
+                      : busyId === plan.id
+                        ? "Switching…"
+                        : plan.cta}
                   </button>
+
                 </div>
               </Reveal>
             );
