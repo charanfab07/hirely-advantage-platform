@@ -10,7 +10,7 @@ const steps = [
 
 export const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="px-4 py-10 md:py-12">
+    <section id="how-it-works" className="px-4 py-6 md:py-8">
       <div className="mx-auto max-w-6xl">
         <p className="text-center text-[11px] font-medium uppercase tracking-[0.22em] text-foreground/50 mb-8">
           How it works
