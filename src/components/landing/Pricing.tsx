@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Check, Sparkles, Rocket, Zap, Building2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Reveal } from "./Reveal";
 import { SectionHeader } from "./SectionHeader";
 import { cn } from "@/lib/utils";
 import type { AppPlan } from "@/lib/entitlements";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 type Plan = {
   id: string;
