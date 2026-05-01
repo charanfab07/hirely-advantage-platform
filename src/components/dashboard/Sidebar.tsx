@@ -1,11 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
 
 const suite = [
   { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
+  { to: "/app/compare", label: "Compare Resumes", icon: GitCompare },
   { to: "/app/cover-letter", label: "Cover Letter Generator", icon: Mail },
   { to: "/app/interview-prep", label: "Interview Prep", icon: Mic },
 ];
