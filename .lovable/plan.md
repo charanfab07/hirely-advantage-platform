@@ -1,69 +1,62 @@
-# Free Plan — Feature Audit
 
-This is a status report only — no code changes yet. Step 2 (enforcement) follows once you approve.
+# Pro plan — enforcement
 
-## Headline finding
+Free is done. Next up is **Pro**. The good news: limits and counters already exist (`PLAN_LIMITS.pro` in `src/lib/entitlements.ts`, monthly `usage_counters` rows, server-side checks in every edge function). What's missing is **Advanced-upsell UX** when a Pro user hits a Pro ceiling, plus a small audit to confirm nothing slips past.
 
-The app has **no plan system at all**. There's no `plan` column on `profiles`, no `usage` table, no quota checks in any edge function, and no gating in the UI. Every signed-in user today has the full feature set, regardless of which tier they "bought." That means most Free-plan limits below are currently **violated by default**.
-
-## Status per Free-plan bullet
+## Pro caps to enforce
 
 ```text
-Feature                              Status        Where it lives
------------------------------------  ------------  -------------------------------------
-1 resume upload                      VIOLATED      ResumeUploadCard.tsx — unlimited
-ATS score only (no breakdown)        VIOLATED      ResumeAnalyzer.tsx — full breakdown shown
-2 improvement suggestions            VIOLATED      QuickWins shows top 3; deep-dive shows all
-1 cover letter (watermarked)         VIOLATED      CoverLetterGenerator — unlimited, no watermark
-3 interview questions                PARTIAL       InterviewPrep generates batches; no hard cap
-No export                            VIOLATED      PDF / DOCX / TXT export buttons always visible
+Feature                   Cap            Already counted?   UI today
+------------------------  -------------  -----------------  ----------------------------
+Resume analyses           15 / month     yes (analyses)     no upsell when capped
+Cover letters             20 / month     yes                Free-only modal exists
+Mock interviews           5 / month      yes                no upsell when capped
+Interview questions       unlimited      n/a                —
+Resume uploads            unlimited      n/a                —
+Resume export             allowed        n/a                —
+ATS deep dive / tabs      allowed        n/a                —
 ```
 
-### Detail
+So the work is on **3 surfaces**: Resume Analyzer, Cover Letter Generator, Mock Interview / Interview Prep.
 
-- **1 resume upload** — `ResumeUploadCard` calls `supabase.from("resumes").insert(...)` with no count check. Users can upload as many resumes as they want.
-- **ATS score only (no breakdown)** — The Score tab in `ResumeAnalyzer` shows `ats_score`, `score_breakdown`, strengths, weaknesses, bullet rewrites, and the full Deep Dive accordion. Free should see only the headline ATS number.
-- **2 improvement suggestions** — `QuickWins` already slices to 3, and weaknesses/rewrites accordions render every item. Free should be capped at 2 quick wins and the rest should be locked behind an Upgrade prompt.
-- **1 cover letter (watermarked)** — `generate-cover-letter` and `CoverLetterGenerator` have no per-user counter and produce clean PDF/DOCX. No watermark logic exists. Free should be capped at 1 generated letter, and exports should be watermarked.
-- **3 interview questions** — `generate-interview-questions` takes a count from the client and has no plan-aware ceiling. The InterviewPrep page can request more. Free should hard-cap at 3 lifetime questions.
-- **No export** — `ResumeEditor` (PDF / DOCX / TXT), `CoverLetterGenerator` (PDF / DOCX / TXT), and the cover letter download buttons are always enabled. Free should hide or disable all export buttons.
+## Plan
 
-## What's missing in the backend
+### 1. Shared "Upgrade to Advanced" dialog
+Create `src/components/dashboard/UpgradeAdvancedDialog.tsx` — same visual language as the existing `UpgradePlansDialog` in `CoverLetterGenerator.tsx`, but:
+- Title/copy is dynamic per feature ("You've used your 15 monthly analyses", "You've used your 20 monthly cover letters", "You've used your 5 monthly mock interviews").
+- Highlights the **Advanced** plan (unlimited) and shows **Teams** as the larger option; **Pro** is shown as "current plan" with a muted tick.
+- "Continue on Pro next month" secondary action just closes the dialog.
 
-To actually enforce any of the above, we need:
+This replaces the bespoke dialog inside `CoverLetterGenerator` so both Free→Pro and Pro→Advanced paths share one component (props decide which plan is "current").
 
-1. **A plan source of truth.** New `plan` column on `profiles` (`free | pro | advanced | teams`), defaulting to `free`. Set in `handle_new_user()`.
-2. **Usage counters.** New `usage_counters` table keyed by `(user_id, period_start)` with monthly counts for `resume_uploads`, `analyses`, `cover_letters`, `mock_interviews`, `interview_questions`. RLS: user can read own, edge functions write via service role.
-3. **A `useEntitlements()` hook** on the client returning `{ plan, limits, usage, can(featureKey) }` so UI can disable buttons and show locks consistently.
-4. **Server-side checks in edge functions** (`analyze-resume`, `generate-cover-letter`, `generate-interview-questions`, `enhance-resume`, `tailor-resume`, `mock-interview`) that read the user's plan + counters and reject (HTTP 402) when over quota.
+### 2. Resume Analyzer (`src/pages/dashboard/ResumeAnalyzer.tsx`)
+- Before calling `analyze-resume`, check `can("analyses")`. Free is already gated; add the Pro-cap path: when `plan === "pro"` and remaining is 0, open `UpgradeAdvancedDialog` with the analyses copy instead of the generic toast.
+- Show a small inline meter near the "Analyze" button on Pro: `"Analyses this month: 12 / 15"` using `useEntitlements().usage` + `limit("analyses")`. Hidden for Free (already shows lock) and Advanced/Teams (unlimited).
 
-## Proposed enforcement plan for the Free tier (next step)
+### 3. Cover Letter Generator (`src/pages/dashboard/CoverLetterGenerator.tsx`)
+- Refactor existing modal to use the shared `UpgradeAdvancedDialog`.
+- Branch by plan: Free → highlight Pro; Pro → highlight Advanced. Same trigger point (`!canGenerate` on submit).
+- Add the same "X / 20 this month" meter for Pro users.
 
-If you approve, I will then:
+### 4. Mock Interview / Interview Prep (`src/pages/dashboard/InterviewPrep.tsx` + `MockInterviewPanel`)
+- Pro is capped at 5 mock interviews/month. Today the UI lets them start a session and only the edge function returns 402.
+- Add a pre-flight `can("mock_interviews")` check before starting a session. On block, open `UpgradeAdvancedDialog` (mock-interview copy). Free users (limit 0) see the same dialog highlighting Pro.
+- Add the "X / 5 this month" meter for Pro on the mock-interview start screen.
 
-1. **Schema**
-   - Add `plan` to `profiles` (default `free`).
-   - Create `usage_counters` table + RLS.
-   - Update `handle_new_user()` to seed the row.
-2. **Entitlements**
-   - Add `src/lib/entitlements.ts` with the per-plan limit map.
-   - Add `useEntitlements()` hook.
-3. **UI gating (Free tier)**
-   - `ResumeUploadCard`: block second upload, show "Upgrade for more uploads."
-   - `ResumeAnalyzer`: on Free, hide Enhanced / Compare / Issues / Tailored / History tabs and the Deep Dive sections; show only the ATS hero number + a locked "Unlock full breakdown" card. Cap Quick Wins at 2.
-   - `CoverLetterGenerator`: block second generation; stamp "Generated with Hirely Free" watermark on the preview and disable PDF/DOCX, leaving only a watermarked TXT or watermarked PDF.
-   - `InterviewPrep`: cap question generation at 3 total; disable further generation with an upgrade nudge.
-   - `ResumeEditor`: hide PDF / DOCX / TXT buttons on Free; show "Export available on Pro" pill.
-4. **Edge-function checks**
-   - In each function, read `profiles.plan` + relevant `usage_counters` row, reject with 402 if over quota, and increment the counter on success.
-5. **Upgrade affordances**
-   - Every locked surface routes to `/app/upgrade` (already built) with the matching plan pre-highlighted.
+### 5. Edge functions — confirm 402 handling
+The functions already enforce caps via `supabase/functions/_shared/entitlements.ts`. Audit the three Pro-capped flows (`analyze-resume`, `generate-cover-letter`, `mock-interview`) and make sure:
+- They return HTTP 402 with `{ code: "OVER_QUOTA", feature, plan }` when the user is over the Pro ceiling.
+- The client catches 402 and opens `UpgradeAdvancedDialog` — so even if the in-UI counter is stale (e.g. another tab), the upgrade prompt still appears instead of a generic error toast.
 
-## Out of scope for this step
+### 6. Pricing CTA wiring (small)
+On `/app/upgrade`, when the user's current plan is Pro, the **Pro** card swaps its CTA to "Current plan" (disabled), and **Advanced** becomes the highlighted card with the "Most Popular" badge. `Pricing.tsx` gets a `currentPlan?: AppPlan` prop to drive this.
 
-- Real billing / Paddle / Stripe wiring. We'll model the plan field manually for now (settable via SQL or admin), and wire payments separately when you're ready.
-- Pro / Advanced / Teams enforcement — we'll do those in follow-up passes the same way, one tier at a time, as you requested.
+## Out of scope (next passes)
+
+- Real billing wiring (Paddle/Stripe). Plan changes still happen via SQL/admin until you say go on payments.
+- Advanced and Teams enforcement (Advanced has unlimited on most things, but `cover_letters: 100` and Teams seat management still need work).
+- Yearly billing toggle actually changing prices on the server.
 
 ## Confirm to proceed
 
-Reply "go" (or with edits) and I'll implement the Free-tier enforcement above. We'll then move to Pro next.
+Reply "go" and I'll implement steps 1–6 above. Want me to also wire payments (Stripe or Paddle) in this same pass, or keep that separate?
