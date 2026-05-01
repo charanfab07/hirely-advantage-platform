@@ -396,11 +396,7 @@ const CoverLetterGenerator = () => {
       return;
     }
     if (!canGenerate) {
-      toast.error(
-        isFree
-          ? "Free plan includes 1 cover letter. Upgrade to Pro for more."
-          : "You've reached your monthly cover-letter limit. Upgrade for more.",
-      );
+      setShowUpgrade(true);
       return;
     }
     if (jd.trim().length < 40) {
