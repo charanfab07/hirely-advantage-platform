@@ -615,6 +615,33 @@ const CoverLetterGenerator = () => {
     writeBlock(doc.signOff || "Sincerely,");
     writeBlock(doc.senderName);
 
+    if (!cleanExports) {
+      // Diagonal watermark on every page
+      const totalPages = (pdf as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
+      for (let p = 1; p <= totalPages; p++) {
+        pdf.setPage(p);
+        const prevSize = pdf.getFontSize();
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(64);
+        // GState for opacity
+        const gs = (pdf as unknown as { GState: new (o: { opacity: number }) => unknown; setGState: (g: unknown) => void });
+        try { gs.setGState(new gs.GState({ opacity: 0.08 })); } catch (_e) { /* noop */ }
+        pdf.setTextColor(120, 120, 120);
+        pdf.text("HIRELY FREE", pageWidth / 2, pageHeight / 2, { align: "center", angle: -30 });
+        try { gs.setGState(new gs.GState({ opacity: 1 })); } catch (_e) { /* noop */ }
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(9);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(
+          "Generated with Hirely Free · upgrade to Pro to remove this watermark",
+          pageWidth / 2,
+          pageHeight - 36,
+          { align: "center" },
+        );
+        pdf.setFontSize(prevSize);
+      }
+    }
+
     pdf.save(`${fileBase()}.pdf`);
   };
 
