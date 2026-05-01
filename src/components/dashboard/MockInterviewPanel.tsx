@@ -402,6 +402,13 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
           </p>
         </SectionCard>
       </div>
+      <UpgradePlanDialog
+        open={showUpgrade}
+        onOpenChange={setShowUpgrade}
+        currentPlan={ent.plan}
+        feature="mock_interviews"
+      />
+      </>
     );
   }
 
