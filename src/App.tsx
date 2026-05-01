@@ -11,6 +11,7 @@ import ResumeAnalyzer from "./pages/dashboard/ResumeAnalyzer.tsx";
 import CoverLetterGenerator from "./pages/dashboard/CoverLetterGenerator.tsx";
 import InterviewPrep from "./pages/dashboard/InterviewPrep.tsx";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
+import Upgrade from "./pages/dashboard/Upgrade.tsx";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
                 />
               }
             />
+            <Route path="upgrade" element={<Upgrade />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
