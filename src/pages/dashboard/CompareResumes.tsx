@@ -75,7 +75,7 @@ const CompareResumes = () => {
       setLoading(true);
       const { data } = await supabase
         .from("resumes")
-        .select("id, file_name, created_at")
+        .select("id, file_name, file_path, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (cancelled) return;
@@ -134,7 +134,7 @@ const CompareResumes = () => {
           mime_type: extToMime(ext),
           raw_text: text,
         })
-        .select("id, file_name, created_at")
+        .select("id, file_name, file_path, created_at")
         .single();
       if (insErr) throw insErr;
       const newRow = inserted as ResumeRow;
