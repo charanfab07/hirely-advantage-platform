@@ -21,16 +21,7 @@ const Index = () => {
       <MeshGradient />
       <Navbar />
       <Hero />
-      <section className="px-4 -mt-8 md:-mt-16 pb-12 md:pb-16 relative z-10">
-        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-          <div className="lg:col-span-3">
-            <Stats embedded />
-          </div>
-          <div className="lg:col-span-2">
-            <ProofQuote embedded />
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
 
       <section id="features" className="pt-12">
         <SectionHeader
