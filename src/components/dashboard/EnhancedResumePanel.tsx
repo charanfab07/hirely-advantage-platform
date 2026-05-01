@@ -86,7 +86,7 @@ export const EnhancedResumePanel = ({
   const [generating, setGenerating] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
-  const [pages, setPages] = useState<1 | 2>(1);
+  const [pages, setPages] = useState<1 | 2 | 3>(1);
 
   // Load latest enhancement for this resume
   useEffect(() => {
@@ -253,8 +253,10 @@ export const EnhancedResumePanel = ({
               How long should it be?
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {([1, 2] as const).map((n) => {
+              {([1, 2, 3] as const).map((n) => {
                 const active = pages === n;
+                const label =
+                  n === 1 ? "1 page · concise" : n === 2 ? "2 pages · in-depth" : "3 pages · comprehensive";
                 return (
                   <button
                     key={n}
@@ -267,7 +269,7 @@ export const EnhancedResumePanel = ({
                         : "bg-white/5 text-white/85 border-white/15 hover:bg-white/10",
                     )}
                   >
-                    {n === 1 ? "1 page · concise" : "2 pages · in-depth"}
+                    {label}
                   </button>
                 );
               })}
@@ -304,7 +306,16 @@ export const EnhancedResumePanel = ({
     );
   }
 
-  return <EnhancedResumeView enhancement={enhancement} className={className} />;
+  return (
+    <EnhancedResumeView
+      enhancement={enhancement}
+      className={className}
+      pages={pages}
+      onPagesChange={setPages}
+      onRegenerate={() => handleGenerate()}
+      regenerating={generating}
+    />
+  );
 };
 
 // Adapter: Enhancement (DB shape) → EditableResume (editor shape)
@@ -344,9 +355,17 @@ const toEditable = (e: Enhancement): EditableResume => ({
 const EnhancedResumeView = ({
   enhancement,
   className,
+  pages,
+  onPagesChange,
+  onRegenerate,
+  regenerating,
 }: {
   enhancement: Enhancement;
   className?: string;
+  pages: 1 | 2 | 3;
+  onPagesChange: (n: 1 | 2 | 3) => void;
+  onRegenerate: () => void;
+  regenerating: boolean;
 }) => {
   const [editing, setEditing] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -380,16 +399,44 @@ const EnhancedResumeView = ({
     <div className={cn("space-y-4", className)}>
       <SectionCard className="!p-0 overflow-hidden">
         {/* Toolbar */}
-        <div className="px-5 sm:px-6 pt-3 pb-2 flex items-center justify-between gap-3">
+        <div className="px-5 sm:px-6 pt-3 pb-2 flex items-center justify-between gap-3 flex-wrap">
           <div className="min-w-0">
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
               Enhanced resume
             </p>
             <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
-              Tap edit to refine any section, or open full screen for a focused view.
+              Tap edit to refine, change length to regenerate, or open full screen.
             </p>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+            {/* Page-length selector */}
+            <div className="inline-flex items-center rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] p-0.5">
+              {([1, 2, 3] as const).map((n) => (
+                <button
+                  key={n}
+                  onClick={() => onPagesChange(n)}
+                  disabled={regenerating}
+                  className={cn(
+                    "px-2.5 py-1 text-[11.5px] font-medium tracking-tight rounded-md transition-colors",
+                    pages === n
+                      ? "bg-foreground text-background"
+                      : "text-foreground/65 hover:text-foreground",
+                  )}
+                  title={`${n} page${n > 1 ? "s" : ""}`}
+                >
+                  {n}p
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={onRegenerate}
+              disabled={regenerating}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors disabled:opacity-50"
+              title="Regenerate at the selected length"
+            >
+              <RefreshCw className={cn("w-3.5 h-3.5", regenerating && "animate-spin")} />
+              {regenerating ? "Rewriting…" : "Regenerate"}
+            </button>
             <button
               onClick={() => setEditing(true)}
               className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"

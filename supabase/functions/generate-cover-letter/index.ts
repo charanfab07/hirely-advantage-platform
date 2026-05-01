@@ -292,7 +292,7 @@ Deno.serve(async (req) => {
       return json({ error: "company and role are required" }, 400);
     }
     const safeTone = ALLOWED_TONES.has(tone) ? tone : "confident";
-    const ALLOWED_LENGTHS = new Set(["short", "medium", "detailed", "one_page", "two_page"]);
+    const ALLOWED_LENGTHS = new Set(["short", "medium", "detailed", "one_page", "two_page", "three_page"]);
     const ALLOWED_LEVELS = new Set(["fresher", "intern", "junior", "experienced"]);
     const ALLOWED_STYLES = new Set(["modern", "formal", "startup", "corporate"]);
     const ALLOWED_RELOC = new Set(["remote", "hybrid", "onsite", "relocate"]);
@@ -312,6 +312,7 @@ Deno.serve(async (req) => {
       detailed: "300–360 words",
       one_page: "300–370 words (must fit on a SINGLE printed page — never overflow)",
       two_page: "640–780 words (must fill ~TWO printed pages — write 6–8 substantive paragraphs)",
+      three_page: "980–1150 words (must fill ~THREE printed pages — write 9–11 substantive paragraphs with deep specifics)",
     };
 
     // Pull resume text if provided & owned by user
