@@ -328,11 +328,14 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
+        temperature: 0,
+        top_p: 0.1,
+        seed: 7,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           {
             role: "user",
-            content: `Analyze this resume and call analyze_resume.\n\n${targetLine}\n\n--- RESUME TEXT ---\n${truncated}`,
+            content: `Analyze this resume and call analyze_resume. Apply the deterministic scoring rubric exactly — same input must yield same scores.\n\n${targetLine}\n\n--- RESUME TEXT ---\n${truncated}`,
           },
         ],
         tools: [TOOL_SCHEMA],
