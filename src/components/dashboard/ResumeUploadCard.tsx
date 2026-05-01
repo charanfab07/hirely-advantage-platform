@@ -123,6 +123,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
 
       toast.success("Resume analyzed.");
       onAnalyzed(analysisId);
+      ent.refresh();
       reset();
     } catch (e) {
       console.error(e);
