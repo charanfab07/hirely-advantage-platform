@@ -291,6 +291,13 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
           if (f) handleFile(f);
         }}
       />
+
+      <UpgradePlanDialog
+        open={showUpgrade}
+        onOpenChange={setShowUpgrade}
+        currentPlan={ent.plan}
+        feature={upgradeFeature}
+      />
     </SectionCard>
   );
 };
