@@ -206,10 +206,10 @@ const CompareResumes = () => {
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-              Step 1 — Pick two resumes
+              Pick two resumes
             </p>
             <p className="mt-1 text-[13.5px] text-foreground/65 tracking-tight">
-              Choose any two resumes you've uploaded. Need another version? Upload it on the right.
+              Tap one resume on the left, one on the right. That's it.
             </p>
           </div>
           <UploadButton onFile={handleUpload} />
@@ -248,7 +248,7 @@ const CompareResumes = () => {
 
         <div>
           <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-            Target role <span className="lowercase tracking-tight text-foreground/40">(optional, but improves accuracy)</span>
+            Job you're applying for <span className="lowercase tracking-tight text-foreground/40">(optional)</span>
           </label>
           <input
             type="text"
@@ -274,12 +274,12 @@ const CompareResumes = () => {
             ) : (
               <>
                 <GitCompare className="w-3.5 h-3.5" />
-                Compare resumes
+                Compare
               </>
             )}
           </button>
           <span className="text-[11.5px] text-foreground/50 tracking-tight">
-            ~12 seconds. The AI scores both and tells you who's more likely to get interviewed.
+            Takes about 12 seconds.
           </span>
         </div>
       </SectionCard>
@@ -295,12 +295,25 @@ const Header = () => (
       Compare resumes
     </p>
     <h1 className="mt-1.5 text-[26px] sm:text-[30px] leading-[1.1] font-semibold tracking-[-0.025em]">
-      Two resumes enter. The stronger one wins.
+      Which resume is better?
     </h1>
     <p className="mt-1.5 text-[13.5px] text-foreground/60 tracking-tight max-w-[640px]">
-      Pick any two of your resumes. Our AI scores both for ATS, impact, and role fit — then tells
-      you which one has a higher chance of getting you interviewed and exactly why.
+      Pick 2 resumes. We'll tell you which one is more likely to get you the interview.
     </p>
+    <ol className="mt-4 flex flex-wrap gap-2 text-[12px] text-foreground/70">
+      <li className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.04] border border-foreground/[0.08]">
+        <span className="w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold inline-flex items-center justify-center">1</span>
+        Pick Resume A
+      </li>
+      <li className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.04] border border-foreground/[0.08]">
+        <span className="w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold inline-flex items-center justify-center">2</span>
+        Pick Resume B
+      </li>
+      <li className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.04] border border-foreground/[0.08]">
+        <span className="w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold inline-flex items-center justify-center">3</span>
+        Click Compare
+      </li>
+    </ol>
   </div>
 );
 
