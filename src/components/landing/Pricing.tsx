@@ -304,11 +304,11 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
 
                   <button
                     type="button"
-                    disabled={plan.id === currentPlan || busyId === plan.id}
+                    disabled={plan.id === effectiveCurrent || busyId === plan.id}
                     onClick={() => handlePlanClick(plan.id)}
                     className={cn(
                       "mt-auto w-full inline-flex items-center justify-center gap-2 rounded-full text-[13.5px] font-medium px-5 py-3 transition-all",
-                      plan.id === currentPlan
+                      plan.id === effectiveCurrent
                         ? "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed"
                         : plan.highlight
                           ? "bg-foreground text-background hover:opacity-90"
@@ -316,12 +316,13 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
                       busyId === plan.id && "opacity-60 cursor-wait",
                     )}
                   >
-                    {plan.id === currentPlan
+                    {plan.id === effectiveCurrent
                       ? "Current plan"
                       : busyId === plan.id
                         ? "Switching…"
                         : plan.cta}
                   </button>
+
 
                 </div>
               </Reveal>
