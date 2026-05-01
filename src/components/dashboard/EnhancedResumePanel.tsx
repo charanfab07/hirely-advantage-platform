@@ -306,7 +306,16 @@ export const EnhancedResumePanel = ({
     );
   }
 
-  return <EnhancedResumeView enhancement={enhancement} className={className} />;
+  return (
+    <EnhancedResumeView
+      enhancement={enhancement}
+      className={className}
+      pages={pages}
+      onPagesChange={setPages}
+      onRegenerate={() => handleGenerate()}
+      regenerating={generating}
+    />
+  );
 };
 
 // Adapter: Enhancement (DB shape) → EditableResume (editor shape)
@@ -346,9 +355,17 @@ const toEditable = (e: Enhancement): EditableResume => ({
 const EnhancedResumeView = ({
   enhancement,
   className,
+  pages,
+  onPagesChange,
+  onRegenerate,
+  regenerating,
 }: {
   enhancement: Enhancement;
   className?: string;
+  pages: 1 | 2 | 3;
+  onPagesChange: (n: 1 | 2 | 3) => void;
+  onRegenerate: () => void;
+  regenerating: boolean;
 }) => {
   const [editing, setEditing] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
