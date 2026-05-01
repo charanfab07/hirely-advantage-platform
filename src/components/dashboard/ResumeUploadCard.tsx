@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PLAN_LABEL } from "@/lib/entitlements";
+import { UpgradePlanDialog } from "./UpgradePlanDialog";
 
 type Stage = "idle" | "extracting" | "uploading" | "analyzing";
 
@@ -29,10 +30,13 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [targetRole, setTargetRole] = useState("");
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<"resume_uploads" | "analyses">("analyses");
   const ent = useEntitlements();
   const uploadAllowed = ent.can("resume_uploads");
   const analysisAllowed = ent.can("analyses");
   const blocked = !ent.loading && (!uploadAllowed || !analysisAllowed);
+  const analysisLimit = ent.limit("analyses");
 
   const stageLabel: Record<Stage, string> = {
     idle: "",
@@ -49,7 +53,8 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
 
   const handleFile = async (file: File) => {
     if (blocked) {
-      toast.error(`Your ${PLAN_LABEL[ent.plan]} plan limit is reached. Upgrade for more uploads.`);
+      setUpgradeFeature(!analysisAllowed ? "analyses" : "resume_uploads");
+      setShowUpgrade(true);
       return;
     }
     try {
@@ -110,6 +115,16 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
           },
         },
       );
+      const quotaCode =
+        (fnData as { code?: string } | null)?.code ||
+        (fnErr as { context?: { code?: string } } | null)?.context?.code;
+      if (quotaCode === "OVER_QUOTA") {
+        setUpgradeFeature("analyses");
+        setShowUpgrade(true);
+        ent.refresh();
+        reset();
+        return;
+      }
       if (fnErr) {
         // Try to extract a useful error message
         const msg =
@@ -257,6 +272,15 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
         />
       </div>
 
+      {ent.plan === "pro" && typeof analysisLimit === "number" && (
+        <div className="border-t border-foreground/[0.06] px-6 sm:px-7 py-2 flex items-center justify-between text-[11.5px] tracking-tight text-foreground/60">
+          <span>Analyses this month</span>
+          <span className="font-medium text-foreground/85">
+            {ent.usage.analyses} / {analysisLimit}
+          </span>
+        </div>
+      )}
+
       <input
         ref={inputRef}
         type="file"
@@ -266,6 +290,13 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
           const f = e.target.files?.[0];
           if (f) handleFile(f);
         }}
+      />
+
+      <UpgradePlanDialog
+        open={showUpgrade}
+        onOpenChange={setShowUpgrade}
+        currentPlan={ent.plan}
+        feature={upgradeFeature}
       />
     </SectionCard>
   );

@@ -289,7 +289,7 @@ Deno.serve(async (req) => {
     }
 
     const gate = await checkEntitlement(userId, "analyses");
-    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "analyses" }, gate.status);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);

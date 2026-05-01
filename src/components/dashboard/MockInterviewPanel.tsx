@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 
 type Difficulty = "easy" | "medium" | "hard" | "stress";
 type Focus = "behavioral" | "technical" | "case" | "mixed";
@@ -62,6 +64,9 @@ const FOCUSES: { value: Focus; label: string }[] = [
 const DURATIONS = [5, 10, 15, 20, 30] as const;
 
 export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) => {
+  const ent = useEntitlements();
+  const mockLimit = ent.limit("mock_interviews");
+  const [showUpgrade, setShowUpgrade] = useState(false);
   // Setup state
   const [targetRole, setTargetRole] = useState("");
   const [focus, setFocus] = useState<Focus>("behavioral");
@@ -110,6 +115,10 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
       toast.error("Add the role you're practicing for.");
       return;
     }
+    if (!ent.can("mock_interviews")) {
+      setShowUpgrade(true);
+      return;
+    }
     setStarting(true);
     try {
       const { data, error } = await supabase.functions.invoke("mock-interview", {
@@ -122,6 +131,14 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
           resume_id: resumeId ?? undefined,
         },
       });
+      const quotaCode =
+        (data as { code?: string } | null)?.code ||
+        (error as { context?: { code?: string } } | null)?.context?.code;
+      if (quotaCode === "OVER_QUOTA") {
+        setShowUpgrade(true);
+        ent.refresh();
+        return;
+      }
       if (error) throw new Error(error.message || "Failed to start");
       if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
       const s = (data as { session: Session }).session;
@@ -129,6 +146,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
       setSession(s);
       setTurns([t]);
       setAnswer("");
+      ent.refresh();
       toast.success("Interview started. Take a breath.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -217,6 +235,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
   // ---------------- SETUP SCREEN ----------------
   if (!session) {
     return (
+      <>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <SectionCard className="lg:col-span-7 p-0 overflow-hidden">
           <div className="px-5 sm:px-6 pt-5 pb-4">
@@ -327,7 +346,17 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
             </div>
           </div>
 
-          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex items-center justify-end">
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex items-center justify-between gap-3">
+            {ent.plan === "pro" && typeof mockLimit === "number" ? (
+              <span className="text-[11.5px] tracking-tight text-foreground/60">
+                Mock interviews this month{" "}
+                <span className="font-medium text-foreground/85">
+                  {ent.usage.mock_interviews} / {mockLimit}
+                </span>
+              </span>
+            ) : (
+              <span />
+            )}
             <button
               type="button"
               onClick={start}
@@ -373,6 +402,13 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
           </p>
         </SectionCard>
       </div>
+      <UpgradePlanDialog
+        open={showUpgrade}
+        onOpenChange={setShowUpgrade}
+        currentPlan={ent.plan}
+        feature="mock_interviews"
+      />
+      </>
     );
   }
 

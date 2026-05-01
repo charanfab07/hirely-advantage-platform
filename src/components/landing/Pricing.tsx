@@ -3,6 +3,7 @@ import { Check, Sparkles, Rocket, Zap, Building2 } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { SectionHeader } from "./SectionHeader";
 import { cn } from "@/lib/utils";
+import type { AppPlan } from "@/lib/entitlements";
 
 type Plan = {
   id: string;
@@ -108,9 +109,11 @@ const cadences = [
 type PricingProps = {
   variant?: "landing" | "dashboard";
   showHeader?: boolean;
+  /** When set, marks this plan as "Current" and disables its CTA */
+  currentPlan?: AppPlan;
 };
 
-export const Pricing = ({ variant = "landing", showHeader = true }: PricingProps) => {
+export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }: PricingProps) => {
   const [cadence, setCadence] = useState<(typeof cadences)[number]["id"]>("monthly");
 
   const wrapperClass =
@@ -232,14 +235,17 @@ export const Pricing = ({ variant = "landing", showHeader = true }: PricingProps
 
                   <button
                     type="button"
+                    disabled={plan.id === currentPlan}
                     className={cn(
                       "mt-auto w-full inline-flex items-center justify-center gap-2 rounded-full text-[13.5px] font-medium px-5 py-3 transition-all",
-                      plan.highlight
-                        ? "bg-foreground text-background hover:opacity-90"
+                      plan.id === currentPlan
+                        ? "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed"
+                        : plan.highlight
+                          ? "bg-foreground text-background hover:opacity-90"
                           : "glass hover:bg-foreground hover:text-background",
                     )}
                   >
-                    {plan.cta}
+                    {plan.id === currentPlan ? "Current plan" : plan.cta}
                   </button>
                 </div>
               </Reveal>
