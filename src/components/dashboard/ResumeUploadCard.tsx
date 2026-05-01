@@ -30,10 +30,13 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [targetRole, setTargetRole] = useState("");
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeFeature, setUpgradeFeature] = useState<"resume_uploads" | "analyses">("analyses");
   const ent = useEntitlements();
   const uploadAllowed = ent.can("resume_uploads");
   const analysisAllowed = ent.can("analyses");
   const blocked = !ent.loading && (!uploadAllowed || !analysisAllowed);
+  const analysisLimit = ent.limit("analyses");
 
   const stageLabel: Record<Stage, string> = {
     idle: "",
