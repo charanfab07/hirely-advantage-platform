@@ -1,7 +1,6 @@
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { Stats } from "@/components/landing/Stats";
 import { SectionHeader } from "@/components/landing/SectionHeader";
 import { FeatureBlock } from "@/components/landing/FeatureBlock";
 import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landing/FeatureVisuals";
@@ -11,7 +10,6 @@ import { Testimonials } from "@/components/landing/Testimonials";
 import { ResumeCompare } from "@/components/landing/ResumeCompare";
 import { ProductShowcase } from "@/components/landing/ProductShowcase";
 import { HiredWall } from "@/components/landing/HiredWall";
-import { ProofQuote } from "@/components/landing/ProofQuote";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 
@@ -21,16 +19,7 @@ const Index = () => {
       <MeshGradient />
       <Navbar />
       <Hero />
-      <section className="px-4 -mt-8 md:-mt-16 pb-12 md:pb-16 relative z-10">
-        <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-5 gap-6 items-stretch">
-          <div className="lg:col-span-3">
-            <Stats embedded />
-          </div>
-          <div className="lg:col-span-2">
-            <ProofQuote embedded />
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
 
       <section id="features" className="pt-12">
         <SectionHeader
@@ -81,7 +70,6 @@ const Index = () => {
       </section>
 
       <ResumeCompare />
-      <HowItWorks />
       <ProductShowcase />
       <Testimonials />
       <HiredWall />
