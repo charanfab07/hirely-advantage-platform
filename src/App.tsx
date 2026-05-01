@@ -8,6 +8,7 @@ import Auth from "./pages/Auth.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import DashboardLayout from "./pages/dashboard/DashboardLayout.tsx";
 import ResumeAnalyzer from "./pages/dashboard/ResumeAnalyzer.tsx";
+import CompareResumes from "./pages/dashboard/CompareResumes.tsx";
 import CoverLetterGenerator from "./pages/dashboard/CoverLetterGenerator.tsx";
 import InterviewPrep from "./pages/dashboard/InterviewPrep.tsx";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/app" element={<DashboardLayout />}>
             <Route index element={<Navigate to="/app/resume" replace />} />
             <Route path="resume" element={<ResumeAnalyzer />} />
+            <Route path="compare" element={<CompareResumes />} />
             <Route path="cover-letter" element={<CoverLetterGenerator />} />
             <Route path="interview-prep" element={<InterviewPrep />} />
             <Route
