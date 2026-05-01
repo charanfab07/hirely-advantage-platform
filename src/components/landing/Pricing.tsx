@@ -190,10 +190,10 @@ export const Pricing = ({ variant = "landing", showHeader = true }: PricingProps
                     <span
                       className={cn(
                         "w-9 h-9 rounded-xl flex items-center justify-center",
-                        dark ? "bg-white/10" : "bg-foreground/5",
+                        dark ? "bg-foreground/10" : "bg-foreground/5",
                       )}
                     >
-                      <Icon className={cn("w-4 h-4", dark ? "text-white" : "text-foreground/70")} />
+                      <Icon className="w-4 h-4 text-foreground/75" />
                     </span>
                     <h3 className="font-display text-[19px] font-semibold tracking-tight">
                       {plan.name}
@@ -205,47 +205,27 @@ export const Pricing = ({ variant = "landing", showHeader = true }: PricingProps
                       {displayPrice}
                     </span>
                     {plan.cadence && (
-                      <span className={cn("text-sm", dark ? "text-white/60" : "text-foreground/50")}>
+                      <span className="text-sm text-foreground/50">
                         {cadence === "yearly" ? "/mo · billed yearly" : plan.cadence}
                       </span>
                     )}
                   </div>
                   {plan.was && (
-                    <p
-                      className={cn(
-                        "mt-1 text-[12px] italic",
-                        dark ? "text-white/55" : "text-foreground/45",
-                      )}
-                    >
+                    <p className="mt-1 text-[12px] italic text-foreground/45">
                       {plan.was}
                     </p>
                   )}
-                  <p
-                    className={cn(
-                      "mt-3 text-[13.5px] leading-relaxed",
-                      dark ? "text-white/70" : "text-foreground/60",
-                    )}
-                  >
+                  <p className="mt-3 text-[13.5px] leading-relaxed text-foreground/65">
                     {plan.tagline}
                   </p>
 
-                  <div
-                    className={cn(
-                      "my-5 h-px w-full",
-                      dark ? "bg-white/10" : "bg-foreground/10",
-                    )}
-                  />
+                  <div className="my-5 h-px w-full bg-foreground/10" />
 
                   <ul className="flex flex-col gap-2.5 mb-7">
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-start gap-2.5 text-[13.5px] leading-snug">
-                        <Check
-                          className={cn(
-                            "w-4 h-4 mt-0.5 shrink-0",
-                            dark ? "text-white/85" : "text-foreground/75",
-                          )}
-                        />
-                        <span className={dark ? "text-white/85" : "text-foreground/75"}>{f}</span>
+                        <Check className="w-4 h-4 mt-0.5 shrink-0 text-foreground/75" />
+                        <span className="text-foreground/80">{f}</span>
                       </li>
                     ))}
                   </ul>
@@ -254,10 +234,8 @@ export const Pricing = ({ variant = "landing", showHeader = true }: PricingProps
                     type="button"
                     className={cn(
                       "mt-auto w-full inline-flex items-center justify-center gap-2 rounded-full text-[13.5px] font-medium px-5 py-3 transition-all",
-                      dark
-                        ? "bg-white text-foreground hover:opacity-90"
-                        : plan.highlight
-                          ? "bg-foreground text-background hover:opacity-90"
+                      plan.highlight
+                        ? "bg-foreground text-background hover:opacity-90"
                           : "glass hover:bg-foreground hover:text-background",
                     )}
                   >
