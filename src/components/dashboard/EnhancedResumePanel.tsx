@@ -129,7 +129,7 @@ export const EnhancedResumePanel = ({
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("enhance-resume", {
-        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role, target_pages: pages },
+        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role },
       });
       if (error) {
         const msg = (error as any)?.message ?? "Failed to generate";
