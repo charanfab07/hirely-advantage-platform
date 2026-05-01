@@ -224,23 +224,41 @@ export const ResumeEditor = ({
           <button
             type="button"
             onClick={handleDownloadPdf}
-            className="px-3 py-1.5 rounded-full bg-foreground text-background text-[12px] font-medium tracking-tight flex items-center gap-1.5 hover:bg-foreground/90 transition-colors"
+            title={canExport ? "Download PDF" : "Resume exports are a Pro feature"}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors",
+              canExport
+                ? "bg-foreground text-background hover:bg-foreground/90"
+                : "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed",
+            )}
           >
-            <Download className="w-3.5 h-3.5" /> PDF
+            {canExport ? <Download className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} PDF
           </button>
           <button
             type="button"
             onClick={handleDownloadDocx}
-            className="px-3 py-1.5 rounded-full bg-foreground/[0.06] hover:bg-foreground/[0.1] text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors"
+            title={canExport ? "Download DOCX" : "Resume exports are a Pro feature"}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors",
+              canExport
+                ? "bg-foreground/[0.06] hover:bg-foreground/[0.1] text-foreground"
+                : "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed",
+            )}
           >
-            <FileType className="w-3.5 h-3.5" /> DOCX
+            {canExport ? <FileType className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} DOCX
           </button>
           <button
             type="button"
             onClick={handleDownloadTxt}
-            className="px-3 py-1.5 rounded-full bg-foreground/[0.06] hover:bg-foreground/[0.1] text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors"
+            title={canExport ? "Download ATS plain text" : "Resume exports are a Pro feature"}
+            className={cn(
+              "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors",
+              canExport
+                ? "bg-foreground/[0.06] hover:bg-foreground/[0.1] text-foreground"
+                : "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed",
+            )}
           >
-            <FileText className="w-3.5 h-3.5" /> ATS .txt
+            {canExport ? <FileText className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} ATS .txt
           </button>
           {onClose && (
             <button
