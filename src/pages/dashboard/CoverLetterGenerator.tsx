@@ -846,6 +846,14 @@ const CoverLetterGenerator = () => {
               </div>
             </div>
 
+            {ent.plan === "pro" && (
+              <div className="flex items-center justify-between gap-2 rounded-lg bg-foreground/[0.03] border border-foreground/[0.06] px-3 py-1.5 text-[11.5px] tracking-tight text-foreground/65">
+                <span>Cover letters this month</span>
+                <span className="font-medium text-foreground/85">
+                  {ent.usage.cover_letters} / 20
+                </span>
+              </div>
+            )}
             <div className="flex items-center gap-2 pt-1 pb-1">
               <button
                 onClick={generate}
