@@ -235,6 +235,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
   // ---------------- SETUP SCREEN ----------------
   if (!session) {
     return (
+      <>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
         <SectionCard className="lg:col-span-7 p-0 overflow-hidden">
           <div className="px-5 sm:px-6 pt-5 pb-4">
