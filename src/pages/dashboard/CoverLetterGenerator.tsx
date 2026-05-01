@@ -318,6 +318,7 @@ const CoverLetterGenerator = () => {
   const canGenerate = ent.can("cover_letters");
   const [jd, setJd] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
+  const [pages, setPages] = useState<1 | 2>(1);
   const [generating, setGenerating] = useState(false);
   const [hasLetter, setHasLetter] = useState(false);
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
@@ -438,6 +439,7 @@ const CoverLetterGenerator = () => {
           company: (doc.companyName.trim() || jdParsed.company || "the company"),
           role: "this role",
           tone,
+          length: pages === 2 ? "two_page" : "one_page",
           job_description: jd.trim(),
           hiring_manager: (doc.hiringManager.trim() || jdParsed.hiringManager || undefined),
           resume_id: resumeId ?? undefined,
