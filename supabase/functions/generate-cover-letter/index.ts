@@ -261,6 +261,9 @@ Deno.serve(async (req) => {
     if (userErr || !userData.user) return json({ error: "Unauthorized" }, 401);
     const userId = userData.user.id;
 
+    const gate = await checkEntitlement(userId, "cover_letters");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+
     const body = await req.json();
     const {
       company,
