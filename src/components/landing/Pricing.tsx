@@ -109,9 +109,11 @@ const cadences = [
 type PricingProps = {
   variant?: "landing" | "dashboard";
   showHeader?: boolean;
+  /** When set, marks this plan as "Current" and disables its CTA */
+  currentPlan?: AppPlan;
 };
 
-export const Pricing = ({ variant = "landing", showHeader = true }: PricingProps) => {
+export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }: PricingProps) => {
   const [cadence, setCadence] = useState<(typeof cadences)[number]["id"]>("monthly");
 
   const wrapperClass =
