@@ -517,7 +517,13 @@ const ResumeAnalyzer = () => {
 
       {/* COMPARE TAB — latest vs previous, side by side */}
       {tab === "compare" && latest && (
-        analyses.length < 2 ? (
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Compare versions side by side"
+            description="See every score axis, skill, and issue that moved between resume versions, with improvements highlighted in green. Available on Pro."
+          />
+        ) : analyses.length < 2 ? (
           <SectionCard className="mt-5">
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
               One version on file
@@ -663,6 +669,13 @@ const ResumeAnalyzer = () => {
 
       {/* ISSUES TAB */}
       {tab === "issues" && latest && (
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="See every issue blocking your interviews"
+            description="Missing sections, ATS problems, formatting traps, grammar slips, and weak bullets — all surfaced with concrete fixes. Available on Pro."
+          />
+        ) : (
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
           <IssueList
             label="Missing sections"
@@ -704,30 +717,55 @@ const ResumeAnalyzer = () => {
             </ul>
           </SectionCard>
         </div>
+        )
       )}
 
       {/* ENHANCED TAB */}
       {tab === "enhanced" && (
-        <EnhancedResumePanel
-          className="mt-5"
-          resumeId={latest?.resume_id ?? null}
-          analysisId={latest?.id ?? null}
-        />
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Generate your perfect, recruiter-ready resume"
+            description="One-click rewrite that fixes every issue from the analysis — sharpened bullets, quantified impact, ATS-friendly layout. Available on Pro."
+          />
+        ) : (
+          <EnhancedResumePanel
+            className="mt-5"
+            resumeId={latest?.resume_id ?? null}
+            analysisId={latest?.id ?? null}
+          />
+        )
       )}
 
       {/* TAILORED TAB */}
       {tab === "tailored" && (
-        <TailoredEditsPanel
-          className="mt-5"
-          resumeId={latest?.resume_id ?? null}
-          analysisId={latest?.id ?? null}
-          defaultTargetRole={latest?.target_role ?? undefined}
-        />
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Tailor your resume to any role"
+            description="Inject role-specific keywords, rewrite bullets for the target job description, and lift your match score. Available on Pro."
+          />
+        ) : (
+          <TailoredEditsPanel
+            className="mt-5"
+            resumeId={latest?.resume_id ?? null}
+            analysisId={latest?.id ?? null}
+            defaultTargetRole={latest?.target_role ?? undefined}
+          />
+        )
       )}
 
       {/* HISTORY TAB */}
       {tab === "versions" && (
-        <TransformationPanel className="mt-5" versions={analyses} />
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Track every version of your resume"
+            description="See your full progression over time — each upload, each score change, each improvement. Available on Pro."
+          />
+        ) : (
+          <TransformationPanel className="mt-5" versions={analyses} />
+        )
       )}
 
       {/* Footer rail — anchors the page so it never ends in raw whitespace */}
