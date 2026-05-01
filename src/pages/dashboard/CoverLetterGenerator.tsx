@@ -512,6 +512,10 @@ const CoverLetterGenerator = () => {
     const signOff = [doc.signOff.trim() || "Sincerely,", doc.senderName].filter(Boolean).join("\n\n");
     if (signOff) parts.push(signOff);
 
+    if (!cleanExports) {
+      parts.push("— — —\nGenerated with Hirely Free · hirely.app\nUpgrade to Pro to remove this watermark.");
+    }
+
     return parts.join("\n\n");
   };
 
