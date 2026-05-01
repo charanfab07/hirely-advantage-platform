@@ -119,6 +119,37 @@ type PricingProps = {
 
 export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }: PricingProps) => {
   const [cadence, setCadence] = useState<(typeof cadences)[number]["id"]>("monthly");
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handlePlanClick = async (planId: string) => {
+    if (planId === currentPlan) return;
+    if (planId === "teams") {
+      window.location.href = "mailto:sales@hirely.app?subject=Teams%20plan%20inquiry";
+      return;
+    }
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    setBusyId(planId);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ plan: planId as AppPlan })
+      .eq("user_id", user.id);
+    setBusyId(null);
+    if (error) {
+      toast({ title: "Couldn't switch plan", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({
+      title: planId === "free" ? "Switched to Free" : `You're now on ${planId[0].toUpperCase()}${planId.slice(1)}`,
+      description: "Your new limits are active immediately.",
+    });
+    navigate("/dashboard");
+  };
 
   const wrapperClass =
     variant === "landing"
