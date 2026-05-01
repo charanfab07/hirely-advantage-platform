@@ -120,18 +120,50 @@ type PricingProps = {
 export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }: PricingProps) => {
   const [cadence, setCadence] = useState<(typeof cadences)[number]["id"]>("monthly");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [livePlan, setLivePlan] = useState<AppPlan | undefined>(currentPlan);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // On the landing page we don't get currentPlan from props — fetch it for signed-in users.
+  useEffect(() => {
+    if (currentPlan) {
+      setLivePlan(currentPlan);
+      return;
+    }
+    if (!user) {
+      setLivePlan(undefined);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from("profiles")
+      .select("plan")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setLivePlan(((data?.plan as AppPlan) ?? "free"));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, currentPlan]);
+
+  const effectiveCurrent = livePlan;
+
   const handlePlanClick = async (planId: string) => {
-    if (planId === currentPlan) return;
+    if (planId === effectiveCurrent) return;
     if (planId === "teams") {
       window.location.href = "mailto:sales@hirely.app?subject=Teams%20plan%20inquiry";
       return;
     }
     if (!user) {
-      navigate("/auth");
+      try {
+        localStorage.setItem("pending_plan", planId);
+      } catch {
+        /* ignore */
+      }
+      navigate("/auth?mode=signup");
       return;
     }
     setBusyId(planId);
@@ -144,12 +176,14 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
       toast({ title: "Couldn't switch plan", description: error.message, variant: "destructive" });
       return;
     }
+    setLivePlan(planId as AppPlan);
     toast({
       title: planId === "free" ? "Switched to Free" : `You're now on ${planId[0].toUpperCase()}${planId.slice(1)}`,
       description: "Your new limits are active immediately.",
     });
-    navigate("/dashboard");
+    navigate("/app/resume");
   };
+
 
   const wrapperClass =
     variant === "landing"
