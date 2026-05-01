@@ -33,7 +33,28 @@ In 'weaknesses', the 'title' and 'detail' must still be specific, but framed as 
 
 score_breakdown sub-scores must each be 0–100 and roughly justify overall_score.
 
-If a target_role is provided, evaluate job_match.match_percent honestly against typical requirements and frame missing_requirements as "areas to highlight" rather than deficiencies.`;
+If a target_role is provided, evaluate job_match.match_percent honestly against typical requirements and frame missing_requirements as "areas to highlight" rather than deficiencies.
+
+DETERMINISTIC SCORING (critical — this is what makes scores trustworthy):
+You MUST compute ats_score and overall_score using the explicit rubric below. Do NOT guess. Do NOT vary. The same resume text MUST always produce the same scores.
+
+ats_score (0–100) = sum of these checks, each worth the listed points if PASS, 0 if FAIL:
+- Contact block has email AND phone (10)
+- Has a clear "Experience" or "Work Experience" section header (10)
+- Has an "Education" section header (8)
+- Has a "Skills" section header (8)
+- ≥80% of experience bullets start with a strong action verb (12)
+- ≥50% of experience bullets contain a number, %, or $ metric (15)
+- No tables, columns, images, or graphics implied by the text (10)
+- Standard fonts/no unicode icons in body text (5)
+- Dates in consistent format (e.g. "Jan 2023 – Present") (7)
+- Job titles + companies clearly paired with dates (8)
+- Keyword density appropriate for target role (7)
+Round to nearest integer. Show your check internally; do not output it — just the final number.
+
+overall_score (0–100) = round(0.25*ats_compatibility + 0.30*impact_statements + 0.20*relevance + 0.15*clarity + 0.10*keyword_match).
+
+Sub-scores in score_breakdown must be computed first, then overall_score derived from them. This guarantees consistency across runs.`;
 
 const TOOL_SCHEMA = {
   type: "function",
