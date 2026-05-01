@@ -318,6 +318,7 @@ const CoverLetterGenerator = () => {
   const canGenerate = ent.can("cover_letters");
   const [jd, setJd] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
+  const [pages, setPages] = useState<1 | 2>(1);
   const [generating, setGenerating] = useState(false);
   const [hasLetter, setHasLetter] = useState(false);
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
@@ -438,6 +439,7 @@ const CoverLetterGenerator = () => {
           company: (doc.companyName.trim() || jdParsed.company || "the company"),
           role: "this role",
           tone,
+          length: pages === 2 ? "two_page" : "one_page",
           job_description: jd.trim(),
           hiring_manager: (doc.hiringManager.trim() || jdParsed.hiringManager || undefined),
           resume_id: resumeId ?? undefined,
@@ -849,6 +851,40 @@ const CoverLetterGenerator = () => {
                       )}
                     >
                       {t.hint}
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                Length
+              </label>
+              <div className="mt-1.5 grid grid-cols-2 gap-1.5">
+                {([1, 2] as const).map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    disabled={generating}
+                    onClick={() => setPages(n)}
+                    className={cn(
+                      "rounded-lg px-2.5 py-2 text-left transition-colors border",
+                      pages === n
+                        ? "bg-foreground text-background border-foreground"
+                        : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
+                    )}
+                  >
+                    <p className="text-[12.5px] font-medium tracking-tight">
+                      {n === 1 ? "1 page" : "2 pages"}
+                    </p>
+                    <p
+                      className={cn(
+                        "text-[11px] tracking-tight",
+                        pages === n ? "text-background/60" : "text-foreground/50",
+                      )}
+                    >
+                      {n === 1 ? "Concise · ~350 words" : "In-depth · ~700 words"}
                     </p>
                   </button>
                 ))}

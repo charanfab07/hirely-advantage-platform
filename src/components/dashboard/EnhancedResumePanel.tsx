@@ -86,6 +86,7 @@ export const EnhancedResumePanel = ({
   const [generating, setGenerating] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
+  const [pages, setPages] = useState<1 | 2>(1);
 
   // Load latest enhancement for this resume
   useEffect(() => {
@@ -128,7 +129,7 @@ export const EnhancedResumePanel = ({
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("enhance-resume", {
-        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role },
+        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role, target_pages: pages },
       });
       if (error) {
         const msg = (error as any)?.message ?? "Failed to generate";
@@ -245,6 +246,32 @@ export const EnhancedResumePanel = ({
                 className="mt-3 w-full max-w-md px-3.5 py-2 rounded-lg bg-white/10 border border-white/15 text-[13px] text-white placeholder:text-white/40 outline-none focus:border-white/40 transition-colors"
               />
             )}
+          </div>
+
+          <div className="mt-5">
+            <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
+              How long should it be?
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {([1, 2] as const).map((n) => {
+                const active = pages === n;
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => setPages(n)}
+                    className={cn(
+                      "px-3.5 py-2 rounded-full text-[12.5px] tracking-tight border transition-colors",
+                      active
+                        ? "bg-white text-foreground border-white"
+                        : "bg-white/5 text-white/85 border-white/15 hover:bg-white/10",
+                    )}
+                  >
+                    {n === 1 ? "1 page · concise" : "2 pages · in-depth"}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
