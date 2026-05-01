@@ -5,6 +5,8 @@ import { SectionCard } from "@/components/dashboard/SectionCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { Pricing } from "@/components/landing/Pricing";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
@@ -321,6 +323,7 @@ const CoverLetterGenerator = () => {
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [typo, setTypo] = useState<TypoSettings>({
     font: "times",
     fontSize: 14,
@@ -393,11 +396,7 @@ const CoverLetterGenerator = () => {
       return;
     }
     if (!canGenerate) {
-      toast.error(
-        isFree
-          ? "Free plan includes 1 cover letter. Upgrade to Pro for more."
-          : "You've reached your monthly cover-letter limit. Upgrade for more.",
-      );
+      setShowUpgrade(true);
       return;
     }
     if (jd.trim().length < 40) {
@@ -1148,6 +1147,22 @@ const CoverLetterGenerator = () => {
           </div>
         </div>
       )}
+
+      <Dialog open={showUpgrade} onOpenChange={setShowUpgrade}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+          <DialogHeader>
+            <DialogTitle className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.02em]">
+              You've used your free cover letter
+            </DialogTitle>
+            <DialogDescription className="text-[14px] text-foreground/60 tracking-tight">
+              The Free plan includes 1 cover letter. Upgrade to keep generating tailored letters with clean exports — no watermark.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2">
+            <Pricing variant="dashboard" showHeader={false} />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
