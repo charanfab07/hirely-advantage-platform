@@ -53,7 +53,8 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
 
   const handleFile = async (file: File) => {
     if (blocked) {
-      toast.error(`Your ${PLAN_LABEL[ent.plan]} plan limit is reached. Upgrade for more uploads.`);
+      setUpgradeFeature(!analysisAllowed ? "analyses" : "resume_uploads");
+      setShowUpgrade(true);
       return;
     }
     try {
