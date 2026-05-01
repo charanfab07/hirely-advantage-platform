@@ -1148,21 +1148,7 @@ const CoverLetterGenerator = () => {
         </div>
       )}
 
-      <Dialog open={showUpgrade} onOpenChange={setShowUpgrade}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
-          <DialogHeader>
-            <DialogTitle className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.02em]">
-              You've used your free cover letter
-            </DialogTitle>
-            <DialogDescription className="text-[14px] text-foreground/60 tracking-tight">
-              The Free plan includes 1 cover letter. Upgrade to keep generating tailored letters with clean exports — no watermark.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="mt-2">
-            <Pricing variant="dashboard" showHeader={false} />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <UpgradePlansDialog open={showUpgrade} onOpenChange={setShowUpgrade} />
     </div>
   );
 };
