@@ -482,7 +482,7 @@ const ResumeAnalyzer = () => {
                 </DeepDiveItem>
               )}
 
-              {latest.score_breakdown && (
+              {!isFree && latest.score_breakdown && (
                 <DeepDiveItem
                   value="breakdown"
                   title="Score breakdown"
