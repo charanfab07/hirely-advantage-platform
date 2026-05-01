@@ -12,12 +12,6 @@ export const HowItWorks = () => {
   return (
     <section id="how-it-works" className="px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <SectionHeader
-          eyebrow="How it works"
-          title="From upload to offer in four steps."
-          description="A complete workflow — engineered to compress the gap between submitting an application and signing the contract."
-        />
-
         <div className="relative grid md:grid-cols-4 gap-6">
           <div className="hidden md:block absolute top-12 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-foreground/25 to-transparent" />
           {steps.map((s, i) => (
