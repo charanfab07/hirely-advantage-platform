@@ -345,7 +345,17 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
             </div>
           </div>
 
-          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex items-center justify-end">
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex items-center justify-between gap-3">
+            {ent.plan === "pro" && typeof mockLimit === "number" ? (
+              <span className="text-[11.5px] tracking-tight text-foreground/60">
+                Mock interviews this month{" "}
+                <span className="font-medium text-foreground/85">
+                  {ent.usage.mock_interviews} / {mockLimit}
+                </span>
+              </span>
+            ) : (
+              <span />
+            )}
             <button
               type="button"
               onClick={start}
