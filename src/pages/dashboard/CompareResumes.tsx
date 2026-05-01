@@ -266,6 +266,7 @@ const CompareResumes = () => {
               selected={bId}
               otherSelected={aId}
               onSelect={setBId}
+              onDelete={handleDelete}
             />
           </div>
         )}
