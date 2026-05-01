@@ -137,6 +137,8 @@ export const ResumeEditor = ({
   initial: EditableResume;
   onClose?: () => void;
 }) => {
+  const ent = useEntitlements();
+  const canExport = ent.unlocked("resume_export");
   const [resume, setResume] = useState<EditableResume>(initial);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [typo, setTypo] = useState<ResumeTypography>(DEFAULT_TYPO);
