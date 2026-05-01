@@ -163,7 +163,7 @@ async function handleStart(
   const safeDur = ALLOWED_DURATIONS.has(duration_minutes) ? duration_minutes : 15;
 
   const gate = await checkEntitlement(userId, "mock_interviews");
-  if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+  if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "mock_interviews" }, gate.status);
 
   let resumeText = "";
   if (resume_id) {
