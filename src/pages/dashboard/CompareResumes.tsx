@@ -206,10 +206,10 @@ const CompareResumes = () => {
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-              Step 1 — Pick two resumes
+              Pick two resumes
             </p>
             <p className="mt-1 text-[13.5px] text-foreground/65 tracking-tight">
-              Choose any two resumes you've uploaded. Need another version? Upload it on the right.
+              Tap one resume on the left, one on the right. That's it.
             </p>
           </div>
           <UploadButton onFile={handleUpload} />
