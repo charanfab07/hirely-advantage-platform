@@ -115,6 +115,10 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
       toast.error("Add the role you're practicing for.");
       return;
     }
+    if (!ent.can("mock_interviews")) {
+      setShowUpgrade(true);
+      return;
+    }
     setStarting(true);
     try {
       const { data, error } = await supabase.functions.invoke("mock-interview", {
@@ -127,6 +131,14 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
           resume_id: resumeId ?? undefined,
         },
       });
+      const quotaCode =
+        (data as { code?: string } | null)?.code ||
+        (error as { context?: { code?: string } } | null)?.context?.code;
+      if (quotaCode === "OVER_QUOTA") {
+        setShowUpgrade(true);
+        ent.refresh();
+        return;
+      }
       if (error) throw new Error(error.message || "Failed to start");
       if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
       const s = (data as { session: Session }).session;
@@ -134,6 +146,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
       setSession(s);
       setTurns([t]);
       setAnswer("");
+      ent.refresh();
       toast.success("Interview started. Take a breath.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
