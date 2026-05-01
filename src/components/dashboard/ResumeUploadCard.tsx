@@ -145,6 +145,27 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
 
   return (
     <SectionCard className={cn("p-0 overflow-hidden", className)}>
+      {blocked && (
+        <div className="px-6 sm:px-7 pt-5 pb-3 flex items-center gap-3 border-b border-foreground/[0.06] bg-foreground/[0.02]">
+          <span className="w-7 h-7 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+            <Lock className="w-3.5 h-3.5 text-foreground/55" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[12.5px] font-medium tracking-tight text-foreground">
+              {PLAN_LABEL[ent.plan]} plan limit reached
+            </p>
+            <p className="text-[11.5px] text-foreground/55">
+              You've used your monthly resume upload. Upgrade for more.
+            </p>
+          </div>
+          <Link
+            to="/app/upgrade"
+            className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
+          >
+            Upgrade
+          </Link>
+        </div>
+      )}
       <button
         type="button"
         onClick={() => !busy && inputRef.current?.click()}
