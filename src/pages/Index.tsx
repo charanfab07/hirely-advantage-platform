@@ -1,7 +1,6 @@
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { Navbar } from "@/components/landing/Navbar";
 import { Hero } from "@/components/landing/Hero";
-import { Stats } from "@/components/landing/Stats";
 import { SectionHeader } from "@/components/landing/SectionHeader";
 import { FeatureBlock } from "@/components/landing/FeatureBlock";
 import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landing/FeatureVisuals";
@@ -11,7 +10,6 @@ import { Testimonials } from "@/components/landing/Testimonials";
 import { ResumeCompare } from "@/components/landing/ResumeCompare";
 import { ProductShowcase } from "@/components/landing/ProductShowcase";
 import { HiredWall } from "@/components/landing/HiredWall";
-import { ProofQuote } from "@/components/landing/ProofQuote";
 import { FinalCTA } from "@/components/landing/FinalCTA";
 import { Footer } from "@/components/landing/Footer";
 
