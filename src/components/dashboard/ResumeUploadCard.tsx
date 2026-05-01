@@ -115,6 +115,16 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
           },
         },
       );
+      const quotaCode =
+        (fnData as { code?: string } | null)?.code ||
+        (fnErr as { context?: { code?: string } } | null)?.context?.code;
+      if (quotaCode === "OVER_QUOTA") {
+        setUpgradeFeature("analyses");
+        setShowUpgrade(true);
+        ent.refresh();
+        reset();
+        return;
+      }
       if (fnErr) {
         // Try to extract a useful error message
         const msg =
