@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
@@ -22,7 +22,9 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   </p>
 );
 
-const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
+const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
+  const navigate = useNavigate();
+  return (
   <>
     <div className="flex items-center mb-9 px-2">
       <LogoLockup size="text-xl font-sans" />
@@ -93,13 +95,18 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => (
       <p className="text-[10.5px] text-white/65 mt-0.5">Unlimited rewrites & mock interviews</p>
       <button
         type="button"
+        onClick={() => {
+          onNavigate?.();
+          navigate("/app/upgrade");
+        }}
         className="mt-3 text-[11px] bg-white text-foreground font-medium px-3 py-1.5 rounded-full w-full hover:opacity-90 transition-opacity"
       >
         Upgrade
       </button>
     </div>
   </>
-);
+  );
+};
 
 export const DashboardSidebar = () => {
   return (
