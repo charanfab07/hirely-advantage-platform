@@ -295,12 +295,25 @@ const Header = () => (
       Compare resumes
     </p>
     <h1 className="mt-1.5 text-[26px] sm:text-[30px] leading-[1.1] font-semibold tracking-[-0.025em]">
-      Two resumes enter. The stronger one wins.
+      Which resume is better?
     </h1>
     <p className="mt-1.5 text-[13.5px] text-foreground/60 tracking-tight max-w-[640px]">
-      Pick any two of your resumes. Our AI scores both for ATS, impact, and role fit — then tells
-      you which one has a higher chance of getting you interviewed and exactly why.
+      Pick 2 resumes. We'll tell you which one is more likely to get you the interview.
     </p>
+    <ol className="mt-4 flex flex-wrap gap-2 text-[12px] text-foreground/70">
+      <li className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.04] border border-foreground/[0.08]">
+        <span className="w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold inline-flex items-center justify-center">1</span>
+        Pick Resume A
+      </li>
+      <li className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.04] border border-foreground/[0.08]">
+        <span className="w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold inline-flex items-center justify-center">2</span>
+        Pick Resume B
+      </li>
+      <li className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/[0.04] border border-foreground/[0.08]">
+        <span className="w-4 h-4 rounded-full bg-foreground text-background text-[10px] font-semibold inline-flex items-center justify-center">3</span>
+        Click Compare
+      </li>
+    </ol>
   </div>
 );
 
