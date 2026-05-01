@@ -1148,7 +1148,12 @@ const CoverLetterGenerator = () => {
         </div>
       )}
 
-      <UpgradePlansDialog open={showUpgrade} onOpenChange={setShowUpgrade} />
+      <UpgradePlanDialog
+        open={showUpgrade}
+        onOpenChange={setShowUpgrade}
+        currentPlan={ent.plan}
+        feature="cover_letters"
+      />
     </div>
   );
 };
