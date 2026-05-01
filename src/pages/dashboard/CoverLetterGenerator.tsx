@@ -392,6 +392,14 @@ const CoverLetterGenerator = () => {
       toast.error("Please sign in first.");
       return;
     }
+    if (!canGenerate) {
+      toast.error(
+        isFree
+          ? "Free plan includes 1 cover letter. Upgrade to Pro for more."
+          : "You've reached your monthly cover-letter limit. Upgrade for more.",
+      );
+      return;
+    }
     if (jd.trim().length < 40) {
       toast.error("Paste a job description first (at least a paragraph).");
       return;
