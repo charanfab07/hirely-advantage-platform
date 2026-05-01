@@ -72,7 +72,6 @@ const Index = () => {
       </section>
 
       <ResumeCompare />
-      <HowItWorks />
       <ProductShowcase />
       <Testimonials />
       <HiredWall />
