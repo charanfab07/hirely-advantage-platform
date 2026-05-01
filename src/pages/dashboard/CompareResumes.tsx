@@ -8,6 +8,7 @@ import {
   Trophy,
   Sparkles,
   X,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +28,7 @@ import { cn } from "@/lib/utils";
 type ResumeRow = {
   id: string;
   file_name: string;
+  file_path: string;
   created_at: string;
 };
 
@@ -73,7 +75,7 @@ const CompareResumes = () => {
       setLoading(true);
       const { data } = await supabase
         .from("resumes")
-        .select("id, file_name, created_at")
+        .select("id, file_name, file_path, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       if (cancelled) return;
@@ -95,6 +97,27 @@ const CompareResumes = () => {
     );
   }
   if (!user) return <Navigate to="/auth" replace />;
+
+  const handleDelete = async (id: string) => {
+    if (!user) return;
+    const target = resumes.find((r) => r.id === id);
+    if (!target) return;
+    if (!confirm(`Delete "${target.file_name}"? This can't be undone.`)) return;
+    try {
+      if (target.file_path) {
+        await supabase.storage.from("resumes").remove([target.file_path]);
+      }
+      const { error } = await supabase.from("resumes").delete().eq("id", id);
+      if (error) throw error;
+      setResumes((prev) => prev.filter((r) => r.id !== id));
+      if (aId === id) setAId(null);
+      if (bId === id) setBId(null);
+      toast.success("Resume deleted");
+    } catch (e) {
+      console.error(e);
+      toast.error("Couldn't delete resume");
+    }
+  };
 
   const handleUpload = async (file: File) => {
     if (!user) return;
@@ -132,7 +155,7 @@ const CompareResumes = () => {
           mime_type: extToMime(ext),
           raw_text: text,
         })
-        .select("id, file_name, created_at")
+        .select("id, file_name, file_path, created_at")
         .single();
       if (insErr) throw insErr;
       const newRow = inserted as ResumeRow;
@@ -235,6 +258,7 @@ const CompareResumes = () => {
               selected={aId}
               otherSelected={bId}
               onSelect={setAId}
+              onDelete={handleDelete}
             />
             <ResumePicker
               side="B"
@@ -242,6 +266,7 @@ const CompareResumes = () => {
               selected={bId}
               otherSelected={aId}
               onSelect={setBId}
+              onDelete={handleDelete}
             />
           </div>
         )}
@@ -342,12 +367,14 @@ const ResumePicker = ({
   selected,
   otherSelected,
   onSelect,
+  onDelete,
 }: {
   side: "A" | "B";
   resumes: ResumeRow[];
   selected: string | null;
   otherSelected: string | null;
   onSelect: (id: string) => void;
+  onDelete: (id: string) => void;
 }) => {
   return (
     <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.02] p-3.5">
@@ -359,27 +386,51 @@ const ResumePicker = ({
           const active = selected === r.id;
           const disabled = otherSelected === r.id;
           return (
-            <button
+            <div
               key={r.id}
-              type="button"
-              onClick={() => !disabled && onSelect(r.id)}
-              disabled={disabled}
               className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-left text-[13px] tracking-tight transition-colors",
+                "group w-full flex items-center gap-1.5 rounded-lg transition-colors",
                 active
                   ? "bg-foreground text-background"
                   : disabled
-                    ? "opacity-35 cursor-not-allowed"
+                    ? "opacity-35"
                     : "hover:bg-foreground/[0.06] text-foreground/80",
               )}
-              title={disabled ? "Already selected on the other side" : r.file_name}
             >
-              <FileText className="w-3.5 h-3.5 shrink-0 opacity-70" />
-              <span className="truncate flex-1">{r.file_name}</span>
-              <span className={cn("text-[10.5px] shrink-0", active ? "text-background/60" : "text-foreground/40")}>
-                {new Date(r.created_at).toLocaleDateString()}
-              </span>
-            </button>
+              <button
+                type="button"
+                onClick={() => !disabled && onSelect(r.id)}
+                disabled={disabled}
+                className={cn(
+                  "flex-1 min-w-0 flex items-center gap-2.5 pl-3 pr-1 py-2 text-left text-[13px] tracking-tight",
+                  disabled && "cursor-not-allowed",
+                )}
+                title={disabled ? "Already selected on the other side" : r.file_name}
+              >
+                <FileText className="w-3.5 h-3.5 shrink-0 opacity-70" />
+                <span className="truncate flex-1">{r.file_name}</span>
+                <span className={cn("text-[10.5px] shrink-0", active ? "text-background/60" : "text-foreground/40")}>
+                  {new Date(r.created_at).toLocaleDateString()}
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(r.id);
+                }}
+                className={cn(
+                  "shrink-0 mr-1.5 w-7 h-7 rounded-md inline-flex items-center justify-center transition-colors",
+                  active
+                    ? "text-background/70 hover:bg-background/15 hover:text-background"
+                    : "text-foreground/40 hover:bg-foreground/[0.08] hover:text-red-500 opacity-0 group-hover:opacity-100 focus:opacity-100",
+                )}
+                aria-label={`Delete ${r.file_name}`}
+                title="Delete resume"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
           );
         })}
       </div>
