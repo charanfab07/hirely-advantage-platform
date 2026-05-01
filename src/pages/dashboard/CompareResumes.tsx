@@ -28,6 +28,7 @@ import { cn } from "@/lib/utils";
 type ResumeRow = {
   id: string;
   file_name: string;
+  file_path: string;
   created_at: string;
 };
 
