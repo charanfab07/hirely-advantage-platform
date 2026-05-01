@@ -14,6 +14,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PLAN_LABEL } from "@/lib/entitlements";
+import { UpgradePlanDialog } from "./UpgradePlanDialog";
 
 type Stage = "idle" | "extracting" | "uploading" | "analyzing";
 
