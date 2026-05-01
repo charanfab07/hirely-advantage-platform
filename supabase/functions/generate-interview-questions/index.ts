@@ -2,6 +2,7 @@
 // Each call returns ONE fresh question (or up to `count`) that has not been
 // shown to this user before — so 20 shuffles = 20 different questions, 100 = 100.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -113,6 +114,10 @@ Deno.serve(async (req) => {
     if (!resume || resume.user_id !== userId) {
       return json({ error: "Resume not found" }, 404);
     }
+
+    const gate = await checkEntitlement(userId, "interview_questions");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+
     const resumeText = (resume.raw_text ?? "").slice(0, 8000);
     if (resumeText.length < 80) {
       return json({ error: "Resume text is empty — re-upload your resume." }, 400);
@@ -237,6 +242,10 @@ Now propose ONE new ${safeType} question grounded in this resume. Vary the focus
         { error: "Couldn't generate a new question. Try a different question type or upload a more detailed resume." },
         500,
       );
+    }
+
+    for (let i = 0; i < generated.length; i++) {
+      await incrementUsage(userId, "interview_questions");
     }
 
     return json({ questions: generated });

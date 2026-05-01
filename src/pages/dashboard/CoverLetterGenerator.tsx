@@ -3,6 +3,8 @@ import { Sparkles, Loader2, Upload, FileText, Download, Copy, Check, Trash2, Ref
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
@@ -308,6 +310,10 @@ function parseJobDescription(jd: string): {
 
 const CoverLetterGenerator = () => {
   const { user } = useAuth();
+  const ent = useEntitlements();
+  const isFree = ent.plan === "free";
+  const cleanExports = ent.unlocked("cover_letter_clean");
+  const canGenerate = ent.can("cover_letters");
   const [jd, setJd] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
   const [generating, setGenerating] = useState(false);
@@ -386,6 +392,14 @@ const CoverLetterGenerator = () => {
       toast.error("Please sign in first.");
       return;
     }
+    if (!canGenerate) {
+      toast.error(
+        isFree
+          ? "Free plan includes 1 cover letter. Upgrade to Pro for more."
+          : "You've reached your monthly cover-letter limit. Upgrade for more.",
+      );
+      return;
+    }
     if (jd.trim().length < 40) {
       toast.error("Paste a job description first (at least a paragraph).");
       return;
@@ -454,6 +468,7 @@ const CoverLetterGenerator = () => {
         date: d.date || todayLong(),
       }));
       setHasLetter(true);
+      ent.refresh();
       toast.success("Cover letter ready — edit before downloading.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -497,6 +512,10 @@ const CoverLetterGenerator = () => {
     const signOff = [doc.signOff.trim() || "Sincerely,", doc.senderName].filter(Boolean).join("\n\n");
     if (signOff) parts.push(signOff);
 
+    if (!cleanExports) {
+      parts.push("— — —\nGenerated with Hirely Free · hirely.app\nUpgrade to Pro to remove this watermark.");
+    }
+
     return parts.join("\n\n");
   };
 
@@ -522,6 +541,7 @@ const CoverLetterGenerator = () => {
   };
 
   const downloadPdf = () => {
+    if (!cleanExports && !confirm("Free plan exports are watermarked. Upgrade to Pro for clean PDF/DOCX. Continue with watermark?")) return;
     const pdf = new jsPDF({ unit: "pt", format: "letter" });
     const margin = 72; // 1 inch
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -596,10 +616,41 @@ const CoverLetterGenerator = () => {
     writeBlock(doc.signOff || "Sincerely,");
     writeBlock(doc.senderName);
 
+    if (!cleanExports) {
+      // Diagonal watermark on every page
+      const totalPages = (pdf as unknown as { internal: { getNumberOfPages: () => number } }).internal.getNumberOfPages();
+      for (let p = 1; p <= totalPages; p++) {
+        pdf.setPage(p);
+        const prevSize = pdf.getFontSize();
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(64);
+        // GState for opacity
+        const gs = (pdf as unknown as { GState: new (o: { opacity: number }) => unknown; setGState: (g: unknown) => void });
+        try { gs.setGState(new gs.GState({ opacity: 0.08 })); } catch (_e) { /* noop */ }
+        pdf.setTextColor(120, 120, 120);
+        pdf.text("HIRELY FREE", pageWidth / 2, pageHeight / 2, { align: "center", angle: -30 });
+        try { gs.setGState(new gs.GState({ opacity: 1 })); } catch (_e) { /* noop */ }
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(9);
+        pdf.setFont("helvetica", "normal");
+        pdf.text(
+          "Generated with Hirely Free · upgrade to Pro to remove this watermark",
+          pageWidth / 2,
+          pageHeight - 36,
+          { align: "center" },
+        );
+        pdf.setFontSize(prevSize);
+      }
+    }
+
     pdf.save(`${fileBase()}.pdf`);
   };
 
   const downloadDocx = async () => {
+    if (!cleanExports) {
+      toast.error("Clean DOCX export is a Pro feature. Use the watermarked PDF or upgrade.");
+      return;
+    }
     const docxFont = DOCX_FONT[typo.font];
     // docx 'size' is half-points. preview px ≈ pt; 1pt = 2 half-points.
     const sizeHalfPt = Math.round(typo.fontSize * 0.85 * 2);

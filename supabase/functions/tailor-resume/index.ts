@@ -1,5 +1,6 @@
 // Tailor resume — generates a role-specific optimized version via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -160,6 +161,9 @@ Deno.serve(async (req) => {
     if (!resumeRow.raw_text || resumeRow.raw_text.trim().length < 80) {
       return json({ error: "Resume text is empty or too short to tailor" }, 400);
     }
+
+    const gate = await checkEntitlement(userId, "tailored_edits");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
 
     // Optional analysis context
     let analysisContext = "";

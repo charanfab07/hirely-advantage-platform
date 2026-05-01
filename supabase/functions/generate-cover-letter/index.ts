@@ -1,5 +1,6 @@
 // Cover letter generator — produces a structured, personalized 5-part cover letter via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -259,6 +260,9 @@ Deno.serve(async (req) => {
     const { data: userData, error: userErr } = await supabase.auth.getUser();
     if (userErr || !userData.user) return json({ error: "Unauthorized" }, 401);
     const userId = userData.user.id;
+
+    const gate = await checkEntitlement(userId, "cover_letters");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
 
     const body = await req.json();
     const {
@@ -531,6 +535,7 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       return json({ error: "Failed to save cover letter" }, 500);
     }
 
+    await incrementUsage(userId, "cover_letters");
     return json({ letter: inserted });
   } catch (e) {
     console.error("generate-cover-letter error", e);

@@ -1,6 +1,7 @@
 // Enhance resume — generates a fully rewritten, optimized resume that fixes
 // every issue surfaced by the analyzer. Returns structured JSON via tool calling.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -231,6 +232,9 @@ Deno.serve(async (req) => {
     if (!resumeRow.raw_text || resumeRow.raw_text.trim().length < 80) {
       return json({ error: "Resume text is empty or too short" }, 400);
     }
+
+    const gate = await checkEntitlement(userId, "enhanced_resume");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
 
     let analysisContext = "";
     let targetRole = "";

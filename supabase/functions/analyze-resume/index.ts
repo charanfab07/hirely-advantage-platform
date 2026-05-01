@@ -1,5 +1,6 @@
 // Resume analyzer — deep, hiring-manager style review via Lovable AI.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -287,6 +288,9 @@ Deno.serve(async (req) => {
       return json({ error: "Resume not found" }, 404);
     }
 
+    const gate = await checkEntitlement(userId, "analyses");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
 
@@ -366,6 +370,7 @@ Deno.serve(async (req) => {
       return json({ error: "Failed to save analysis" }, 500);
     }
 
+    await incrementUsage(userId, "analyses");
     return json({ analysis: inserted });
   } catch (e) {
     console.error("analyze-resume error", e);

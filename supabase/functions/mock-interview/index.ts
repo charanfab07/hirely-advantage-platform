@@ -2,6 +2,7 @@
 // follow-ups, brief coaching after each answer, and a final summary.
 // Actions: start | respond | end
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -161,6 +162,9 @@ async function handleStart(
   const safeDiff = ALLOWED_DIFFICULTY.has(difficulty) ? difficulty : "medium";
   const safeDur = ALLOWED_DURATIONS.has(duration_minutes) ? duration_minutes : 15;
 
+  const gate = await checkEntitlement(userId, "mock_interviews");
+  if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+
   let resumeText = "";
   if (resume_id) {
     const { data: r } = await supabase
@@ -191,6 +195,8 @@ async function handleStart(
     console.error("start session error", sErr);
     return json({ error: "Failed to start session" }, 500);
   }
+
+  await incrementUsage(userId, "mock_interviews");
 
   // Ask the AI for the opening question.
   const messages: ChatMsg[] = [

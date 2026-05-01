@@ -17,6 +17,8 @@ import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
+import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -111,6 +113,8 @@ const impactToLift: Record<string, string> = {
 
 const ResumeAnalyzer = () => {
   const { user } = useAuth();
+  const ent = useEntitlements();
+  const isFree = ent.plan === "free";
   const [tab, setTab] = useState("score");
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,14 +171,15 @@ const ResumeAnalyzer = () => {
 
   const quickWins: QuickWin[] | undefined = useMemo(() => {
     if (!latest?.quick_wins?.length) return undefined;
-    return latest.quick_wins.slice(0, 3).map((w, i) => ({
+    const cap = isFree ? 2 : 3;
+    return latest.quick_wins.slice(0, cap).map((w, i) => ({
       id: `qw-${i}`,
       title: w.title,
       detail: w.detail,
       lift: impactToLift[w.impact] ?? "+2 pts",
       effort: w.impact === "high" ? "1 min" : w.impact === "medium" ? "45 sec" : "30 sec",
     }));
-  }, [latest]);
+  }, [latest, isFree]);
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
@@ -477,7 +482,7 @@ const ResumeAnalyzer = () => {
                 </DeepDiveItem>
               )}
 
-              {latest.score_breakdown && (
+              {!isFree && latest.score_breakdown && (
                 <DeepDiveItem
                   value="breakdown"
                   title="Score breakdown"
@@ -512,7 +517,13 @@ const ResumeAnalyzer = () => {
 
       {/* COMPARE TAB — latest vs previous, side by side */}
       {tab === "compare" && latest && (
-        analyses.length < 2 ? (
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Compare versions side by side"
+            description="See every score axis, skill, and issue that moved between resume versions, with improvements highlighted in green. Available on Pro."
+          />
+        ) : analyses.length < 2 ? (
           <SectionCard className="mt-5">
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
               One version on file
@@ -658,6 +669,13 @@ const ResumeAnalyzer = () => {
 
       {/* ISSUES TAB */}
       {tab === "issues" && latest && (
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="See every issue blocking your interviews"
+            description="Missing sections, ATS problems, formatting traps, grammar slips, and weak bullets — all surfaced with concrete fixes. Available on Pro."
+          />
+        ) : (
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
           <IssueList
             label="Missing sections"
@@ -699,30 +717,55 @@ const ResumeAnalyzer = () => {
             </ul>
           </SectionCard>
         </div>
+        )
       )}
 
       {/* ENHANCED TAB */}
       {tab === "enhanced" && (
-        <EnhancedResumePanel
-          className="mt-5"
-          resumeId={latest?.resume_id ?? null}
-          analysisId={latest?.id ?? null}
-        />
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Generate your perfect, recruiter-ready resume"
+            description="One-click rewrite that fixes every issue from the analysis — sharpened bullets, quantified impact, ATS-friendly layout. Available on Pro."
+          />
+        ) : (
+          <EnhancedResumePanel
+            className="mt-5"
+            resumeId={latest?.resume_id ?? null}
+            analysisId={latest?.id ?? null}
+          />
+        )
       )}
 
       {/* TAILORED TAB */}
       {tab === "tailored" && (
-        <TailoredEditsPanel
-          className="mt-5"
-          resumeId={latest?.resume_id ?? null}
-          analysisId={latest?.id ?? null}
-          defaultTargetRole={latest?.target_role ?? undefined}
-        />
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Tailor your resume to any role"
+            description="Inject role-specific keywords, rewrite bullets for the target job description, and lift your match score. Available on Pro."
+          />
+        ) : (
+          <TailoredEditsPanel
+            className="mt-5"
+            resumeId={latest?.resume_id ?? null}
+            analysisId={latest?.id ?? null}
+            defaultTargetRole={latest?.target_role ?? undefined}
+          />
+        )
       )}
 
       {/* HISTORY TAB */}
       {tab === "versions" && (
-        <TransformationPanel className="mt-5" versions={analyses} />
+        isFree ? (
+          <UpgradeLock
+            className="mt-5"
+            title="Track every version of your resume"
+            description="See your full progression over time — each upload, each score change, each improvement. Available on Pro."
+          />
+        ) : (
+          <TransformationPanel className="mt-5" versions={analyses} />
+        )
       )}
 
       {/* Footer rail — anchors the page so it never ends in raw whitespace */}

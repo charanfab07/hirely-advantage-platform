@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
-import { Plus, Trash2, Download, FileText, FileType, Pencil, Eye, X, Type, AlignLeft, AlignCenter, AlignRight, AlignJustify } from "lucide-react";
+import { Plus, Trash2, Download, FileText, FileType, Pencil, Eye, X, Type, AlignLeft, AlignCenter, AlignRight, AlignJustify, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { SectionCard } from "./SectionCard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -135,6 +137,8 @@ export const ResumeEditor = ({
   initial: EditableResume;
   onClose?: () => void;
 }) => {
+  const ent = useEntitlements();
+  const canExport = ent.unlocked("resume_export");
   const [resume, setResume] = useState<EditableResume>(initial);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [typo, setTypo] = useState<ResumeTypography>(DEFAULT_TYPO);
