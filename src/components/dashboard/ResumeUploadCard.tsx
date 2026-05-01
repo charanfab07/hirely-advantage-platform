@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Loader2, Upload, FileText, X } from "lucide-react";
+import { Loader2, Upload, FileText, X, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionCard } from "./SectionCard";
@@ -11,6 +12,8 @@ import {
   extractResumeText,
 } from "@/lib/resumeParser";
 import { cn } from "@/lib/utils";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PLAN_LABEL } from "@/lib/entitlements";
 
 type Stage = "idle" | "extracting" | "uploading" | "analyzing";
 
@@ -26,6 +29,10 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [targetRole, setTargetRole] = useState("");
+  const ent = useEntitlements();
+  const uploadAllowed = ent.can("resume_uploads");
+  const analysisAllowed = ent.can("analyses");
+  const blocked = !ent.loading && (!uploadAllowed || !analysisAllowed);
 
   const stageLabel: Record<Stage, string> = {
     idle: "",
@@ -41,6 +48,10 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   };
 
   const handleFile = async (file: File) => {
+    if (blocked) {
+      toast.error(`Your ${PLAN_LABEL[ent.plan]} plan limit is reached. Upgrade for more uploads.`);
+      return;
+    }
     try {
       // Validate
       if (file.size > MAX_FILE_BYTES) {
@@ -112,6 +123,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
 
       toast.success("Resume analyzed.");
       onAnalyzed(analysisId);
+      ent.refresh();
       reset();
     } catch (e) {
       console.error(e);
@@ -133,16 +145,37 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
 
   return (
     <SectionCard className={cn("p-0 overflow-hidden", className)}>
+      {blocked && (
+        <div className="px-6 sm:px-7 pt-5 pb-3 flex items-center gap-3 border-b border-foreground/[0.06] bg-foreground/[0.02]">
+          <span className="w-7 h-7 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+            <Lock className="w-3.5 h-3.5 text-foreground/55" />
+          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[12.5px] font-medium tracking-tight text-foreground">
+              {PLAN_LABEL[ent.plan]} plan limit reached
+            </p>
+            <p className="text-[11.5px] text-foreground/55">
+              You've used your monthly resume upload. Upgrade for more.
+            </p>
+          </div>
+          <Link
+            to="/app/upgrade"
+            className="shrink-0 text-[11.5px] font-medium px-3 py-1.5 rounded-full bg-foreground text-background hover:opacity-90 transition-opacity"
+          >
+            Upgrade
+          </Link>
+        </div>
+      )}
       <button
         type="button"
-        onClick={() => !busy && inputRef.current?.click()}
+        onClick={() => !busy && !blocked && inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
-          if (!busy) setDragOver(true);
+          if (!busy && !blocked) setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        disabled={busy}
+        disabled={busy || blocked}
         className={cn(
           "w-full text-left p-6 sm:p-7 transition-colors",
           dragOver ? "bg-foreground/[0.03]" : "bg-transparent",
