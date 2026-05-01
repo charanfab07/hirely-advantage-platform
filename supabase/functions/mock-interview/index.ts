@@ -2,6 +2,7 @@
 // follow-ups, brief coaching after each answer, and a final summary.
 // Actions: start | respond | end
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

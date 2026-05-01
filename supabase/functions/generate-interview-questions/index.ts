@@ -2,6 +2,7 @@
 // Each call returns ONE fresh question (or up to `count`) that has not been
 // shown to this user before — so 20 shuffles = 20 different questions, 100 = 100.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement, incrementUsage } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

@@ -1,6 +1,7 @@
 // Enhance resume — generates a fully rewritten, optimized resume that fixes
 // every issue surfaced by the analyzer. Returns structured JSON via tool calling.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { checkEntitlement } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
