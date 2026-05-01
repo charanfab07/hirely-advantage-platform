@@ -39,7 +39,7 @@ Tone parameter changes voice but never breaks the rules:
 - direct:   short sentences, no fluff
 - formal:   polished, executive
 
-Hard length cap: full_letter ≤ 360 words. The user prompt may set a tighter target — always respect the tighter one.
+Length: ALWAYS follow the exact word target given in the user prompt. Do not impose your own cap. If the target asks for a two-page letter, expand each section with deeper, specific detail — never pad with fluff.
 
 ALWAYS respond by calling the generate_cover_letter tool.`;
 
@@ -56,7 +56,7 @@ const TOOL_SCHEMA = {
         proof: { type: "string" },
         culture_fit: { type: "string" },
         closing: { type: "string" },
-        full_letter: { type: "string", description: "Assembled letter, ≤350 words." },
+        full_letter: { type: "string", description: "Assembled letter. Match the requested word target exactly." },
         notes: { type: "string", description: "≤180 chars on why this letter works for this role." },
       },
       required: ["hook", "alignment", "proof", "culture_fit", "closing", "full_letter", "notes"],
