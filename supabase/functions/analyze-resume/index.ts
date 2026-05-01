@@ -321,7 +321,7 @@ Deno.serve(async (req) => {
 
     if (!aiResp.ok) {
       if (aiResp.status === 429) return json({ error: "Rate limit exceeded. Try again in a moment." }, 429);
-      if (aiResp.status === 402) return json({ error: "AI credits exhausted. Add credits in workspace usage." }, 402);
+      if (aiResp.status === 402) return json({ error: "AI credits exhausted. Add credits in workspace usage.", code: "AI_CREDITS_EXHAUSTED" }, 503);
       const t = await aiResp.text();
       console.error("AI gateway error:", aiResp.status, t);
       return json({ error: "AI analysis failed" }, 500);

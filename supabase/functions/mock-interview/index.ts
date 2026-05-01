@@ -489,7 +489,7 @@ async function callSummary(apiKey: string, messages: ChatMsg[]) {
 
 async function aiError(resp: Response) {
   if (resp.status === 429) return { error: "Rate limit exceeded. Try again in a moment.", status: 429 as const };
-  if (resp.status === 402) return { error: "AI credits exhausted. Add credits in workspace usage.", status: 402 as const };
+  if (resp.status === 402) return { error: "AI credits exhausted. Add credits in workspace usage.", status: 503 as const };
   const t = await resp.text();
   console.error("AI gateway error:", resp.status, t);
   return { error: "AI request failed", status: 500 as const };
