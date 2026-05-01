@@ -258,6 +258,7 @@ const CompareResumes = () => {
               selected={aId}
               otherSelected={bId}
               onSelect={setAId}
+              onDelete={handleDelete}
             />
             <ResumePicker
               side="B"
