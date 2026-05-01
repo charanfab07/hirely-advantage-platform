@@ -1,5 +1,4 @@
 import { Reveal } from "./Reveal";
-import { SectionHeader } from "./SectionHeader";
 
 const steps = [
   { n: "01", title: "Upload", desc: "Drop your resume and the role you want." },
