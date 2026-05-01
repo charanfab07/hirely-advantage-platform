@@ -233,6 +233,9 @@ Deno.serve(async (req) => {
       return json({ error: "Resume text is empty or too short" }, 400);
     }
 
+    const gate = await checkEntitlement(userId, "enhanced_resume");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+
     let analysisContext = "";
     let targetRole = "";
     if (analysis_id) {

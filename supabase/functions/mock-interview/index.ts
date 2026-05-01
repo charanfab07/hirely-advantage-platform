@@ -162,6 +162,9 @@ async function handleStart(
   const safeDiff = ALLOWED_DIFFICULTY.has(difficulty) ? difficulty : "medium";
   const safeDur = ALLOWED_DURATIONS.has(duration_minutes) ? duration_minutes : 15;
 
+  const gate = await checkEntitlement(userId, "mock_interviews");
+  if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+
   let resumeText = "";
   if (resume_id) {
     const { data: r } = await supabase

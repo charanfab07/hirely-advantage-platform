@@ -535,6 +535,7 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       return json({ error: "Failed to save cover letter" }, 500);
     }
 
+    await incrementUsage(userId, "cover_letters");
     return json({ letter: inserted });
   } catch (e) {
     console.error("generate-cover-letter error", e);

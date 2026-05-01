@@ -162,6 +162,9 @@ Deno.serve(async (req) => {
       return json({ error: "Resume text is empty or too short to tailor" }, 400);
     }
 
+    const gate = await checkEntitlement(userId, "tailored_edits");
+    if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true }, gate.status);
+
     // Optional analysis context
     let analysisContext = "";
     if (analysis_id) {
