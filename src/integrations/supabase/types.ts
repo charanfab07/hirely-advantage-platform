@@ -343,6 +343,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
+          plan: Database["public"]["Enums"]["app_plan"]
           updated_at: string
           user_id: string
         }
@@ -351,6 +352,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          plan?: Database["public"]["Enums"]["app_plan"]
           updated_at?: string
           user_id: string
         }
@@ -359,6 +361,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           id?: string
+          plan?: Database["public"]["Enums"]["app_plan"]
           updated_at?: string
           user_id?: string
         }
@@ -588,6 +591,45 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_counters: {
+        Row: {
+          analyses: number
+          cover_letters: number
+          created_at: string
+          id: string
+          interview_questions: number
+          mock_interviews: number
+          period_start: string
+          resume_uploads: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analyses?: number
+          cover_letters?: number
+          created_at?: string
+          id?: string
+          interview_questions?: number
+          mock_interviews?: number
+          period_start?: string
+          resume_uploads?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analyses?: number
+          cover_letters?: number
+          created_at?: string
+          id?: string
+          interview_questions?: number
+          mock_interviews?: number
+          period_start?: string
+          resume_uploads?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -623,6 +665,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_plan: "free" | "pro" | "advanced" | "teams"
       app_role: "admin" | "user"
     }
     CompositeTypes: {
@@ -751,6 +794,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_plan: ["free", "pro", "advanced", "teams"],
       app_role: ["admin", "user"],
     },
   },
