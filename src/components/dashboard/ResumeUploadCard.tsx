@@ -168,14 +168,14 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
       )}
       <button
         type="button"
-        onClick={() => !busy && inputRef.current?.click()}
+        onClick={() => !busy && !blocked && inputRef.current?.click()}
         onDragOver={(e) => {
           e.preventDefault();
-          if (!busy) setDragOver(true);
+          if (!busy && !blocked) setDragOver(true);
         }}
         onDragLeave={() => setDragOver(false)}
         onDrop={onDrop}
-        disabled={busy}
+        disabled={busy || blocked}
         className={cn(
           "w-full text-left p-6 sm:p-7 transition-colors",
           dragOver ? "bg-foreground/[0.03]" : "bg-transparent",
