@@ -1,7 +1,10 @@
 import { Pricing } from "@/components/landing/Pricing";
 import { Reveal } from "@/components/landing/Reveal";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PLAN_LABEL } from "@/lib/entitlements";
 
 const Upgrade = () => {
+  const ent = useEntitlements();
   return (
     <div className="max-w-7xl mx-auto pb-20">
       <Reveal>
@@ -16,10 +19,16 @@ const Upgrade = () => {
             Faster rewrites, deeper ATS scoring, unlimited mock interviews — pick the plan that
             matches how seriously you're job hunting.
           </p>
+          {!ent.loading && (
+            <p className="mt-3 text-[12.5px] text-foreground/50">
+              You're currently on the{" "}
+              <span className="font-medium text-foreground/80">{PLAN_LABEL[ent.plan]}</span> plan.
+            </p>
+          )}
         </div>
       </Reveal>
 
-      <Pricing variant="dashboard" showHeader={false} />
+      <Pricing variant="dashboard" showHeader={false} currentPlan={ent.plan} />
     </div>
   );
 };
