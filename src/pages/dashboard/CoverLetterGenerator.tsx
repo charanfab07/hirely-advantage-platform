@@ -5,7 +5,7 @@ import { SectionCard } from "@/components/dashboard/SectionCard";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
-import { Pricing } from "@/components/landing/Pricing";
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
