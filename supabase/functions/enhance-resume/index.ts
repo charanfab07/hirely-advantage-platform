@@ -215,12 +215,11 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json().catch(() => ({}));
-    const { resume_id, analysis_id, target_role: requestedRole, target_pages } = body ?? {};
+    const { resume_id, analysis_id, target_role: requestedRole } = body ?? {};
 
     if (!resume_id) return json({ error: "resume_id is required" }, 400);
     const cleanRequestedRole =
       typeof requestedRole === "string" ? requestedRole.trim().slice(0, 80) : "";
-    const pages: 1 | 2 | 3 = target_pages === 3 ? 3 : target_pages === 2 ? 2 : 1;
 
     const { data: resumeRow, error: resumeErr } = await supabase
       .from("resumes")
