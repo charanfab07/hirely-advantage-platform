@@ -168,10 +168,10 @@ export const Pricing = ({ variant = "landing", showHeader = true }: PricingProps
               <Reveal key={plan.id} delay={idx * 80}>
                 <div
                   className={cn(
-                    "relative h-full rounded-[26px] p-7 flex flex-col transition-transform duration-500",
+                    "relative h-full rounded-[26px] p-7 flex flex-col transition-transform duration-500 hover:-translate-y-1",
                     dark
-                      ? "text-white border border-white/10 shadow-[0_30px_70px_-25px_hsl(252_46%_8%/0.55)] [background:linear-gradient(160deg,#0E0B1F,#3a2d5e)]"
-                      : "glass-strong hover:-translate-y-1",
+                      ? "text-foreground glass-strong ring-1 ring-[hsl(260_60%_55%/0.35)] shadow-[0_30px_70px_-25px_hsl(260_60%_30%/0.35)] [background:linear-gradient(160deg,hsl(var(--soft-lilac)/0.85),hsl(var(--ethereal-blue)/0.65))]"
+                      : "glass-strong",
                     plan.highlight && "lg:scale-[1.02] lg:-translate-y-1",
                   )}
                 >
