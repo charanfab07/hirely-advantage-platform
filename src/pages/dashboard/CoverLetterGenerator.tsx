@@ -468,6 +468,7 @@ const CoverLetterGenerator = () => {
         date: d.date || todayLong(),
       }));
       setHasLetter(true);
+      ent.refresh();
       toast.success("Cover letter ready — edit before downloading.");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
