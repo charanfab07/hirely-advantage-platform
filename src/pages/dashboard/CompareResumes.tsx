@@ -248,7 +248,7 @@ const CompareResumes = () => {
 
         <div>
           <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-            Target role <span className="lowercase tracking-tight text-foreground/40">(optional, but improves accuracy)</span>
+            Job you're applying for <span className="lowercase tracking-tight text-foreground/40">(optional)</span>
           </label>
           <input
             type="text"
@@ -274,12 +274,12 @@ const CompareResumes = () => {
             ) : (
               <>
                 <GitCompare className="w-3.5 h-3.5" />
-                Compare resumes
+                Compare
               </>
             )}
           </button>
           <span className="text-[11.5px] text-foreground/50 tracking-tight">
-            ~12 seconds. The AI scores both and tells you who's more likely to get interviewed.
+            Takes about 12 seconds.
           </span>
         </div>
       </SectionCard>
