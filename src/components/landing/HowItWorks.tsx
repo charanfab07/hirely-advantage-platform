@@ -10,21 +10,24 @@ const steps = [
 
 export const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="px-4 py-4 md:py-6">
+    <section id="how-it-works" className="px-4 py-28">
       <div className="mx-auto max-w-6xl">
-        <p className="text-center text-[10px] font-medium uppercase tracking-[0.22em] text-foreground/50 mb-4">
-          How it works
-        </p>
-        <div className="relative grid grid-cols-4 gap-3 md:gap-6">
-          <div className="hidden md:block absolute top-9 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-foreground/25 to-transparent" />
+        <SectionHeader
+          eyebrow="How it works"
+          title="From upload to offer in four steps."
+          description="A complete workflow — engineered to compress the gap between submitting an application and signing the contract."
+        />
+
+        <div className="relative grid md:grid-cols-4 gap-6">
+          <div className="hidden md:block absolute top-12 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-foreground/25 to-transparent" />
           {steps.map((s, i) => (
             <Reveal key={i} delay={i * 120}>
               <div className="relative flex flex-col items-center text-center">
-                <div className="w-14 h-14 md:w-[72px] md:h-[72px] glass-strong rounded-full flex items-center justify-center mb-2 md:mb-3">
-                  <span className="font-display text-sm md:text-base font-semibold text-foreground">{s.n}</span>
+                <div className="w-24 h-24 glass-strong rounded-full flex items-center justify-center mb-5">
+                  <span className="font-display text-xl font-semibold text-foreground">{s.n}</span>
                 </div>
-                <h4 className="font-display text-sm md:text-base font-semibold text-foreground">{s.title}</h4>
-                <p className="mt-1 text-[11px] md:text-xs text-foreground/60 leading-snug max-w-[180px]">{s.desc}</p>
+                <h4 className="font-display text-xl font-semibold text-foreground">{s.title}</h4>
+                <p className="mt-2 text-sm text-foreground/60 leading-relaxed max-w-[200px]">{s.desc}</p>
               </div>
             </Reveal>
           ))}
