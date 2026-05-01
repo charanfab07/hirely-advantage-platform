@@ -17,6 +17,8 @@ import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
+import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -111,6 +113,8 @@ const impactToLift: Record<string, string> = {
 
 const ResumeAnalyzer = () => {
   const { user } = useAuth();
+  const ent = useEntitlements();
+  const isFree = ent.plan === "free";
   const [tab, setTab] = useState("score");
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
@@ -167,14 +171,15 @@ const ResumeAnalyzer = () => {
 
   const quickWins: QuickWin[] | undefined = useMemo(() => {
     if (!latest?.quick_wins?.length) return undefined;
-    return latest.quick_wins.slice(0, 3).map((w, i) => ({
+    const cap = isFree ? 2 : 3;
+    return latest.quick_wins.slice(0, cap).map((w, i) => ({
       id: `qw-${i}`,
       title: w.title,
       detail: w.detail,
       lift: impactToLift[w.impact] ?? "+2 pts",
       effort: w.impact === "high" ? "1 min" : w.impact === "medium" ? "45 sec" : "30 sec",
     }));
-  }, [latest]);
+  }, [latest, isFree]);
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
