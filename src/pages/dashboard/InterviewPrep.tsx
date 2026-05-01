@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -65,6 +66,7 @@ const tabs = [
 
 const InterviewPrep = () => {
   const { user } = useAuth();
+  const ent = useEntitlements();
   const [tab, setTab] = useState("practice");
 
   // form
@@ -134,6 +136,14 @@ const InterviewPrep = () => {
   const generateQuestion = async (type: GenerableType = qType) => {
     if (!resumeId) {
       toast.error("Upload your resume first.");
+      return;
+    }
+    if (!ent.can("interview_questions")) {
+      toast.error(
+        ent.plan === "free"
+          ? "Free plan includes 3 interview questions. Upgrade to Pro for unlimited."
+          : "You've reached your monthly interview-question limit.",
+      );
       return;
     }
     setGeneratingQ(true);
