@@ -5,16 +5,16 @@ import { AppTransitionLink } from "@/components/AppTransitionLink";
 
 const MockupCard = () => {
   return (
-    <div className="relative w-full max-w-[440px] mx-auto lg:mx-0 lg:ml-auto transform lg:rotate-[4deg] hover:rotate-[2deg] transition-transform duration-700 ease-out">
+    <div className="relative w-full max-w-[560px] mx-auto lg:mx-0 lg:ml-auto lg:translate-x-8 transform lg:rotate-[4deg] hover:rotate-[2deg] transition-transform duration-700 ease-out">
       <div className="[animation:float-y_6s_ease-in-out_infinite] motion-reduce:animate-none">
-      <div className="backdrop-blur-2xl bg-white/55 border border-white/70 shadow-[0_32px_64px_-16px_hsl(var(--slate-ink)/0.18),inset_0_1px_0_rgba(255,255,255,1)] rounded-[1.5rem] p-5 relative overflow-hidden">
+      <div className="backdrop-blur-2xl bg-white/55 border border-white/70 shadow-[0_32px_64px_-16px_hsl(var(--slate-ink)/0.18),inset_0_1px_0_rgba(255,255,255,1)] rounded-[2rem] p-9 relative overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-5">
           <div>
             <p className="text-[10px] font-medium text-foreground/50 uppercase tracking-[0.18em]">
               Resume rewrite
             </p>
-             <h3 className="font-display font-semibold text-base tracking-tight leading-none mt-1">
+            <h3 className="font-display font-semibold text-lg tracking-tight leading-none mt-1.5">
               47 minutes apart
             </h3>
           </div>
@@ -29,7 +29,7 @@ const MockupCard = () => {
             </span>
             <span className="text-base font-mono tracking-tight text-foreground/80 font-semibold">42 / 100</span>
           </div>
-            <div className="rounded-2xl bg-white/50 border border-white/60 p-3">
+          <div className="rounded-2xl bg-white/50 border border-white/60 p-4">
             <p className="text-xs font-semibold text-foreground/85">Senior Product Manager</p>
             <ul className="mt-2 space-y-1.5">
               <li className="text-[12px] text-foreground/75 leading-snug flex gap-2">
@@ -48,7 +48,7 @@ const MockupCard = () => {
         </div>
 
         {/* Arrow */}
-        <div className="flex justify-center my-2">
+        <div className="flex justify-center my-3">
           <div className="size-9 rounded-full bg-foreground text-background flex items-center justify-center shadow-md">
             <ArrowDown className="w-4 h-4" />
           </div>
@@ -62,7 +62,7 @@ const MockupCard = () => {
             </span>
             <span className="text-base font-mono tracking-tight text-foreground font-bold">94 / 100</span>
           </div>
-          <div className="rounded-2xl bg-white/85 border border-white p-3 shadow-[0_8px_24px_-12px_hsl(var(--slate-ink)/0.18)]">
+          <div className="rounded-2xl bg-white/85 border border-white p-4 shadow-[0_8px_24px_-12px_hsl(var(--slate-ink)/0.18)]">
             <p className="text-xs font-semibold text-foreground">Senior Product Manager</p>
             <ul className="mt-2 space-y-1.5">
               <li className="text-[12px] text-foreground leading-snug flex gap-2">
@@ -109,12 +109,12 @@ const MockupCard = () => {
 
 export const Hero = () => {
   return (
-    <section className="relative pt-20 pb-3 px-4 lg:px-12 overflow-hidden">
-      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-6 lg:gap-6 items-center">
+    <section className="relative pt-32 pb-24 px-4 lg:px-12 overflow-hidden">
+      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
         {/* Left: copy */}
-        <div className="flex flex-col gap-5 text-center lg:text-left">
+        <div className="flex flex-col gap-9 text-center lg:text-left">
           <Reveal delay={120}>
-            <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1] text-foreground lg:text-[3.65rem]">
+            <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-7xl">
               From Ignored to
               <br />
               <span className="relative inline-block">
@@ -126,7 +126,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={240}>
-            <p className="text-base lg:text-[1.05rem] text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-snug">
+            <p className="text-lg lg:text-xl text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
               Upload your resume and instantly get your ATS score, missing keywords, and exact fixes to get{" "}
               <span className="relative inline-block font-semibold text-foreground">
                 more interviews
@@ -157,7 +157,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={480}>
-            <div className="pt-3 border-t border-foreground/5 flex flex-col gap-2.5">
+            <div className="pt-6 mt-2 border-t border-foreground/5 flex flex-col gap-5">
               <div className="flex items-center justify-center lg:justify-start gap-3">
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
