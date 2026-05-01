@@ -282,8 +282,6 @@ export const EnhancedResumePanel = ({
     <EnhancedResumeView
       enhancement={enhancement}
       className={className}
-      pages={pages}
-      onPagesChange={setPages}
       onRegenerate={() => handleGenerate()}
       regenerating={generating}
     />
