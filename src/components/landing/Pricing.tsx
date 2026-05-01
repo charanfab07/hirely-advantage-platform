@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, Sparkles, Rocket, Zap, Building2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Reveal } from "./Reveal";
@@ -120,18 +120,50 @@ type PricingProps = {
 export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }: PricingProps) => {
   const [cadence, setCadence] = useState<(typeof cadences)[number]["id"]>("monthly");
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [livePlan, setLivePlan] = useState<AppPlan | undefined>(currentPlan);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // On the landing page we don't get currentPlan from props — fetch it for signed-in users.
+  useEffect(() => {
+    if (currentPlan) {
+      setLivePlan(currentPlan);
+      return;
+    }
+    if (!user) {
+      setLivePlan(undefined);
+      return;
+    }
+    let cancelled = false;
+    supabase
+      .from("profiles")
+      .select("plan")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setLivePlan(((data?.plan as AppPlan) ?? "free"));
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, currentPlan]);
+
+  const effectiveCurrent = livePlan;
+
   const handlePlanClick = async (planId: string) => {
-    if (planId === currentPlan) return;
+    if (planId === effectiveCurrent) return;
     if (planId === "teams") {
       window.location.href = "mailto:sales@hirely.app?subject=Teams%20plan%20inquiry";
       return;
     }
     if (!user) {
-      navigate("/auth");
+      try {
+        localStorage.setItem("pending_plan", planId);
+      } catch {
+        /* ignore */
+      }
+      navigate("/auth?mode=signup");
       return;
     }
     setBusyId(planId);
@@ -144,12 +176,14 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
       toast({ title: "Couldn't switch plan", description: error.message, variant: "destructive" });
       return;
     }
+    setLivePlan(planId as AppPlan);
     toast({
       title: planId === "free" ? "Switched to Free" : `You're now on ${planId[0].toUpperCase()}${planId.slice(1)}`,
       description: "Your new limits are active immediately.",
     });
-    navigate("/dashboard");
+    navigate("/app/resume");
   };
+
 
   const wrapperClass =
     variant === "landing"
@@ -270,11 +304,11 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
 
                   <button
                     type="button"
-                    disabled={plan.id === currentPlan || busyId === plan.id}
+                    disabled={plan.id === effectiveCurrent || busyId === plan.id}
                     onClick={() => handlePlanClick(plan.id)}
                     className={cn(
                       "mt-auto w-full inline-flex items-center justify-center gap-2 rounded-full text-[13.5px] font-medium px-5 py-3 transition-all",
-                      plan.id === currentPlan
+                      plan.id === effectiveCurrent
                         ? "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed"
                         : plan.highlight
                           ? "bg-foreground text-background hover:opacity-90"
@@ -282,12 +316,13 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
                       busyId === plan.id && "opacity-60 cursor-wait",
                     )}
                   >
-                    {plan.id === currentPlan
+                    {plan.id === effectiveCurrent
                       ? "Current plan"
                       : busyId === plan.id
                         ? "Switching…"
                         : plan.cta}
                   </button>
+
 
                 </div>
               </Reveal>

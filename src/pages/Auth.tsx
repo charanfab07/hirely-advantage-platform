@@ -27,11 +27,37 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const applyPendingAndGo = async (userId: string) => {
+      let pending: string | null = null;
+      try {
+        pending = localStorage.getItem("pending_plan");
+      } catch {
+        /* ignore */
+      }
+      if (pending && ["free", "pro", "advanced"].includes(pending)) {
+        await supabase
+          .from("profiles")
+          .update({ plan: pending as "free" | "pro" | "advanced" })
+          .eq("user_id", userId);
+        try {
+          localStorage.removeItem("pending_plan");
+        } catch {
+          /* ignore */
+        }
+        toast.success(
+          pending === "free"
+            ? "You're on the Free plan."
+            : `You're now on ${pending[0].toUpperCase()}${pending.slice(1)}.`,
+        );
+      }
+      navigate("/app/resume", { replace: true });
+    };
+
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/app/resume", { replace: true });
+      if (session) applyPendingAndGo(session.user.id);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_e, sess) => {
-      if (sess) navigate("/app/resume", { replace: true });
+      if (sess) applyPendingAndGo(sess.user.id);
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
