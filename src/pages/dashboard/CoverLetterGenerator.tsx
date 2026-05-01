@@ -541,6 +541,7 @@ const CoverLetterGenerator = () => {
   };
 
   const downloadPdf = () => {
+    if (!cleanExports && !confirm("Free plan exports are watermarked. Upgrade to Pro for clean PDF/DOCX. Continue with watermark?")) return;
     const pdf = new jsPDF({ unit: "pt", format: "letter" });
     const margin = 72; // 1 inch
     const pageWidth = pdf.internal.pageSize.getWidth();
@@ -646,6 +647,10 @@ const CoverLetterGenerator = () => {
   };
 
   const downloadDocx = async () => {
+    if (!cleanExports) {
+      toast.error("Clean DOCX export is a Pro feature. Use the watermarked PDF or upgrade.");
+      return;
+    }
     const docxFont = DOCX_FONT[typo.font];
     // docx 'size' is half-points. preview px ≈ pt; 1pt = 2 half-points.
     const sizeHalfPt = Math.round(typo.fontSize * 0.85 * 2);
