@@ -292,7 +292,7 @@ Deno.serve(async (req) => {
       return json({ error: "company and role are required" }, 400);
     }
     const safeTone = ALLOWED_TONES.has(tone) ? tone : "confident";
-    const ALLOWED_LENGTHS = new Set(["short", "medium", "detailed"]);
+    const ALLOWED_LENGTHS = new Set(["short", "medium", "detailed", "one_page", "two_page"]);
     const ALLOWED_LEVELS = new Set(["fresher", "intern", "junior", "experienced"]);
     const ALLOWED_STYLES = new Set(["modern", "formal", "startup", "corporate"]);
     const ALLOWED_RELOC = new Set(["remote", "hybrid", "onsite", "relocate"]);
@@ -304,10 +304,14 @@ Deno.serve(async (req) => {
     const safeAchievement = typeof strongest_achievement === "string" ? strongest_achievement.trim().slice(0, 600) : "";
     const safeSalary = typeof salary_expectation === "string" ? salary_expectation.trim().slice(0, 80) : "";
 
+    // Page-aware targets. A standard cover letter page (Times/Georgia 11pt,
+    // 1.4–1.6 line height, 1" margins) holds ~330–380 words. Two pages ≈ 700–780.
     const wordTargets: Record<string, string> = {
       short: "≤170 words",
       medium: "200–270 words",
       detailed: "300–360 words",
+      one_page: "300–370 words (must fit on a SINGLE printed page — never overflow)",
+      two_page: "640–780 words (must fill ~TWO printed pages — write 6–8 substantive paragraphs)",
     };
 
     // Pull resume text if provided & owned by user
