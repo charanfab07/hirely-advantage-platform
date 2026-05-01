@@ -86,7 +86,7 @@ export const EnhancedResumePanel = ({
   const [generating, setGenerating] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
-  const [pages, setPages] = useState<1 | 2 | 3>(1);
+  
 
   // Load latest enhancement for this resume
   useEffect(() => {
