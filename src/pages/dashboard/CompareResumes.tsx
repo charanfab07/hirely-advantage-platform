@@ -191,7 +191,6 @@ const CompareResumes = () => {
       <div className="max-w-[920px]">
         <Header />
         <UpgradeLock
-          feature="compare_versions"
           title="Compare resumes head-to-head"
           description="On Pro and above, you can compare any two resumes and see which one has a higher chance of landing an interview."
         />
