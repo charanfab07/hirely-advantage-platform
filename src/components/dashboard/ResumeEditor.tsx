@@ -154,7 +154,12 @@ export const ResumeEditor = ({
     [resume.contact.name],
   );
 
+  const blockExport = () => {
+    toast.error("Resume exports are a Pro feature. Upgrade to download PDF, DOCX, or ATS .txt.");
+  };
+
   const handleDownloadTxt = () => {
+    if (!canExport) return blockExport();
     const text = toPlainText(resume);
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     saveAs(blob, `${fileBase}_ATS.txt`);
@@ -162,6 +167,7 @@ export const ResumeEditor = ({
   };
 
   const handleDownloadPdf = () => {
+    if (!canExport) return blockExport();
     try {
       const doc = renderPdf(resume, typo);
       doc.save(`${fileBase}.pdf`);
@@ -173,6 +179,7 @@ export const ResumeEditor = ({
   };
 
   const handleDownloadDocx = async () => {
+    if (!canExport) return blockExport();
     try {
       const doc = renderDocx(resume, typo);
       const blob = await Packer.toBlob(doc);
