@@ -86,6 +86,7 @@ export const EnhancedResumePanel = ({
   const [generating, setGenerating] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
+  const [pages, setPages] = useState<1 | 2>(1);
 
   // Load latest enhancement for this resume
   useEffect(() => {
@@ -128,7 +129,7 @@ export const EnhancedResumePanel = ({
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("enhance-resume", {
-        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role },
+        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role, target_pages: pages },
       });
       if (error) {
         const msg = (error as any)?.message ?? "Failed to generate";
