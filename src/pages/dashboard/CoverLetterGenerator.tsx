@@ -443,6 +443,15 @@ const CoverLetterGenerator = () => {
           resume_id: resumeId ?? undefined,
         },
       });
+      // Handle server-side quota (402 OVER_QUOTA) — show the upgrade dialog
+      const quotaCode =
+        (data as { code?: string })?.code ||
+        (error as { context?: { code?: string } } | null)?.context?.code;
+      if (quotaCode === "OVER_QUOTA") {
+        setShowUpgrade(true);
+        ent.refresh();
+        return;
+      }
       if (error) throw new Error(error.message || "Generation failed");
       const errMsg = (data as { error?: string })?.error;
       if (errMsg) throw new Error(errMsg);
