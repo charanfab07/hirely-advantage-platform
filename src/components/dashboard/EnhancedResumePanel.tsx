@@ -248,34 +248,6 @@ export const EnhancedResumePanel = ({
             )}
           </div>
 
-          <div className="mt-5">
-            <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
-              How long should it be?
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {([1, 2, 3] as const).map((n) => {
-                const active = pages === n;
-                const label =
-                  n === 1 ? "1 page · concise" : n === 2 ? "2 pages · in-depth" : "3 pages · comprehensive";
-                return (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setPages(n)}
-                    className={cn(
-                      "px-3.5 py-2 rounded-full text-[12.5px] tracking-tight border transition-colors",
-                      active
-                        ? "bg-white text-foreground border-white"
-                        : "bg-white/5 text-white/85 border-white/15 hover:bg-white/10",
-                    )}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
               type="button"
