@@ -196,6 +196,8 @@ async function handleStart(
     return json({ error: "Failed to start session" }, 500);
   }
 
+  await incrementUsage(userId, "mock_interviews");
+
   // Ask the AI for the opening question.
   const messages: ChatMsg[] = [
     { role: "system", content: buildSystem(session, resumeText) },
