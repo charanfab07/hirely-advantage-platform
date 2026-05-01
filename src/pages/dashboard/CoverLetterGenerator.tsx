@@ -3,6 +3,8 @@ import { Sparkles, Loader2, Upload, FileText, Download, Copy, Check, Trash2, Ref
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { useAuth } from "@/hooks/useAuth";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import jsPDF from "jspdf";
@@ -308,6 +310,10 @@ function parseJobDescription(jd: string): {
 
 const CoverLetterGenerator = () => {
   const { user } = useAuth();
+  const ent = useEntitlements();
+  const isFree = ent.plan === "free";
+  const cleanExports = ent.unlocked("cover_letter_clean");
+  const canGenerate = ent.can("cover_letters");
   const [jd, setJd] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
   const [generating, setGenerating] = useState(false);
