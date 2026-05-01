@@ -371,29 +371,10 @@ const EnhancedResumeView = ({
               Enhanced resume
             </p>
             <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
-              Tap edit to refine, change length to regenerate, or open full screen.
+              Tap edit to refine, regenerate, or open full screen.
             </p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-            {/* Page-length selector */}
-            <div className="inline-flex items-center rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] p-0.5">
-              {([1, 2, 3] as const).map((n) => (
-                <button
-                  key={n}
-                  onClick={() => onPagesChange(n)}
-                  disabled={regenerating}
-                  className={cn(
-                    "px-2.5 py-1 text-[11.5px] font-medium tracking-tight rounded-md transition-colors",
-                    pages === n
-                      ? "bg-foreground text-background"
-                      : "text-foreground/65 hover:text-foreground",
-                  )}
-                  title={`${n} page${n > 1 ? "s" : ""}`}
-                >
-                  {n}p
-                </button>
-              ))}
-            </div>
             <button
               onClick={onRegenerate}
               disabled={regenerating}
