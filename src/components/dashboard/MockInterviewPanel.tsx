@@ -64,6 +64,9 @@ const FOCUSES: { value: Focus; label: string }[] = [
 const DURATIONS = [5, 10, 15, 20, 30] as const;
 
 export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) => {
+  const ent = useEntitlements();
+  const mockLimit = ent.limit("mock_interviews");
+  const [showUpgrade, setShowUpgrade] = useState(false);
   // Setup state
   const [targetRole, setTargetRole] = useState("");
   const [focus, setFocus] = useState<Focus>("behavioral");
