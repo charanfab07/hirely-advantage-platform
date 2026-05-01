@@ -3,6 +3,7 @@ import { Check, Sparkles, Rocket, Zap, Building2 } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { SectionHeader } from "./SectionHeader";
 import { cn } from "@/lib/utils";
+import type { AppPlan } from "@/lib/entitlements";
 
 type Plan = {
   id: string;
