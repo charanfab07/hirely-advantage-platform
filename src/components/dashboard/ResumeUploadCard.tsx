@@ -272,6 +272,15 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
         />
       </div>
 
+      {ent.plan === "pro" && typeof analysisLimit === "number" && (
+        <div className="border-t border-foreground/[0.06] px-6 sm:px-7 py-2 flex items-center justify-between text-[11.5px] tracking-tight text-foreground/60">
+          <span>Analyses this month</span>
+          <span className="font-medium text-foreground/85">
+            {ent.usage.analyses} / {analysisLimit}
+          </span>
+        </div>
+      )}
+
       <input
         ref={inputRef}
         type="file"
