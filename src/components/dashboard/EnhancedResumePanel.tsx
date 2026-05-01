@@ -325,15 +325,11 @@ const toEditable = (e: Enhancement): EditableResume => ({
 const EnhancedResumeView = ({
   enhancement,
   className,
-  pages,
-  onPagesChange,
   onRegenerate,
   regenerating,
 }: {
   enhancement: Enhancement;
   className?: string;
-  pages: 1 | 2 | 3;
-  onPagesChange: (n: 1 | 2 | 3) => void;
   onRegenerate: () => void;
   regenerating: boolean;
 }) => {
