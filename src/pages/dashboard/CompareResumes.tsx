@@ -98,6 +98,27 @@ const CompareResumes = () => {
   }
   if (!user) return <Navigate to="/auth" replace />;
 
+  const handleDelete = async (id: string) => {
+    if (!user) return;
+    const target = resumes.find((r) => r.id === id);
+    if (!target) return;
+    if (!confirm(`Delete "${target.file_name}"? This can't be undone.`)) return;
+    try {
+      if (target.file_path) {
+        await supabase.storage.from("resumes").remove([target.file_path]);
+      }
+      const { error } = await supabase.from("resumes").delete().eq("id", id);
+      if (error) throw error;
+      setResumes((prev) => prev.filter((r) => r.id !== id));
+      if (aId === id) setAId(null);
+      if (bId === id) setBId(null);
+      toast.success("Resume deleted");
+    } catch (e) {
+      console.error(e);
+      toast.error("Couldn't delete resume");
+    }
+  };
+
   const handleUpload = async (file: File) => {
     if (!user) return;
     const ext = "." + (file.name.split(".").pop() ?? "").toLowerCase();
