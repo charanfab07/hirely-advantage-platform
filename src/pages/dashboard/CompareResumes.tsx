@@ -102,7 +102,6 @@ const CompareResumes = () => {
     if (!user) return;
     const target = resumes.find((r) => r.id === id);
     if (!target) return;
-    if (!confirm(`Delete "${target.file_name}"? This can't be undone.`)) return;
     try {
       if (target.file_path) {
         await supabase.storage.from("resumes").remove([target.file_path]);
