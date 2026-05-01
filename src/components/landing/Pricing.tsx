@@ -235,14 +235,17 @@ export const Pricing = ({ variant = "landing", showHeader = true, currentPlan }:
 
                   <button
                     type="button"
+                    disabled={plan.id === currentPlan}
                     className={cn(
                       "mt-auto w-full inline-flex items-center justify-center gap-2 rounded-full text-[13.5px] font-medium px-5 py-3 transition-all",
-                      plan.highlight
-                        ? "bg-foreground text-background hover:opacity-90"
+                      plan.id === currentPlan
+                        ? "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed"
+                        : plan.highlight
+                          ? "bg-foreground text-background hover:opacity-90"
                           : "glass hover:bg-foreground hover:text-background",
                     )}
                   >
-                    {plan.cta}
+                    {plan.id === currentPlan ? "Current plan" : plan.cta}
                   </button>
                 </div>
               </Reveal>
