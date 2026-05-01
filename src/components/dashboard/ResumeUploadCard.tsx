@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
-import { Loader2, Upload, FileText, X } from "lucide-react";
+import { Loader2, Upload, FileText, X, Lock } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { SectionCard } from "./SectionCard";
@@ -11,6 +12,8 @@ import {
   extractResumeText,
 } from "@/lib/resumeParser";
 import { cn } from "@/lib/utils";
+import { useEntitlements } from "@/hooks/useEntitlements";
+import { PLAN_LABEL } from "@/lib/entitlements";
 
 type Stage = "idle" | "extracting" | "uploading" | "analyzing";
 
@@ -26,6 +29,10 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [targetRole, setTargetRole] = useState("");
+  const ent = useEntitlements();
+  const uploadAllowed = ent.can("resume_uploads");
+  const analysisAllowed = ent.can("analyses");
+  const blocked = !ent.loading && (!uploadAllowed || !analysisAllowed);
 
   const stageLabel: Record<Stage, string> = {
     idle: "",
@@ -41,6 +48,10 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
   };
 
   const handleFile = async (file: File) => {
+    if (blocked) {
+      toast.error(`Your ${PLAN_LABEL[ent.plan]} plan limit is reached. Upgrade for more uploads.`);
+      return;
+    }
     try {
       // Validate
       if (file.size > MAX_FILE_BYTES) {
