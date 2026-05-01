@@ -86,7 +86,7 @@ export const EnhancedResumePanel = ({
   const [generating, setGenerating] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
-  const [pages, setPages] = useState<1 | 2>(1);
+  const [pages, setPages] = useState<1 | 2 | 3>(1);
 
   // Load latest enhancement for this resume
   useEffect(() => {
@@ -253,8 +253,10 @@ export const EnhancedResumePanel = ({
               How long should it be?
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {([1, 2] as const).map((n) => {
+              {([1, 2, 3] as const).map((n) => {
                 const active = pages === n;
+                const label =
+                  n === 1 ? "1 page · concise" : n === 2 ? "2 pages · in-depth" : "3 pages · comprehensive";
                 return (
                   <button
                     key={n}
@@ -267,7 +269,7 @@ export const EnhancedResumePanel = ({
                         : "bg-white/5 text-white/85 border-white/15 hover:bg-white/10",
                     )}
                   >
-                    {n === 1 ? "1 page · concise" : "2 pages · in-depth"}
+                    {label}
                   </button>
                 );
               })}
