@@ -215,12 +215,11 @@ Deno.serve(async (req) => {
     const userId = userData.user.id;
 
     const body = await req.json().catch(() => ({}));
-    const { resume_id, analysis_id, target_role: requestedRole, target_pages } = body ?? {};
+    const { resume_id, analysis_id, target_role: requestedRole } = body ?? {};
 
     if (!resume_id) return json({ error: "resume_id is required" }, 400);
     const cleanRequestedRole =
       typeof requestedRole === "string" ? requestedRole.trim().slice(0, 80) : "";
-    const pages: 1 | 2 | 3 = target_pages === 3 ? 3 : target_pages === 2 ? 2 : 1;
 
     const { data: resumeRow, error: resumeErr } = await supabase
       .from("resumes")
@@ -273,11 +272,7 @@ Deno.serve(async (req) => {
 
     const effectiveRole = cleanRequestedRole || targetRole;
     const truncated = resumeRow.raw_text.slice(0, 16000);
-    const pageGuidance = pages === 1
-      ? `LENGTH TARGET: ONE printed page (≈450–550 words total).\n- Summary: 2 sentences max.\n- Skills: 3–4 tight clusters, ~6–10 items each.\n- Experience: 3–4 bullets per role, each ≤1 line when printed.\n- Projects: at most 2, one line each.\n- Trim ruthlessly — keep only the highest-impact content.`
-      : pages === 2
-        ? `LENGTH TARGET: TWO printed pages (≈900–1100 words total).\n- Summary: 3 sentences with one quantified headline.\n- Skills: 4–5 clusters, deeper coverage.\n- Experience: 4–6 detailed bullets per role with specifics and metrics.\n- Projects: 2–4 with description + impact.\n- Add an Achievements section if the source supports it.\n- Expand depth — never pad with filler.`
-        : `LENGTH TARGET: THREE printed pages (≈1400–1700 words total).\n- Summary: 3–4 sentences with quantified headline.\n- Skills: 5–6 clusters with full coverage.\n- Experience: 5–8 deep bullets per role with specifics, scope, scale, metrics.\n- Projects: 3–5 detailed entries with description + tech + impact.\n- Include an Achievements section and expand education detail.\n- Use the extra space for substance — never pad with filler.`;
+    const pageGuidance = `LENGTH TARGET: ONE printed page (≈450–550 words total).\n- Summary: 2 sentences max.\n- Skills: 3–4 tight clusters, ~6–10 items each.\n- Experience: 3–4 bullets per role, each ≤1 line when printed.\n- Projects: at most 2, one line each.\n- Trim ruthlessly — keep only the highest-impact content.`;
 
     const userPrompt = `Rewrite this resume into a single recruiter-ready version that fixes every issue from the analysis.${
       effectiveRole ? ` Optimize specifically for the role: "${effectiveRole}". Tailor the summary, skill clusters, keyword choice, and bullet emphasis to what recruiters and ATS systems screen for in "${effectiveRole}" applications.` : ""

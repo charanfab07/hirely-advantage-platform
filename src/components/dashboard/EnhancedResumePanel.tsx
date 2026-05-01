@@ -86,7 +86,7 @@ export const EnhancedResumePanel = ({
   const [generating, setGenerating] = useState(false);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [customRole, setCustomRole] = useState("");
-  const [pages, setPages] = useState<1 | 2 | 3>(1);
+  
 
   // Load latest enhancement for this resume
   useEffect(() => {
@@ -129,7 +129,7 @@ export const EnhancedResumePanel = ({
     setGenerating(true);
     try {
       const { data, error } = await supabase.functions.invoke("enhance-resume", {
-        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role, target_pages: pages },
+        body: { resume_id: resumeId, analysis_id: analysisId ?? null, target_role: role },
       });
       if (error) {
         const msg = (error as any)?.message ?? "Failed to generate";
@@ -248,34 +248,6 @@ export const EnhancedResumePanel = ({
             )}
           </div>
 
-          <div className="mt-5">
-            <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
-              How long should it be?
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {([1, 2, 3] as const).map((n) => {
-                const active = pages === n;
-                const label =
-                  n === 1 ? "1 page · concise" : n === 2 ? "2 pages · in-depth" : "3 pages · comprehensive";
-                return (
-                  <button
-                    key={n}
-                    type="button"
-                    onClick={() => setPages(n)}
-                    className={cn(
-                      "px-3.5 py-2 rounded-full text-[12.5px] tracking-tight border transition-colors",
-                      active
-                        ? "bg-white text-foreground border-white"
-                        : "bg-white/5 text-white/85 border-white/15 hover:bg-white/10",
-                    )}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <button
               type="button"
@@ -310,8 +282,6 @@ export const EnhancedResumePanel = ({
     <EnhancedResumeView
       enhancement={enhancement}
       className={className}
-      pages={pages}
-      onPagesChange={setPages}
       onRegenerate={() => handleGenerate()}
       regenerating={generating}
     />
@@ -355,15 +325,11 @@ const toEditable = (e: Enhancement): EditableResume => ({
 const EnhancedResumeView = ({
   enhancement,
   className,
-  pages,
-  onPagesChange,
   onRegenerate,
   regenerating,
 }: {
   enhancement: Enhancement;
   className?: string;
-  pages: 1 | 2 | 3;
-  onPagesChange: (n: 1 | 2 | 3) => void;
   onRegenerate: () => void;
   regenerating: boolean;
 }) => {
@@ -405,29 +371,10 @@ const EnhancedResumeView = ({
               Enhanced resume
             </p>
             <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
-              Tap edit to refine, change length to regenerate, or open full screen.
+              Tap edit to refine, regenerate, or open full screen.
             </p>
           </div>
           <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-            {/* Page-length selector */}
-            <div className="inline-flex items-center rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] p-0.5">
-              {([1, 2, 3] as const).map((n) => (
-                <button
-                  key={n}
-                  onClick={() => onPagesChange(n)}
-                  disabled={regenerating}
-                  className={cn(
-                    "px-2.5 py-1 text-[11.5px] font-medium tracking-tight rounded-md transition-colors",
-                    pages === n
-                      ? "bg-foreground text-background"
-                      : "text-foreground/65 hover:text-foreground",
-                  )}
-                  title={`${n} page${n > 1 ? "s" : ""}`}
-                >
-                  {n}p
-                </button>
-              ))}
-            </div>
             <button
               onClick={onRegenerate}
               disabled={regenerating}
