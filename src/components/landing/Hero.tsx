@@ -5,9 +5,9 @@ import { AppTransitionLink } from "@/components/AppTransitionLink";
 
 const MockupCard = () => {
   return (
-    <div className="relative w-full max-w-[560px] mx-auto lg:mx-0 lg:ml-auto lg:translate-x-8 transform lg:rotate-[4deg] hover:rotate-[2deg] transition-transform duration-700 ease-out">
+    <div className="relative w-full max-w-[500px] mx-auto lg:mx-0 lg:ml-auto lg:translate-x-4 transform lg:rotate-[4deg] hover:rotate-[2deg] transition-transform duration-700 ease-out">
       <div className="[animation:float-y_6s_ease-in-out_infinite] motion-reduce:animate-none">
-      <div className="backdrop-blur-2xl bg-white/55 border border-white/70 shadow-[0_32px_64px_-16px_hsl(var(--slate-ink)/0.18),inset_0_1px_0_rgba(255,255,255,1)] rounded-[2rem] p-9 relative overflow-hidden">
+      <div className="backdrop-blur-2xl bg-white/55 border border-white/70 shadow-[0_32px_64px_-16px_hsl(var(--slate-ink)/0.18),inset_0_1px_0_rgba(255,255,255,1)] rounded-[2rem] p-6 relative overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
@@ -109,12 +109,12 @@ const MockupCard = () => {
 
 export const Hero = () => {
   return (
-    <section className="relative pt-32 pb-24 px-4 lg:px-12 overflow-hidden">
-      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
+    <section className="relative pt-24 pb-6 px-4 lg:px-12 overflow-hidden">
+      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-8 items-center">
         {/* Left: copy */}
-        <div className="flex flex-col gap-9 text-center lg:text-left">
+        <div className="flex flex-col gap-6 text-center lg:text-left">
           <Reveal delay={120}>
-            <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.04] text-foreground lg:text-7xl">
+            <h1 className="font-display text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.02] text-foreground lg:text-[4.15rem]">
               From Ignored to
               <br />
               <span className="relative inline-block">
@@ -126,7 +126,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={240}>
-            <p className="text-lg lg:text-xl text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-base lg:text-lg text-foreground/65 max-w-[48ch] mx-auto lg:mx-0 leading-relaxed">
               Upload your resume and instantly get your ATS score, missing keywords, and exact fixes to get{" "}
               <span className="relative inline-block font-semibold text-foreground">
                 more interviews
@@ -157,7 +157,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={480}>
-            <div className="pt-6 mt-2 border-t border-foreground/5 flex flex-col gap-5">
+            <div className="pt-4 border-t border-foreground/5 flex flex-col gap-3">
               <div className="flex items-center justify-center lg:justify-start gap-3">
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
