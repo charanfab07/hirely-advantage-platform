@@ -1,5 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -135,42 +134,6 @@ export function RoleSuggestInput({
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const popRef = useRef<HTMLDivElement>(null);
-
-  // Portal target — created lazily on first open so SSR-safe.
-  const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number; placement: "below" | "above" } | null>(null);
-
-  const recompute = () => {
-    const el = inputRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const gap = 6;
-    const desired = 320; // ideal max-height
-    const spaceBelow = vh - r.bottom - 12;
-    const spaceAbove = r.top - 12;
-    const placeBelow = spaceBelow >= 200 || spaceBelow >= spaceAbove;
-    const maxHeight = Math.max(160, Math.min(desired, placeBelow ? spaceBelow : spaceAbove));
-    setPos({
-      top: placeBelow ? r.bottom + gap : r.top - gap - maxHeight,
-      left: r.left,
-      width: r.width,
-      maxHeight,
-      placement: placeBelow ? "below" : "above",
-    });
-  };
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    recompute();
-    const onScrollOrResize = () => recompute();
-    window.addEventListener("scroll", onScrollOrResize, true);
-    window.addEventListener("resize", onScrollOrResize);
-    return () => {
-      window.removeEventListener("scroll", onScrollOrResize, true);
-      window.removeEventListener("resize", onScrollOrResize);
-    };
-  }, [open]);
 
   // Close on outside click — checks both the wrapper and the portaled panel.
   useEffect(() => {
@@ -178,7 +141,6 @@ export function RoleSuggestInput({
     function onDocClick(e: MouseEvent) {
       const t = e.target as Node;
       if (wrapRef.current?.contains(t)) return;
-      if (popRef.current?.contains(t)) return;
       setOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
