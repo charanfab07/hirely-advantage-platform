@@ -1,5 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -135,42 +134,6 @@ export function RoleSuggestInput({
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const popRef = useRef<HTMLDivElement>(null);
-
-  // Portal target — created lazily on first open so SSR-safe.
-  const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number; placement: "below" | "above" } | null>(null);
-
-  const recompute = () => {
-    const el = inputRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const vh = window.innerHeight;
-    const gap = 6;
-    const desired = 320; // ideal max-height
-    const spaceBelow = vh - r.bottom - 12;
-    const spaceAbove = r.top - 12;
-    const placeBelow = spaceBelow >= 200 || spaceBelow >= spaceAbove;
-    const maxHeight = Math.max(160, Math.min(desired, placeBelow ? spaceBelow : spaceAbove));
-    setPos({
-      top: placeBelow ? r.bottom + gap : r.top - gap - maxHeight,
-      left: r.left,
-      width: r.width,
-      maxHeight,
-      placement: placeBelow ? "below" : "above",
-    });
-  };
-
-  useLayoutEffect(() => {
-    if (!open) return;
-    recompute();
-    const onScrollOrResize = () => recompute();
-    window.addEventListener("scroll", onScrollOrResize, true);
-    window.addEventListener("resize", onScrollOrResize);
-    return () => {
-      window.removeEventListener("scroll", onScrollOrResize, true);
-      window.removeEventListener("resize", onScrollOrResize);
-    };
-  }, [open]);
 
   // Close on outside click — checks both the wrapper and the portaled panel.
   useEffect(() => {
@@ -178,7 +141,6 @@ export function RoleSuggestInput({
     function onDocClick(e: MouseEvent) {
       const t = e.target as Node;
       if (wrapRef.current?.contains(t)) return;
-      if (popRef.current?.contains(t)) return;
       setOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
@@ -198,19 +160,10 @@ export function RoleSuggestInput({
 
   const popular = ["Senior Product Manager", "Software Engineer", "Data Analyst", "Product Designer"];
 
-  const dropdown = open && !disabled && pos && typeof document !== "undefined"
-    ? createPortal(
+  const dropdown = open && !disabled ? (
         <div
-          ref={popRef}
           role="listbox"
-          style={{
-            position: "fixed",
-            top: pos.top,
-            left: pos.left,
-            width: pos.width,
-            maxHeight: pos.maxHeight,
-          }}
-          className="z-[60] overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-xl shadow-black/10"
+          className="absolute left-0 right-0 top-[calc(100%+6px)] z-[80] max-h-[min(320px,42vh)] overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-xl shadow-black/10"
         >
           <div className="sticky top-0 z-10 px-3 py-2 border-b border-foreground/[0.06] bg-background/95 backdrop-blur flex items-center gap-2 text-[11px] tracking-tight text-foreground/50">
             <Search className="w-3 h-3" />
@@ -265,10 +218,8 @@ export function RoleSuggestInput({
               ))}
             </div>
           )}
-        </div>,
-        document.body,
-      )
-    : null;
+        </div>
+      ) : null;
 
   return (
     <div ref={wrapRef} className={cn("relative", className)}>
