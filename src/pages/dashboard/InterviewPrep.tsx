@@ -419,9 +419,9 @@ const InterviewPrep = () => {
       )}
 
       {tab === "practice" && resumeId && practiceStarted && (
-        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Composer */}
-          <SectionCard className="lg:col-span-5 p-0 overflow-visible">
+          <SectionCard className="md:col-span-6 lg:col-span-5 p-0 overflow-visible">
             <div className="px-5 sm:px-6 pt-5 pb-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
