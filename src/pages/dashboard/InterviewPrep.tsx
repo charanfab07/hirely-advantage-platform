@@ -303,8 +303,8 @@ const InterviewPrep = () => {
       {tab === "mock" && <div className="mt-5"><MockInterviewPanel resumeId={resumeId} /></div>}
 
       {tab === "practice" && !resumeLoading && !resumeId && user && (
-        <div className="mt-5 grid grid-cols-1 xl:grid-cols-12 gap-4">
-          <div className="xl:col-span-8 xl:col-start-3">
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div className="lg:col-span-10 lg:col-start-2 xl:col-span-8 xl:col-start-3">
             <SectionCard tone="dark" className="mb-4 p-5">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-medium">
                 Step 1 — Upload your resume
