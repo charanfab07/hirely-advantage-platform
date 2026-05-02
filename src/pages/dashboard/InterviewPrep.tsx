@@ -327,7 +327,89 @@ const InterviewPrep = () => {
         </div>
       )}
 
-      {tab === "practice" && resumeId && (
+      {tab === "practice" && resumeId && !practiceStarted && (
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <SectionCard className="lg:col-span-8 lg:col-start-3 p-0 overflow-hidden">
+            <div className="px-6 sm:px-8 pt-7 pb-6">
+              <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium">
+                Ready when you are
+              </p>
+              <h2 className="mt-2 text-[22px] sm:text-[26px] leading-[1.1] font-semibold tracking-tight text-foreground">
+                Practice grounded in your resume.
+              </h2>
+              <p className="mt-2 text-[13.5px] text-foreground/65 tracking-tight max-w-xl">
+                Every question we generate is based on your actual experience — projects, skills,
+                achievements. Pick a question type below, then start.
+              </p>
+
+              {resumeName && (
+                <p className="mt-4 inline-flex items-center gap-1.5 text-[11.5px] text-foreground/55 tracking-tight">
+                  <FileText className="w-3.5 h-3.5" />
+                  Using <span className="font-medium text-foreground/80">{resumeName}</span>
+                </p>
+              )}
+
+              <div className="mt-5">
+                <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Question type
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {QUESTION_TYPES.map((b) => (
+                    <button
+                      key={b.type}
+                      type="button"
+                      onClick={() => setQType(b.type)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight transition-colors border",
+                        qType === b.type
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
+                      )}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5">
+                <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                  Target role (optional)
+                </label>
+                <RoleSuggestInput
+                  value={targetRole}
+                  onChange={setTargetRole}
+                  placeholder="Senior PM, Data Analyst…"
+                  className="mt-1.5"
+                />
+              </div>
+
+              <div className="mt-6 flex items-center justify-end">
+                <button
+                  type="button"
+                  onClick={startPractice}
+                  disabled={generatingQ}
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-[13px] font-medium tracking-tight bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-opacity"
+                >
+                  {generatingQ ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      Preparing…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Start practice
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </SectionCard>
+        </div>
+      )}
+
+      {tab === "practice" && resumeId && practiceStarted && (
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Composer */}
           <SectionCard className="lg:col-span-5 p-0 overflow-hidden">
