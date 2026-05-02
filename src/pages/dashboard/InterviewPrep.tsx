@@ -244,12 +244,15 @@ const InterviewPrep = () => {
     }
   };
 
-  // Auto-generate the first question once a resume is available.
-  useEffect(() => {
-    if (!resumeId || question || generatingQ) return;
-    generateQuestion(qType);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resumeId]);
+  // No auto-generation — the user must explicitly hit "Start practice".
+  const [practiceStarted, setPracticeStarted] = useState(false);
+
+  const startPractice = async () => {
+    setPracticeStarted(true);
+    if (!question && !generatingQ) {
+      await generateQuestion(qType);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto">
