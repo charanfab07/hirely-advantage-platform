@@ -696,7 +696,7 @@ const AnalysisView = ({
 }: {
   analysis: Analysis;
   onCopy: (text: string, label?: string) => void;
-  onUseImproved: () => void;
+  onUseImproved: (text?: string) => void;
   onPracticeAgain: () => void;
 }) => {
   const score = analysis.overall_score ?? 0;
