@@ -470,12 +470,13 @@ const InterviewPrep = () => {
               </div>
 
               <textarea
+                ref={questionRef}
                 value={generatingQ && !question ? "" : question}
                 onChange={(e) => setQuestion(e.target.value)}
-                rows={3}
+                rows={2}
                 disabled={analyzing || generatingQ}
                 placeholder={generatingQ ? "Writing a question from your resume…" : "Hit Shuffle to get a personalized question."}
-                className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
+                className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3.5 py-2.5 text-[14px] leading-[1.55] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none overflow-hidden min-h-[68px]"
               />
 
               {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
