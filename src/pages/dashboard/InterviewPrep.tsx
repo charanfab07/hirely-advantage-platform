@@ -66,6 +66,17 @@ const tabs = [
   { value: "mock", label: "Mock interview" },
 ];
 
+// One-line "what a strong answer must cover" hint per question type.
+const focusLineFor = (type: GenerableType, focusArea?: string | null): string => {
+  const base =
+    type === "behavioral"
+      ? "Situation + Action + measurable Result"
+      : type === "technical"
+        ? "Technical challenge + your approach + measurable outcome"
+        : "Problem framing + structured approach + recommendation with numbers";
+  return focusArea ? `${base} · ${focusArea}` : base;
+};
+
 const InterviewPrep = () => {
   const { user } = useAuth();
   const ent = useEntitlements();
