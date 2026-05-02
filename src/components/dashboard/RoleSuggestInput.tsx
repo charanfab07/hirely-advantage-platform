@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -132,8 +133,10 @@ export function RoleSuggestInput({
   id,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click — checks both the wrapper and the portaled panel.
   useEffect(() => {
@@ -141,11 +144,47 @@ export function RoleSuggestInput({
     function onDocClick(e: MouseEvent) {
       const t = e.target as Node;
       if (wrapRef.current?.contains(t)) return;
+      if (panelRef.current?.contains(t)) return;
       setOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open || disabled) return;
+
+    const recompute = () => {
+      const r = inputRef.current?.getBoundingClientRect();
+      if (!r) return;
+
+      const margin = 12;
+      const gap = 8;
+      const desiredWidth = Math.min(720, window.innerWidth - margin * 2);
+      const width = Math.max(r.width, desiredWidth);
+      const left = Math.min(Math.max(r.left, margin), window.innerWidth - width - margin);
+      const below = window.innerHeight - r.bottom;
+      const above = r.top;
+      const placeBelow = below >= 250 || below >= above;
+      const room = placeBelow ? below : above;
+
+      setPos({
+        top: placeBelow ? r.bottom + gap : Math.max(margin, r.top - gap - Math.min(360, room - margin - gap)),
+        left,
+        width,
+        maxHeight: Math.max(220, Math.min(360, room - margin - gap)),
+      });
+    };
+
+    recompute();
+    const onMove = () => requestAnimationFrame(recompute);
+    window.addEventListener("resize", onMove);
+    window.addEventListener("scroll", onMove, true);
+    return () => {
+      window.removeEventListener("resize", onMove);
+      window.removeEventListener("scroll", onMove, true);
+    };
+  }, [open, disabled, value]);
 
   const filteredGroups = useMemo(() => {
     const q = value.trim().toLowerCase();
@@ -160,10 +199,12 @@ export function RoleSuggestInput({
 
   const popular = ["Senior Product Manager", "Software Engineer", "Data Analyst", "Product Designer"];
 
-  const dropdown = open && !disabled ? (
+  const dropdown = open && !disabled && pos ? (
         <div
+          ref={panelRef}
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+6px)] z-[80] max-h-[min(320px,42vh)] overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-xl shadow-black/10"
+          style={{ top: pos.top, left: pos.left, width: pos.width, maxHeight: pos.maxHeight }}
+          className="fixed z-[9999] overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-xl shadow-black/10"
         >
           <div className="sticky top-0 z-10 px-3 py-2 border-b border-foreground/[0.06] bg-background/95 backdrop-blur flex items-center gap-2 text-[11px] tracking-tight text-foreground/50">
             <Search className="w-3 h-3" />
@@ -281,7 +322,7 @@ export function RoleSuggestInput({
         />
       </div>
 
-      {dropdown}
+      {typeof document !== "undefined" && dropdown ? createPortal(dropdown, document.body) : null}
     </div>
   );
 }
