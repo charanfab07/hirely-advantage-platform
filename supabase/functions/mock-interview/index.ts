@@ -79,7 +79,7 @@ const TURN_TOOL = {
         question: { type: "string", description: "The next interview question. One question only." },
         question_kind: {
           type: "string",
-          enum: ["opening", "follow_up", "new_topic", "curveball", "wrap_up"],
+          enum: ["opening", "follow_up", "new_topic", "curveball", "wrap_up", "nonsense"],
         },
         follow_up_hint: {
           type: "string",
