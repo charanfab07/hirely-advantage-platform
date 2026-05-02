@@ -109,9 +109,12 @@ const CompareResumes = () => {
       }
       const { error } = await supabase.from("resumes").delete().eq("id", id);
       if (error) throw error;
-      setResumes((prev) => prev.filter((r) => r.id !== id));
-      if (aId === id) setAId(null);
-      if (bId === id) setBId(null);
+      setResumes((prev) => {
+        const next = prev.filter((r) => r.id !== id);
+        setAId(next[0]?.id ?? null);
+        setBId(next[1]?.id ?? null);
+        return next;
+      });
       toast.success("Resume deleted");
     } catch (e) {
       console.error(e);
