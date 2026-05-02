@@ -78,11 +78,12 @@ const CompareResumes = () => {
         .select("id, file_name, file_path, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
-      if (cancelled) return;
-      const rows = (data ?? []) as ResumeRow[];
+    if (cancelled) return;
+      // Oldest first → Resume A is the first uploaded, Resume B is the second.
+      const rows = ((data ?? []) as ResumeRow[]).slice().reverse();
       setResumes(rows);
-      setAId((prev) => prev ?? rows[0]?.id ?? null);
-      setBId((prev) => prev ?? rows[1]?.id ?? null);
+      setAId(rows[0]?.id ?? null);
+      setBId(rows[1]?.id ?? null);
       setLoading(false);
     };
     load();
