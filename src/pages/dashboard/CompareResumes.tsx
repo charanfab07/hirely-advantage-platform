@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { UsageMeter } from "@/components/dashboard/UsageMeter";
 import {
   ACCEPTED_EXTS,
   ACCEPTED_MIME,
