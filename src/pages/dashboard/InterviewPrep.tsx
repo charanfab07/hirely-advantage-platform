@@ -757,95 +757,109 @@ const AnalysisView = ({
 
   return (
     <>
-      <SectionCard>
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-              Overall delivery
+      {/* Compact score card — score + axes side-by-side to save vertical space */}
+      <SectionCard className="p-4 sm:p-5">
+        <div className="flex items-stretch gap-5">
+          <div className="min-w-0 shrink-0 sm:w-[160px] flex flex-col justify-center pr-5 border-r border-foreground/[0.06]">
+            <p className="text-[10px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+              Overall
             </p>
-            <p className={cn("mt-1 text-[40px] font-semibold tracking-[-0.03em] leading-none tabular-nums", scoreColor)}>
+            <p className={cn("mt-0.5 text-[36px] font-semibold tracking-[-0.03em] leading-none tabular-nums", scoreColor)}>
               {score}
-              <span className="text-[18px] text-foreground/40 font-medium ml-1">/100</span>
+              <span className="text-[15px] text-foreground/40 font-medium ml-1">/100</span>
             </p>
             {analysis.coaching_note && (
-              <p className="mt-2 text-[13px] text-foreground/70 tracking-tight leading-snug max-w-md">
+              <p className="mt-2 text-[11.5px] text-foreground/65 tracking-tight leading-snug">
                 {analysis.coaching_note}
               </p>
             )}
           </div>
-        </div>
 
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {axes.map((a) => (
-            <ScoreBar key={a.label} label={a.label} value={a.value} />
-          ))}
+          <div className="flex-1 grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-2 self-center">
+            {axes.map((a) => (
+              <ScoreBar key={a.label} label={a.label} value={a.value} />
+            ))}
+          </div>
         </div>
       </SectionCard>
 
       {improved && (
-        <SectionCard className="p-0 overflow-hidden border-foreground/10 ring-1 ring-foreground/[0.04]">
-          <div className="px-5 sm:px-6 pt-5 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground text-background text-[10px] font-semibold tracking-[0.14em] uppercase">
-                <Sparkles className="w-2.5 h-2.5" />
-                AI Improved Answer
-              </span>
+        <SectionCard className="p-0 overflow-hidden ring-1 ring-primary/15 shadow-[0_24px_60px_-30px_hsl(var(--primary)/0.35)]">
+          {/* Premium gradient header */}
+          <div
+            className="px-5 sm:px-6 py-4 text-white"
+            style={{ background: "linear-gradient(120deg,#0E0B1F 0%,#3a2d5e 55%,#6D54B3 100%)" }}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase font-semibold text-white/85">
+                  <Sparkles className="w-3 h-3" />
+                  AI Improved Answer
+                </p>
+                <p className="mt-1 text-[13px] text-white/80 tracking-tight leading-snug">
+                  Same story — sharper structure, stronger impact, STAR-aligned.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onCopy(improved, "Improved answer copied")}
+                className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white text-[11px] font-medium tracking-tight transition-colors backdrop-blur"
+                aria-label="Copy improved answer"
+              >
+                <Copy className="w-3 h-3" />
+                Copy
+              </button>
             </div>
-            <p className="mt-2 text-[12.5px] text-foreground/60 tracking-tight leading-snug">
-              A stronger version of your answer using STAR structure, sharper clarity, and stronger
-              impact. Anything in [brackets] is a placeholder — replace with your real number.
-            </p>
           </div>
 
-          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4">
+          {/* The answer itself — primary content, larger leading for readability */}
+          <div className="px-5 sm:px-6 py-4 bg-foreground/[0.015]">
             <p className="whitespace-pre-wrap text-[13.5px] leading-[1.65] text-foreground tracking-tight">
               {improved}
             </p>
+            <p className="mt-2 text-[10.5px] text-foreground/45 tracking-tight">
+              Anything in [brackets] is a placeholder — swap in your real number.
+            </p>
           </div>
 
-          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex flex-wrap items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => onCopy(improved, "Improved answer copied")}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors"
-            >
-              <Copy className="w-3 h-3" />
-              Copy
-            </button>
+          {/* Action row — primary CTA on left, restyle chips middle, practice-again on right */}
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={() => onUseImproved(improved)}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-[11.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-foreground text-background text-[12px] font-semibold tracking-tight hover:opacity-90 transition-opacity"
             >
               <Wand2 className="w-3 h-3" />
               Use improved
             </button>
+
+            <span className="text-[10.5px] tracking-[0.16em] uppercase text-foreground/35 font-medium ml-1 hidden sm:inline">
+              Tweak
+            </span>
+
             <button
               type="button"
               onClick={() => restyle("shorter")}
               disabled={!!styleLoading}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
             >
               {styleLoading === "shorter" ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <Sparkles className="w-3 h-3" />
-              )}
-              Make shorter
+              ) : null}
+              Shorter
             </button>
             <button
               type="button"
               onClick={() => restyle("confident")}
               disabled={!!styleLoading}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
             >
               {styleLoading === "confident" ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <Sparkles className="w-3 h-3" />
-              )}
-              Make more confident
+              ) : null}
+              More confident
             </button>
+
             <button
               type="button"
               onClick={onPracticeAgain}
