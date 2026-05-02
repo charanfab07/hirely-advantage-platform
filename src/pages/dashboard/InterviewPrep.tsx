@@ -873,7 +873,7 @@ const AnalysisView = ({
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <SectionCard>
+        <SectionCard className="p-4 sm:p-5">
           <p className="text-[10.5px] tracking-[0.18em] uppercase text-emerald-700 dark:text-emerald-400 font-medium">
             What you did well
           </p>
