@@ -511,3 +511,29 @@ function json(payload: unknown, status = 200) {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 }
+
+// Heuristic: does this answer look like gibberish / non-attempt?
+// Conservative — only flags clear cases. The model still makes the final call.
+function looksLikeNonsense(text: string): boolean {
+  const t = (text || "").trim().toLowerCase();
+  if (!t) return true;
+  const words = t.split(/\s+/).filter(Boolean);
+  // Very short answers (< 5 words) with no real content.
+  if (words.length < 5) {
+    const lowEffort = /^(idk|dunno|nothing|n\/a|na|none|lol|lmao|test|asdf+|hi|hello|ok|okay|yes|no|maybe|skip|pass)\.?$/i;
+    if (words.every((w) => lowEffort.test(w))) return true;
+    if (words.length < 3) return true;
+  }
+  // Detect keyboard-mash tokens: long-ish words with no vowels or absurd consonant runs.
+  const mashy = words.filter((w) => {
+    if (w.length < 5) return false;
+    if (!/[aeiou]/i.test(w)) return true; // no vowels at all
+    if (/[bcdfghjklmnpqrstvwxyz]{5,}/i.test(w)) return true; // 5+ consonants in a row
+    if (/^[a-z0-9]{6,}$/i.test(w) && !/[aeiou].*[aeiou]/i.test(w)) return true; // alphanumeric, ≤1 vowel
+    return false;
+  });
+  if (words.length > 0 && mashy.length / words.length >= 0.5) return true;
+  // Single long token with digits mixed in and no spaces (e.g. "olbujnbkn67f").
+  if (words.length === 1 && words[0].length >= 6 && /\d/.test(words[0]) && /[a-z]/.test(words[0])) return true;
+  return false;
+}
