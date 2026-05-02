@@ -452,7 +452,14 @@ INTERVIEW SETTINGS
 - Focus: ${session.focus} — ${FOCUS_GUIDE[session.focus] ?? ""}
 - Difficulty: ${session.difficulty} — ${DIFFICULTY_GUIDE[session.difficulty] ?? ""}
 - Time budget: ${session.duration_minutes} minutes total. Plan ~6–10 turns.
-${resumeText ? `\nCANDIDATE RESUME (use to ground questions and probe real claims):\n${resumeText}\n` : ""}`;
+
+GROUNDING RULE (STRICT):
+Every question (including the opening one) MUST be grounded in something concrete from the CANDIDATE RESUME below — a specific project, role, technology, achievement, metric, education, certification, or claim. Do NOT ask generic interview questions ("Tell me about yourself", "What's your biggest weakness", "Why this company") unless they are tied to a specific resume detail. If the resume mentions Project X, ask about Project X. If it lists a tech stack, drill into that stack. Reference the resume detail naturally inside the question itself (e.g. "On the Stress Recognition ML project at Rooman, …").
+
+CANDIDATE RESUME (sole grounding source — use this and only this for question content):
+"""
+${resumeText}
+"""`;
 }
 
 async function callTurn(apiKey: string, messages: ChatMsg[]) {
