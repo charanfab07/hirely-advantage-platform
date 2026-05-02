@@ -159,10 +159,13 @@ const CompareResumes = () => {
         .single();
       if (insErr) throw insErr;
       const newRow = inserted as ResumeRow;
-      setResumes((prev) => [newRow, ...prev]);
-      // Auto-fill the first empty slot
-      if (!aId) setAId(newRow.id);
-      else if (!bId && newRow.id !== aId) setBId(newRow.id);
+      setResumes((prev) => {
+        const next = [...prev, newRow];
+        // Keep A = first uploaded, B = second uploaded.
+        setAId(next[0]?.id ?? null);
+        setBId(next[1]?.id ?? null);
+        return next;
+      });
       toast.success("Resume added", { id: "compare-upload" });
     } catch (e) {
       console.error(e);
