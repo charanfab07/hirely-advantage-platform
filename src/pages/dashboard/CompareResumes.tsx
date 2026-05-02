@@ -254,22 +254,27 @@ const CompareResumes = () => {
 
         {loading ? (
           <p className="text-[13px] text-foreground/55">Loading your resumes…</p>
-        ) : resumes.length < 2 ? (
-          <div className="rounded-xl border border-dashed border-foreground/15 bg-foreground/[0.02] p-6 text-center">
-            <FileText className="w-5 h-5 mx-auto text-foreground/40" />
-            <p className="mt-2 text-[13.5px] text-foreground/70 tracking-tight">
-              You need at least 2 resumes to compare.
-            </p>
-            <p className="mt-1 text-[12px] text-foreground/50">
-              {resumes.length === 1
-                ? "Upload one more — try a tailored version vs. your generic one."
-                : "Upload two resumes to get started."}
-            </p>
-          </div>
         ) : (
           <div className="grid sm:grid-cols-2 gap-3">
-            <ResumeSlot side="A" resume={resumes[0]} onDelete={handleDelete} />
-            <ResumeSlot side="B" resume={resumes[1]} onDelete={handleDelete} />
+            {resumes[0] ? (
+              <ResumeSlot side="A" resume={resumes[0]} onDelete={handleDelete} />
+            ) : (
+              <EmptySlot side="A" hint="Upload your first resume to fill this slot." onFile={handleUpload} />
+            )}
+            {resumes[1] ? (
+              <ResumeSlot side="B" resume={resumes[1]} onDelete={handleDelete} />
+            ) : (
+              <EmptySlot
+                side="B"
+                hint={
+                  resumes.length === 0
+                    ? "Upload Resume A first, then add a second one here."
+                    : "Upload a second resume to compare against Resume A."
+                }
+                onFile={handleUpload}
+                disabled={resumes.length === 0}
+              />
+            )}
           </div>
         )}
 
