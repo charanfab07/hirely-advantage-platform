@@ -338,7 +338,7 @@ const InterviewPrep = () => {
 
       {tab === "practice" && resumeId && !practiceStarted && (
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <SectionCard className="lg:col-span-8 lg:col-start-3 p-0 overflow-hidden">
+          <SectionCard className="lg:col-span-8 lg:col-start-3 p-0 overflow-visible">
             <div className="px-6 sm:px-8 pt-7 pb-6">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium">
                 Ready when you are
@@ -421,7 +421,7 @@ const InterviewPrep = () => {
       {tab === "practice" && resumeId && practiceStarted && (
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
           {/* Composer */}
-          <SectionCard className="lg:col-span-5 p-0 overflow-hidden">
+          <SectionCard className="lg:col-span-5 p-0 overflow-visible">
             <div className="px-5 sm:px-6 pt-5 pb-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
