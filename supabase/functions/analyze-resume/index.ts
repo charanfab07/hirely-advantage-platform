@@ -573,7 +573,7 @@ Deno.serve(async (req) => {
         score_breakdown: subScores,
         job_match: parsed.job_match ?? {},
         target_role: target_role ?? null,
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-lite",
       })
       .select()
       .single();
