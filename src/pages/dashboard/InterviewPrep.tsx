@@ -615,6 +615,10 @@ const InterviewPrep = () => {
                     toast.success("Loaded improved answer — try delivering it now.");
                   }
                 }}
+                onPracticeAgain={() => {
+                  setAnswer("");
+                  shuffleQuestion();
+                }}
               />
             ) : (
               <SectionCard className="flex items-center gap-3">
