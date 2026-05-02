@@ -66,6 +66,17 @@ const tabs = [
   { value: "mock", label: "Mock interview" },
 ];
 
+// One-line "what a strong answer must cover" hint per question type.
+const focusLineFor = (type: GenerableType, focusArea?: string | null): string => {
+  const base =
+    type === "behavioral"
+      ? "Situation + Action + measurable Result"
+      : type === "technical"
+        ? "Technical challenge + your approach + measurable outcome"
+        : "Problem framing + structured approach + recommendation with numbers";
+  return focusArea ? `${base} · ${focusArea}` : base;
+};
+
 const InterviewPrep = () => {
   const { user } = useAuth();
   const ent = useEntitlements();
@@ -478,6 +489,18 @@ const InterviewPrep = () => {
                 className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3.5 py-2.5 text-[14px] leading-[1.55] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none overflow-hidden min-h-[68px]"
               />
 
+              {/* Key focus line — tells the candidate what a strong answer needs to cover. */}
+              {question && (
+                <div className="mt-2 flex items-start gap-1.5 text-[11.5px] tracking-tight leading-snug">
+                  <span className="px-1.5 py-0.5 rounded-md bg-foreground/[0.06] text-foreground/65 text-[10px] font-medium uppercase tracking-[0.14em] shrink-0 mt-0.5">
+                    Focus
+                  </span>
+                  <span className="text-foreground/70">
+                    {focusLineFor(qType, questionMeta?.focus_area)}
+                  </span>
+                </div>
+              )}
+
               {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {questionMeta.focus_area && (
@@ -586,11 +609,16 @@ const InterviewPrep = () => {
               <AnalysisView
                 analysis={active}
                 onCopy={copy}
-                onUseImproved={() => {
-                  if (active.improved_answer) {
-                    setAnswer(active.improved_answer);
+                onUseImproved={(text) => {
+                  const next = text ?? active.improved_answer;
+                  if (next) {
+                    setAnswer(next);
                     toast.success("Loaded improved answer — try delivering it now.");
                   }
+                }}
+                onPracticeAgain={() => {
+                  setAnswer("");
+                  shuffleQuestion();
                 }}
               />
             ) : (
@@ -664,10 +692,12 @@ const AnalysisView = ({
   analysis,
   onCopy,
   onUseImproved,
+  onPracticeAgain,
 }: {
   analysis: Analysis;
   onCopy: (text: string, label?: string) => void;
-  onUseImproved: () => void;
+  onUseImproved: (text?: string) => void;
+  onPracticeAgain: () => void;
 }) => {
   const score = analysis.overall_score ?? 0;
   const scoreColor =
@@ -694,6 +724,37 @@ const AnalysisView = ({
     { label: "Length", value: analysis.length_score },
   ];
 
+  // Local override of the improved answer so "Make shorter / more confident" can update in place.
+  const [improved, setImproved] = useState<string | null>(analysis.improved_answer ?? null);
+  const [styleLoading, setStyleLoading] = useState<null | "shorter" | "confident">(null);
+
+  // Reset when analysis changes.
+  useEffect(() => {
+    setImproved(analysis.improved_answer ?? null);
+    setStyleLoading(null);
+  }, [analysis.id, analysis.improved_answer]);
+
+  const restyle = async (style: "shorter" | "confident") => {
+    if (!improved) return;
+    setStyleLoading(style);
+    try {
+      const { data, error } = await supabase.functions.invoke("rewrite-improved-answer", {
+        body: { question: analysis.question, answer: improved, style },
+      });
+      if (error) throw new Error(error.message || "Rewrite failed");
+      const e = (data as { error?: string })?.error;
+      if (e) throw new Error(e);
+      const next = (data as { answer?: string }).answer;
+      if (!next) throw new Error("No rewrite returned");
+      setImproved(next);
+      toast.success(style === "shorter" ? "Tightened up." : "More confident tone.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't rewrite");
+    } finally {
+      setStyleLoading(null);
+    }
+  };
+
   return (
     <>
       <SectionCard>
@@ -712,18 +773,6 @@ const AnalysisView = ({
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {analysis.improved_answer && (
-              <button
-                type="button"
-                onClick={onUseImproved}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-[11.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
-              >
-                <Wand2 className="w-3 h-3" />
-                Use improved
-              </button>
-            )}
-          </div>
         </div>
 
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -732,6 +781,82 @@ const AnalysisView = ({
           ))}
         </div>
       </SectionCard>
+
+      {improved && (
+        <SectionCard className="p-0 overflow-hidden border-foreground/10 ring-1 ring-foreground/[0.04]">
+          <div className="px-5 sm:px-6 pt-5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground text-background text-[10px] font-semibold tracking-[0.14em] uppercase">
+                <Sparkles className="w-2.5 h-2.5" />
+                AI Improved Answer
+              </span>
+            </div>
+            <p className="mt-2 text-[12.5px] text-foreground/60 tracking-tight leading-snug">
+              A stronger version of your answer using STAR structure, sharper clarity, and stronger
+              impact. Anything in [brackets] is a placeholder — replace with your real number.
+            </p>
+          </div>
+
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4">
+            <p className="whitespace-pre-wrap text-[13.5px] leading-[1.65] text-foreground tracking-tight">
+              {improved}
+            </p>
+          </div>
+
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onCopy(improved, "Improved answer copied")}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors"
+            >
+              <Copy className="w-3 h-3" />
+              Copy
+            </button>
+            <button
+              type="button"
+              onClick={() => onUseImproved(improved)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-[11.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+            >
+              <Wand2 className="w-3 h-3" />
+              Use improved
+            </button>
+            <button
+              type="button"
+              onClick={() => restyle("shorter")}
+              disabled={!!styleLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+            >
+              {styleLoading === "shorter" ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Sparkles className="w-3 h-3" />
+              )}
+              Make shorter
+            </button>
+            <button
+              type="button"
+              onClick={() => restyle("confident")}
+              disabled={!!styleLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+            >
+              {styleLoading === "confident" ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Sparkles className="w-3 h-3" />
+              )}
+              Make more confident
+            </button>
+            <button
+              type="button"
+              onClick={onPracticeAgain}
+              className="ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors"
+            >
+              <Shuffle className="w-3 h-3" />
+              Practice again
+            </button>
+          </div>
+        </SectionCard>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SectionCard>
@@ -843,36 +968,6 @@ const AnalysisView = ({
           )}
         </SectionCard>
       ) : null}
-
-      {analysis.improved_answer && (
-        <SectionCard className="p-0 overflow-hidden">
-          <div className="px-5 sm:px-6 pt-5 pb-3 flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium inline-flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3" />
-                Improved sample answer
-              </p>
-              <p className="text-[12px] text-foreground/55 tracking-tight mt-1">
-                Same story, sharper structure. Anything in [brackets] is a placeholder you should
-                replace with your real number.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onCopy(analysis.improved_answer ?? "", "Improved answer copied")}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors shrink-0"
-            >
-              <Copy className="w-3 h-3" />
-              Copy
-            </button>
-          </div>
-          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4">
-            <p className="whitespace-pre-wrap text-[13.5px] leading-[1.65] text-foreground tracking-tight">
-              {analysis.improved_answer}
-            </p>
-          </div>
-        </SectionCard>
-      )}
     </>
   );
 };
