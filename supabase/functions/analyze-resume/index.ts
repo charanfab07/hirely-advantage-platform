@@ -486,33 +486,51 @@ Deno.serve(async (req) => {
     const subScores = computeSubScores(raw_text, atsResult.score);
     const overallScore = computeOverallScore(subScores);
 
-    const truncated = raw_text.slice(0, 18000);
+    const truncated = raw_text.slice(0, 9000);
     const targetLine = target_role
       ? `Target role: ${String(target_role).slice(0, 120)}`
       : `Target role: (infer from resume — likely the candidate's most recent / highest title).`;
 
-    const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        temperature: 0,
-        top_p: 0.1,
-        seed: 7,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          {
-            role: "user",
-            content: `Analyze this resume and call analyze_resume. Apply the deterministic scoring rubric exactly — same input must yield same scores.\n\n${targetLine}\n\n--- RESUME TEXT ---\n${truncated}`,
-          },
-        ],
-        tools: [TOOL_SCHEMA],
-        tool_choice: { type: "function", function: { name: "analyze_resume" } },
-      }),
-    });
+    // Hard timeout on the AI call so the UI never hangs. Gemini Flash Lite
+    // typically returns in ~5–10s; we abort at 28s and surface a clear error.
+    const ac = new AbortController();
+    const timeoutId = setTimeout(() => ac.abort(), 28000);
+
+    let aiResp: Response;
+    try {
+      aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        signal: ac.signal,
+        body: JSON.stringify({
+          // Flash Lite: fastest in the Gemini 2.5 family. Deterministic
+          // settings keep results identical across runs.
+          model: "google/gemini-2.5-flash-lite",
+          temperature: 0,
+          top_p: 0.1,
+          seed: 7,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            {
+              role: "user",
+              content: `Analyze this resume and call analyze_resume. Apply the deterministic scoring rubric exactly — same input must yield same scores.\n\n${targetLine}\n\n--- RESUME TEXT ---\n${truncated}`,
+            },
+          ],
+          tools: [TOOL_SCHEMA],
+          tool_choice: { type: "function", function: { name: "analyze_resume" } },
+        }),
+      });
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if ((err as { name?: string })?.name === "AbortError") {
+        return json({ error: "Analysis took too long. Please try again." }, 504);
+      }
+      throw err;
+    }
+    clearTimeout(timeoutId);
 
     if (!aiResp.ok) {
       if (aiResp.status === 429) return json({ error: "Rate limit exceeded. Try again in a moment." }, 429);
@@ -555,7 +573,7 @@ Deno.serve(async (req) => {
         score_breakdown: subScores,
         job_match: parsed.job_match ?? {},
         target_role: target_role ?? null,
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-lite",
       })
       .select()
       .single();
