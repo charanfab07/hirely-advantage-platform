@@ -458,11 +458,33 @@ Deno.serve(async (req) => {
       return json({ error: "Resume not found" }, 404);
     }
 
+    // Return cached analysis if one already exists for this resume + target_role.
+    // Guarantees the same resume always shows the same scores.
+    const normalizedTarget = (target_role ?? "").trim().toLowerCase() || null;
+    const cachedQuery = supabase
+      .from("resume_analyses")
+      .select("*")
+      .eq("resume_id", resume_id)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const { data: cachedRows } = await (normalizedTarget
+      ? cachedQuery.eq("target_role", target_role)
+      : cachedQuery.is("target_role", null));
+    if (cachedRows && cachedRows.length > 0) {
+      return json({ analysis: cachedRows[0], cached: true });
+    }
+
     const gate = await checkEntitlement(userId, "analyses");
     if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "analyses" }, gate.status);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
+
+    // ---- DETERMINISTIC SCORES (computed from raw text, identical every run) ----
+    const atsResult = computeAtsScore(raw_text);
+    const subScores = computeSubScores(raw_text, atsResult.score);
+    const overallScore = computeOverallScore(subScores);
 
     const truncated = raw_text.slice(0, 18000);
     const targetLine = target_role
