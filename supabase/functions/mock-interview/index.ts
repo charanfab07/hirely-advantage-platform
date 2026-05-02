@@ -301,14 +301,17 @@ async function handleRespond(
   const turnIndex = turns.length; // next turn will be this index
 
   const wrap = remaining <= 0.5 || turnIndex >= 12;
+  const suspect = looksLikeNonsense(answer.trim());
   chatMessages.push({
     role: "user",
     content: wrap
-      ? "Time is nearly up. Coach on the last answer briefly and ask ONE final wrap-up question (question_kind: 'wrap_up')."
-      : `Coach on the last answer in 1–3 sentences, then ask the next question. About ${Math.max(
-          0,
-          Math.round(remaining),
-        )} minutes left. Use 'follow_up' if their last answer was vague or missing metrics; 'new_topic' if they nailed it; 'curveball' only in stress mode and sparingly.`,
+      ? "Time is nearly up. Coach on the last answer briefly and ask ONE final wrap-up question (question_kind: 'wrap_up'). If the last answer is gibberish/irrelevant, still wrap up but call it out honestly."
+      : suspect
+        ? `The candidate's last answer looks like gibberish, off-topic, or has no real substance. DO NOT move on. Set question_kind to 'nonsense', score it low (0–15), tell them in feedback that the answer doesn't address the question and what a real answer needs (e.g. specific situation, action, outcome with a number), and RE-ASK the same question they were just asked. About ${Math.max(0, Math.round(remaining))} minutes left.`
+        : `Coach on the last answer in 1–3 sentences, then ask the next question. About ${Math.max(
+            0,
+            Math.round(remaining),
+          )} minutes left. Use 'follow_up' if their last answer was vague or missing metrics; 'new_topic' if they nailed it; 'curveball' only in stress mode and sparingly. If the answer is genuinely gibberish/irrelevant use 'nonsense' and re-ask the same question.`,
   });
 
   const turn = await callTurn(apiKey, chatMessages);
