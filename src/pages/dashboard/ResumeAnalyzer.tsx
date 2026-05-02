@@ -193,6 +193,7 @@ const ResumeAnalyzer = () => {
           {today}
         </p>
         <div className="flex items-center gap-2">
+          <UsageMeter feature="analyses" label="Analyses" className="hidden sm:inline-flex" />
           <div className="relative hidden sm:block">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
             <input
