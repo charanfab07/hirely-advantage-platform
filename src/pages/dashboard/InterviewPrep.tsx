@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
