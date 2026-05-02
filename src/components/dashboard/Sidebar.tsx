@@ -25,7 +25,6 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const navigate = useNavigate();
   return (
   <>
     <div className="flex items-center mb-9 px-2">
