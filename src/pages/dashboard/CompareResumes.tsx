@@ -22,6 +22,7 @@ import {
   extToMime,
   extractResumeText,
 } from "@/lib/resumeParser";
+import { hashResumeText } from "@/lib/resumeHash";
 import { cn } from "@/lib/utils";
 
 type ResumeRow = {
@@ -153,24 +154,51 @@ const CompareResumes = () => {
         });
         return;
       }
-      const { error: upErr } = await uploadPromise;
-      if (upErr) throw upErr;
 
-      const { data: inserted, error: insErr } = await supabase
+      // Fingerprint the text so re-uploads of the same resume reuse the same
+      // row (and therefore the same deterministic scores).
+      const contentHash = await hashResumeText(text);
+      const { data: existing } = await supabase
         .from("resumes")
-        .insert({
-          user_id: user.id,
-          file_name: file.name,
-          file_path: path,
-          file_size: file.size,
-          mime_type: extToMime(ext),
-          raw_text: text,
-        })
         .select("id, file_name, file_path, created_at")
-        .single();
-      if (insErr) throw insErr;
-      const newRow = inserted as ResumeRow;
+        .eq("user_id", user.id)
+        .eq("content_hash", contentHash)
+        .maybeSingle();
+
+      let newRow: ResumeRow;
+
+      if (existing) {
+        // Same resume already exists — drop the duplicate upload and reuse it.
+        uploadPromise.then(({ error }) => {
+          if (!error) supabase.storage.from("resumes").remove([path]);
+        });
+        newRow = existing as ResumeRow;
+        if (resumes.some((r) => r.id === newRow.id)) {
+          toast.info("This resume is already in your compare list", { id: "compare-upload" });
+          return;
+        }
+      } else {
+        const { error: upErr } = await uploadPromise;
+        if (upErr) throw upErr;
+
+        const { data: inserted, error: insErr } = await supabase
+          .from("resumes")
+          .insert({
+            user_id: user.id,
+            file_name: file.name,
+            file_path: path,
+            file_size: file.size,
+            mime_type: extToMime(ext),
+            raw_text: text,
+            content_hash: contentHash,
+          })
+          .select("id, file_name, file_path, created_at")
+          .single();
+        if (insErr) throw insErr;
+        newRow = inserted as ResumeRow;
+      }
       setResumes((prev) => {
+        if (prev.some((r) => r.id === newRow.id)) return prev;
         const next = [...prev, newRow];
         // Keep A = first uploaded, B = second uploaded.
         setAId(next[0]?.id ?? null);
