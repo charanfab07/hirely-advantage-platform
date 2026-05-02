@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { SegmentedTabs } from "@/components/dashboard/SegmentedTabs";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { UsageMeter } from "@/components/dashboard/UsageMeter";
+import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 import { useAuth } from "@/hooks/useAuth";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { supabase } from "@/integrations/supabase/client";
@@ -409,13 +410,12 @@ const InterviewPrep = () => {
                 <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Target role (optional)
                 </label>
-                <input
-                  type="text"
+                <RoleSuggestInput
                   value={targetRole}
-                  onChange={(e) => setTargetRole(e.target.value)}
+                  onChange={setTargetRole}
                   disabled={analyzing}
                   placeholder="Senior PM, Data Analyst…"
-                  className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors"
+                  className="mt-1.5"
                 />
               </div>
 
