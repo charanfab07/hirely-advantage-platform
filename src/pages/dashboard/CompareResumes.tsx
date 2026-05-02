@@ -254,22 +254,27 @@ const CompareResumes = () => {
 
         {loading ? (
           <p className="text-[13px] text-foreground/55">Loading your resumes…</p>
-        ) : resumes.length < 2 ? (
-          <div className="rounded-xl border border-dashed border-foreground/15 bg-foreground/[0.02] p-6 text-center">
-            <FileText className="w-5 h-5 mx-auto text-foreground/40" />
-            <p className="mt-2 text-[13.5px] text-foreground/70 tracking-tight">
-              You need at least 2 resumes to compare.
-            </p>
-            <p className="mt-1 text-[12px] text-foreground/50">
-              {resumes.length === 1
-                ? "Upload one more — try a tailored version vs. your generic one."
-                : "Upload two resumes to get started."}
-            </p>
-          </div>
         ) : (
           <div className="grid sm:grid-cols-2 gap-3">
-            <ResumeSlot side="A" resume={resumes[0]} onDelete={handleDelete} />
-            <ResumeSlot side="B" resume={resumes[1]} onDelete={handleDelete} />
+            {resumes[0] ? (
+              <ResumeSlot side="A" resume={resumes[0]} onDelete={handleDelete} />
+            ) : (
+              <EmptySlot side="A" hint="Upload your first resume to fill this slot." onFile={handleUpload} />
+            )}
+            {resumes[1] ? (
+              <ResumeSlot side="B" resume={resumes[1]} onDelete={handleDelete} />
+            ) : (
+              <EmptySlot
+                side="B"
+                hint={
+                  resumes.length === 0
+                    ? "Upload Resume A first, then add a second one here."
+                    : "Upload a second resume to compare against Resume A."
+                }
+                onFile={handleUpload}
+                disabled={resumes.length === 0}
+              />
+            )}
           </div>
         )}
 
@@ -396,6 +401,57 @@ const ResumeSlot = ({
         </button>
       </div>
     </div>
+  );
+};
+
+const EmptySlot = ({
+  side,
+  hint,
+  onFile,
+  disabled,
+}: {
+  side: "A" | "B";
+  hint: string;
+  onFile: (f: File) => void;
+  disabled?: boolean;
+}) => {
+  return (
+    <label
+      className={cn(
+        "rounded-xl border border-dashed border-foreground/15 bg-foreground/[0.02] p-3.5 flex flex-col justify-between min-h-[96px] transition-colors",
+        disabled
+          ? "opacity-60 cursor-not-allowed"
+          : "cursor-pointer hover:bg-foreground/[0.04] hover:border-foreground/25",
+      )}
+    >
+      <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+        Resume {side}
+      </p>
+      <div className="mt-2 flex items-center gap-2.5">
+        <div className="w-7 h-7 rounded-md bg-foreground/[0.05] border border-foreground/[0.08] inline-flex items-center justify-center shrink-0">
+          <Upload className="w-3.5 h-3.5 text-foreground/55" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[13px] font-medium tracking-tight text-foreground/80">
+            {disabled ? "Waiting for Resume A" : `Upload Resume ${side}`}
+          </p>
+          <p className="text-[11.5px] text-foreground/55 tracking-tight truncate">
+            {hint}
+          </p>
+        </div>
+      </div>
+      <input
+        type="file"
+        accept={ACCEPTED_MIME.join(",")}
+        className="hidden"
+        disabled={disabled}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) onFile(f);
+          e.currentTarget.value = "";
+        }}
+      />
+    </label>
   );
 };
 
