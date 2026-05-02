@@ -544,7 +544,7 @@ const InterviewPrep = () => {
                 <textarea
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
-                  rows={10}
+                  rows={6}
                   disabled={analyzing}
                   placeholder="Speak it like you would in the interview, then type it. Aim for 150–300 words for behavioral answers."
                   className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
