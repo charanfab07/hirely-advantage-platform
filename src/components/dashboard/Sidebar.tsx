@@ -1,8 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
+import { useEntitlements } from "@/hooks/useEntitlements";
 
 const suite = [
   { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
@@ -12,9 +13,9 @@ const suite = [
 ];
 
 const tracking = [
-  { to: "/app/applications", label: "Applications", count: 28, icon: Briefcase },
-  { to: "/app/outreach", label: "Outreach", count: 14, icon: Send },
-  { to: "/app/saved", label: "Saved", count: 12, icon: Bookmark },
+  { to: "/app/applications", label: "Applications", icon: Briefcase },
+  { to: "/app/outreach", label: "Outreach", icon: Send },
+  { to: "/app/saved", label: "Saved", icon: Bookmark },
 ];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
@@ -24,7 +25,6 @@ const SectionLabel = ({ children }: { children: React.ReactNode }) => (
 );
 
 const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
-  const navigate = useNavigate();
   return (
   <>
     <div className="flex items-center mb-9 px-2">
@@ -65,7 +65,7 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
 
     <SectionLabel>Tracking</SectionLabel>
     <nav className="flex flex-col gap-0.5 mb-5">
-      {tracking.map(({ to, label, count, icon: Icon }) => (
+      {tracking.map(({ to, label, icon: Icon }) => (
         <NavLink
           key={to}
           to={to}
@@ -83,11 +83,68 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
             <Icon className="w-4 h-4 opacity-70" />
             {label}
           </span>
-          <span className="text-foreground/40 text-[12.5px]">{count}</span>
+          <span className="text-[10px] tracking-[0.14em] uppercase text-foreground/35 px-1.5 py-0.5 rounded-full bg-foreground/[0.04] border border-foreground/[0.06]">
+            Soon
+          </span>
         </NavLink>
       ))}
     </nav>
 
+    <UpgradeCard onNavigate={onNavigate} />
+  </>
+  );
+};
+
+const UpgradeCard = ({ onNavigate }: { onNavigate?: () => void }) => {
+  const navigate = useNavigate();
+  const { plan, loading } = useEntitlements();
+
+  if (loading) return null;
+
+  // Advanced users — no upsell, just a subtle plan badge.
+  if (plan === "advanced" || plan === "teams") {
+    return (
+      <div className="mt-auto rounded-2xl p-4 border border-foreground/[0.08] bg-foreground/[0.03] text-foreground/75">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-foreground/60" />
+          <p className="text-[11px] font-medium tracking-tight">
+            {plan === "teams" ? "Hirely Teams" : "Hirely Advanced"}
+          </p>
+        </div>
+        <p className="text-[10.5px] text-foreground/55 mt-1">
+          You're on the highest tier. Enjoy unlimited everything.
+        </p>
+      </div>
+    );
+  }
+
+  // Pro users → push Advanced.
+  if (plan === "pro") {
+    return (
+      <div
+        className="mt-auto rounded-2xl p-4 text-white"
+        style={{ background: "linear-gradient(140deg,#0E0B1F,#3a2d5e)" }}
+      >
+        <p className="text-[11px] font-medium tracking-tight">Hirely Advanced</p>
+        <p className="text-[10.5px] text-white/65 mt-0.5">
+          Unlimited analyses & voice interview mode
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            onNavigate?.();
+            navigate("/app/upgrade");
+          }}
+          className="mt-3 text-[11px] bg-white text-foreground font-medium px-3 py-1.5 rounded-full w-full hover:opacity-90 transition-opacity"
+        >
+          Unlock Advanced
+        </button>
+      </div>
+    );
+  }
+
+  // Free users → existing Pro upsell copy.
+  return (
     <div
       className="mt-auto rounded-2xl p-4 text-white"
       style={{ background: "linear-gradient(140deg,#0E0B1F,#3a2d5e)" }}
@@ -105,7 +162,6 @@ const SidebarBody = ({ onNavigate }: { onNavigate?: () => void }) => {
         Upgrade
       </button>
     </div>
-  </>
   );
 };
 

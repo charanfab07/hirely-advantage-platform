@@ -134,8 +134,32 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
         resumeRow = inserted;
       }
 
-      // 4) Analyze
+      // 4) Analyze — first try to reuse a cached analysis for the same
+      // (resume, target_role). The resume row is keyed by content_hash, so
+      // an existing row already implies the text hasn't changed.
       setStage("analyzing");
+
+      if (existing) {
+        const roleNorm = targetRole.trim() || null;
+        let cachedQuery = supabase
+          .from("resume_analyses")
+          .select("id")
+          .eq("user_id", userId)
+          .eq("resume_id", resumeRow.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        cachedQuery = roleNorm
+          ? cachedQuery.eq("target_role", roleNorm)
+          : cachedQuery.is("target_role", null);
+        const { data: cached } = await cachedQuery.maybeSingle();
+        if (cached?.id) {
+          toast.success("Loaded cached analysis.");
+          onAnalyzed(cached.id);
+          reset();
+          return;
+        }
+      }
+
       const { data: fnData, error: fnErr } = await supabase.functions.invoke(
         "analyze-resume",
         {
