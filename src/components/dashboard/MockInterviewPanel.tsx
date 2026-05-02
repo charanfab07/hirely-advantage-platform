@@ -377,7 +377,8 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
             <button
               type="button"
               onClick={start}
-              disabled={starting}
+              disabled={starting || !resumeId}
+              title={!resumeId ? "Upload your resume to start a mock interview" : undefined}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-medium tracking-tight bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
               {starting ? (
@@ -388,7 +389,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
               ) : (
                 <>
                   <Mic className="w-3.5 h-3.5" />
-                  Start mock interview
+                  {resumeId ? "Start mock interview" : "Upload resume to start"}
                 </>
               )}
             </button>
