@@ -557,6 +557,7 @@ export type Database = {
       }
       resumes: {
         Row: {
+          content_hash: string | null
           created_at: string
           file_name: string
           file_path: string
@@ -568,6 +569,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          content_hash?: string | null
           created_at?: string
           file_name: string
           file_path: string
@@ -579,6 +581,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          content_hash?: string | null
           created_at?: string
           file_name?: string
           file_path?: string
