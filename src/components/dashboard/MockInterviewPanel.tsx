@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
+import { RoleSuggestInput } from "@/components/dashboard/RoleSuggestInput";
 
 type Difficulty = "easy" | "medium" | "hard" | "stress";
 type Focus = "behavioral" | "technical" | "case" | "mixed";
