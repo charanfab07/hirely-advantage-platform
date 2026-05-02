@@ -248,9 +248,21 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
               Set up your mock
             </p>
             <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
-              Pick a role, a difficulty, and a length. We'll run a real, adaptive interview.
+              Pick a role, a difficulty, and a length. We'll run a real, adaptive interview grounded in your resume.
             </p>
           </div>
+
+          {!resumeId && (
+            <div className="mx-5 sm:mx-6 mb-4 flex items-start gap-2.5 rounded-lg border border-amber-500/25 bg-amber-500/[0.08] px-3 py-2.5">
+              <AlertTriangle className="w-3.5 h-3.5 mt-[2px] text-amber-600 dark:text-amber-300 shrink-0" />
+              <div className="text-[12px] tracking-tight text-amber-800 dark:text-amber-200">
+                <p className="font-medium">Upload your resume first.</p>
+                <p className="text-amber-800/80 dark:text-amber-200/80">
+                  Questions are based strictly on your actual experience — projects, skills, metrics. Head to the Resume Analyzer (or the Practice tab) to upload, then come back.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-4">
             <div>
