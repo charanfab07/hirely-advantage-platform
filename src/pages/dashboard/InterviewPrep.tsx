@@ -814,13 +814,7 @@ const AnalysisView = ({
             </button>
             <button
               type="button"
-              onClick={() => {
-                // Push the currently-displayed (possibly restyled) improved answer back into the composer.
-                if (improved !== analysis.improved_answer) {
-                  navigator.clipboard?.writeText(improved).catch(() => {});
-                }
-                onUseImproved();
-              }}
+              onClick={() => onUseImproved(improved)}
               className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-[11.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
             >
               <Wand2 className="w-3 h-3" />
