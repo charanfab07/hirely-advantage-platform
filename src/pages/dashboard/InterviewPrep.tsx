@@ -890,7 +890,7 @@ const AnalysisView = ({
           </ul>
         </SectionCard>
 
-        <SectionCard>
+        <SectionCard className="p-4 sm:p-5">
           <p className="text-[10.5px] tracking-[0.18em] uppercase text-amber-700 dark:text-amber-400 font-medium">
             What you missed
           </p>
