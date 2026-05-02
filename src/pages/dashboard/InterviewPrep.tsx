@@ -264,7 +264,7 @@ const InterviewPrep = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-[1400px] mx-auto">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
           Interview Prep
