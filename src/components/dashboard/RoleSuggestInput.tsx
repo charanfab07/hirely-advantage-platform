@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Search, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -132,8 +133,10 @@ export function RoleSuggestInput({
   id,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // Close on outside click — checks both the wrapper and the portaled panel.
   useEffect(() => {
@@ -141,11 +144,47 @@ export function RoleSuggestInput({
     function onDocClick(e: MouseEvent) {
       const t = e.target as Node;
       if (wrapRef.current?.contains(t)) return;
+      if (panelRef.current?.contains(t)) return;
       setOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open || disabled) return;
+
+    const recompute = () => {
+      const r = inputRef.current?.getBoundingClientRect();
+      if (!r) return;
+
+      const margin = 12;
+      const gap = 8;
+      const desiredWidth = Math.min(720, window.innerWidth - margin * 2);
+      const width = Math.max(r.width, desiredWidth);
+      const left = Math.min(Math.max(r.left, margin), window.innerWidth - width - margin);
+      const below = window.innerHeight - r.bottom;
+      const above = r.top;
+      const placeBelow = below >= 250 || below >= above;
+      const room = placeBelow ? below : above;
+
+      setPos({
+        top: placeBelow ? r.bottom + gap : Math.max(margin, r.top - gap - Math.min(360, room - margin - gap)),
+        left,
+        width,
+        maxHeight: Math.max(220, Math.min(360, room - margin - gap)),
+      });
+    };
+
+    recompute();
+    const onMove = () => requestAnimationFrame(recompute);
+    window.addEventListener("resize", onMove);
+    window.addEventListener("scroll", onMove, true);
+    return () => {
+      window.removeEventListener("resize", onMove);
+      window.removeEventListener("scroll", onMove, true);
+    };
+  }, [open, disabled, value]);
 
   const filteredGroups = useMemo(() => {
     const q = value.trim().toLowerCase();
