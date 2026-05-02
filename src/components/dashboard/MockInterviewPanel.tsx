@@ -253,13 +253,13 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
               <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                 Target role
               </label>
-              <input
-                type="text"
+              <RoleSuggestInput
                 value={targetRole}
-                onChange={(e) => setTargetRole(e.target.value)}
+                onChange={setTargetRole}
                 disabled={starting}
                 placeholder="Senior Product Manager"
-                className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors"
+                showQuickChips
+                className="mt-1.5"
               />
             </div>
 
