@@ -242,8 +242,8 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
     return (
       <>
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-        <SectionCard className="lg:col-span-7 p-0 overflow-hidden">
-          <div className="px-5 sm:px-6 pt-5 pb-4">
+        <SectionCard className="lg:col-span-8 xl:col-span-7 p-0 overflow-visible">
+          <div className="px-5 sm:px-6 pt-4 pb-3">
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
               Set up your mock
             </p>
@@ -264,7 +264,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
             </div>
           )}
 
-          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-4">
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 space-y-3">
             <div>
               <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                 Target role
@@ -396,7 +396,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
           </div>
         </SectionCard>
 
-        <SectionCard tone="dark" className="lg:col-span-5 flex flex-col">
+        <SectionCard tone="dark" className="lg:col-span-4 xl:col-span-5 flex flex-col">
           <p className="text-[10.5px] tracking-[0.18em] uppercase text-white/55 font-medium">
             How it works
           </p>
