@@ -18,6 +18,7 @@ import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { UsageMeter } from "@/components/dashboard/UsageMeter";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -192,6 +193,7 @@ const ResumeAnalyzer = () => {
           {today}
         </p>
         <div className="flex items-center gap-2">
+          <UsageMeter feature="analyses" label="Analyses" className="hidden sm:inline-flex" />
           <div className="relative hidden sm:block">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
             <input

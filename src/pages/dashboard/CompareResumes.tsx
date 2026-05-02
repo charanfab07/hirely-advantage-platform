@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { UsageMeter } from "@/components/dashboard/UsageMeter";
 import {
   ACCEPTED_EXTS,
   ACCEPTED_MIME,
@@ -277,7 +278,10 @@ const CompareResumes = () => {
               Resume A is your first upload, Resume B is your second. Upload another to replace B.
             </p>
           </div>
-          <UploadButton onFile={handleUpload} />
+          <div className="flex items-center gap-2 flex-wrap">
+            <UsageMeter feature="resume_uploads" label="Uploads" />
+            <UploadButton onFile={handleUpload} />
+          </div>
         </div>
 
         {loading ? (
