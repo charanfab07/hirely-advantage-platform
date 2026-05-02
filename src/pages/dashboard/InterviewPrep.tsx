@@ -582,7 +582,7 @@ const InterviewPrep = () => {
           </SectionCard>
 
           {/* Result */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="md:col-span-6 lg:col-span-7 space-y-4">
             {active ? (
               <AnalysisView
                 analysis={active}
