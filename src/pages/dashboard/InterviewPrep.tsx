@@ -264,7 +264,7 @@ const InterviewPrep = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="max-w-[1400px] mx-auto">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
           Interview Prep
@@ -419,9 +419,9 @@ const InterviewPrep = () => {
       )}
 
       {tab === "practice" && resumeId && practiceStarted && (
-        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Composer */}
-          <SectionCard className="lg:col-span-5 p-0 overflow-visible">
+          <SectionCard className="md:col-span-6 lg:col-span-5 p-0 overflow-visible">
             <div className="px-5 sm:px-6 pt-5 pb-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
@@ -544,7 +544,7 @@ const InterviewPrep = () => {
                 <textarea
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
-                  rows={10}
+                  rows={6}
                   disabled={analyzing}
                   placeholder="Speak it like you would in the interview, then type it. Aim for 150–300 words for behavioral answers."
                   className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
@@ -582,7 +582,7 @@ const InterviewPrep = () => {
           </SectionCard>
 
           {/* Result */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="md:col-span-6 lg:col-span-7 space-y-4">
             {active ? (
               <AnalysisView
                 analysis={active}
