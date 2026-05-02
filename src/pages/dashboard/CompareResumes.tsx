@@ -235,10 +235,10 @@ const CompareResumes = () => {
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
             <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-              Pick two resumes
+              Your two resumes
             </p>
             <p className="mt-1 text-[13.5px] text-foreground/65 tracking-tight">
-              Tap one resume on the left, one on the right. That's it.
+              Resume A is your first upload, Resume B is your second. Upload another to replace B.
             </p>
           </div>
           <UploadButton onFile={handleUpload} />
@@ -253,27 +253,15 @@ const CompareResumes = () => {
               You need at least 2 resumes to compare.
             </p>
             <p className="mt-1 text-[12px] text-foreground/50">
-              Upload another version above — try a tailored one vs. your generic one.
+              {resumes.length === 1
+                ? "Upload one more — try a tailored version vs. your generic one."
+                : "Upload two resumes to get started."}
             </p>
           </div>
         ) : (
           <div className="grid sm:grid-cols-2 gap-3">
-            <ResumePicker
-              side="A"
-              resumes={resumes}
-              selected={aId}
-              otherSelected={bId}
-              onSelect={setAId}
-              onDelete={handleDelete}
-            />
-            <ResumePicker
-              side="B"
-              resumes={resumes}
-              selected={bId}
-              otherSelected={aId}
-              onSelect={setBId}
-              onDelete={handleDelete}
-            />
+            <ResumeSlot side="A" resume={resumes[0]} onDelete={handleDelete} />
+            <ResumeSlot side="B" resume={resumes[1]} onDelete={handleDelete} />
           </div>
         )}
 
