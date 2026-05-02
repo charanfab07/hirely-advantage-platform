@@ -277,6 +277,155 @@ const TOOL_SCHEMA = {
   },
 };
 
+// ============================================================
+// DETERMINISTIC SCORING — computed from raw text, not the LLM.
+// Same resume text → identical scores, every single time.
+// ============================================================
+
+const ACTION_VERBS = new Set([
+  "led","built","designed","developed","launched","shipped","created","architected",
+  "implemented","managed","drove","delivered","optimized","reduced","increased","improved",
+  "scaled","automated","engineered","analyzed","researched","negotiated","mentored","owned",
+  "spearheaded","established","streamlined","accelerated","transformed","refactored","migrated",
+  "deployed","integrated","produced","generated","achieved","executed","coordinated","supervised",
+  "founded","initiated","authored","published","presented","trained","resolved","reorganized",
+  "upgraded","redesigned","standardized","consolidated","forecasted","modeled","piloted",
+  "orchestrated","championed","prototyped","facilitated","oversaw","directed","wrote","tested",
+  "validated","secured","saved","cut","grew","boosted","earned","unified","reviewed",
+]);
+
+function getBullets(text: string): string[] {
+  return text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .map((l) => l.replace(/^[-•·●▪◦▫■□◆◇►▶✓✔*+→·]+\s*/, ""))
+    .filter((l) => l.length >= 15 && l.length <= 400 && /[a-zA-Z]/.test(l))
+    .filter((l) => !/^(experience|education|skills|projects|summary|objective|certifications|awards|contact|profile)\s*:?\s*$/i.test(l));
+}
+
+function hasSection(text: string, names: string[]): boolean {
+  const re = new RegExp(`(^|\\n)\\s*(${names.join("|")})\\s*:?\\s*(\\n|$)`, "i");
+  return re.test(text);
+}
+
+function computeAtsScore(text: string): { score: number; breakdown: Record<string, number> } {
+  const lower = text.toLowerCase();
+  const checks: Record<string, { pass: boolean; pts: number }> = {};
+
+  const hasEmail = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(text);
+  const hasPhone = /(\+?\d[\d\s().-]{7,}\d)/.test(text);
+  checks.contact = { pass: hasEmail && hasPhone, pts: 10 };
+
+  checks.experience_section = { pass: hasSection(text, ["experience", "work experience", "professional experience", "employment"]), pts: 10 };
+  checks.education_section = { pass: hasSection(text, ["education", "academic background"]), pts: 8 };
+  checks.skills_section = { pass: hasSection(text, ["skills", "technical skills", "core competencies"]), pts: 8 };
+
+  const bullets = getBullets(text);
+  const bulletCount = bullets.length;
+
+  let actionVerbBullets = 0;
+  let metricBullets = 0;
+  for (const b of bullets) {
+    const firstWord = b.split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, "") ?? "";
+    if (ACTION_VERBS.has(firstWord)) actionVerbBullets++;
+    if (/(\d+%|\$\s?\d|\d[\d,]*\+?\s*(users|customers|clients|employees|projects|hours|days|weeks|months|years|x|k|m|million|billion))|(\b\d{2,}\b)/i.test(b)) {
+      metricBullets++;
+    }
+  }
+  const actionRatio = bulletCount > 0 ? actionVerbBullets / bulletCount : 0;
+  const metricRatio = bulletCount > 0 ? metricBullets / bulletCount : 0;
+  checks.action_verbs = { pass: bulletCount >= 3 && actionRatio >= 0.8, pts: 12 };
+  checks.metrics = { pass: bulletCount >= 3 && metricRatio >= 0.5, pts: 15 };
+
+  // Formatting heuristics
+  const hasTabsOrColumns = /\t{2,}|\s{8,}\S+\s{8,}\S/.test(text);
+  checks.formatting = { pass: !hasTabsOrColumns, pts: 10 };
+
+  const unicodeIcons = (text.match(/[\u2700-\u27BF\uE000-\uF8FF\uD83C-\uDBFF\uDC00-\uDFFF]/g) || []).length;
+  checks.standard_fonts = { pass: unicodeIcons <= 5, pts: 5 };
+
+  // Date consistency
+  const dateMatches = text.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+\d{4}\b|\b\d{1,2}\/\d{4}\b|\b\d{4}\s*[-–—]\s*(present|\d{4})\b/gi) || [];
+  checks.date_format = { pass: dateMatches.length >= 2, pts: 7 };
+
+  // Title/company pairing — look for lines with capitalized words near a date
+  const titleCompanyPairs = (text.match(/^.{4,80}(?:,|\sat\s|\s\|\s|\s-\s|\s—\s).{2,60}.*\d{4}/gim) || []).length;
+  checks.title_company = { pass: titleCompanyPairs >= 1 || dateMatches.length >= 2, pts: 8 };
+
+  // Keyword density: look for at least 8 distinct domain-ish keywords
+  const techKeywords = ["javascript","typescript","python","java","react","node","sql","aws","docker","kubernetes","git","api","agile","scrum","ci/cd","html","css","figma","mongodb","postgres","graphql","rest","cloud","linux","testing","leadership","management","strategy","analysis","communication","stakeholder","product","design","marketing","sales","finance","data","analytics","machine learning","ai"];
+  const matchedKw = techKeywords.filter((k) => lower.includes(k)).length;
+  checks.keyword_density = { pass: matchedKw >= 6, pts: 7 };
+
+  let score = 0;
+  const breakdown: Record<string, number> = {};
+  for (const [k, v] of Object.entries(checks)) {
+    const earned = v.pass ? v.pts : 0;
+    score += earned;
+    breakdown[k] = earned;
+  }
+  return { score: Math.max(0, Math.min(100, Math.round(score))), breakdown };
+}
+
+function computeSubScores(text: string, atsScore: number): {
+  ats_compatibility: number;
+  impact_statements: number;
+  relevance: number;
+  clarity: number;
+  keyword_match: number;
+} {
+  const bullets = getBullets(text);
+  const bulletCount = bullets.length || 1;
+  const lower = text.toLowerCase();
+
+  let action = 0, metric = 0;
+  for (const b of bullets) {
+    const fw = b.split(/\s+/)[0]?.toLowerCase().replace(/[^a-z]/g, "") ?? "";
+    if (ACTION_VERBS.has(fw)) action++;
+    if (/(\d+%|\$\s?\d|\b\d{2,}\b)/.test(b)) metric++;
+  }
+  const impact = Math.round(((action / bulletCount) * 0.5 + (metric / bulletCount) * 0.5) * 100);
+
+  // Clarity: avg bullet length sweet spot 10–25 words
+  const avgWords = bullets.reduce((s, b) => s + b.split(/\s+/).length, 0) / bulletCount;
+  const clarity = Math.round(
+    avgWords < 6 ? 50 :
+    avgWords <= 25 ? 90 :
+    avgWords <= 40 ? 75 : 55
+  );
+
+  // Keyword match: distinct tech/domain terms present
+  const kws = ["javascript","typescript","python","java","react","node","sql","aws","docker","kubernetes","git","api","agile","html","css","figma","mongodb","postgres","graphql","cloud","linux","leadership","management","strategy","analysis","communication","product","design","data","analytics","ai"];
+  const matched = kws.filter((k) => lower.includes(k)).length;
+  const keyword_match = Math.min(100, Math.round((matched / 12) * 100));
+
+  // Relevance: heuristic — if has experience + skills + education sections + decent length
+  let relevance = 50;
+  if (hasSection(text, ["experience", "work experience"])) relevance += 15;
+  if (hasSection(text, ["skills"])) relevance += 10;
+  if (hasSection(text, ["education"])) relevance += 10;
+  if (text.length > 1500) relevance += 10;
+  relevance = Math.min(100, relevance);
+
+  return {
+    ats_compatibility: atsScore,
+    impact_statements: Math.max(0, Math.min(100, impact)),
+    relevance,
+    clarity,
+    keyword_match,
+  };
+}
+
+function computeOverallScore(sub: ReturnType<typeof computeSubScores>): number {
+  return Math.round(
+    0.25 * sub.ats_compatibility +
+    0.30 * sub.impact_statements +
+    0.20 * sub.relevance +
+    0.15 * sub.clarity +
+    0.10 * sub.keyword_match
+  );
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -309,11 +458,33 @@ Deno.serve(async (req) => {
       return json({ error: "Resume not found" }, 404);
     }
 
+    // Return cached analysis if one already exists for this resume + target_role.
+    // Guarantees the same resume always shows the same scores.
+    const normalizedTarget = (target_role ?? "").trim().toLowerCase() || null;
+    const cachedQuery = supabase
+      .from("resume_analyses")
+      .select("*")
+      .eq("resume_id", resume_id)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const { data: cachedRows } = await (normalizedTarget
+      ? cachedQuery.eq("target_role", target_role)
+      : cachedQuery.is("target_role", null));
+    if (cachedRows && cachedRows.length > 0) {
+      return json({ analysis: cachedRows[0], cached: true });
+    }
+
     const gate = await checkEntitlement(userId, "analyses");
     if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "analyses" }, gate.status);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) return json({ error: "AI key not configured" }, 500);
+
+    // ---- DETERMINISTIC SCORES (computed from raw text, identical every run) ----
+    const atsResult = computeAtsScore(raw_text);
+    const subScores = computeSubScores(raw_text, atsResult.score);
+    const overallScore = computeOverallScore(subScores);
 
     const truncated = raw_text.slice(0, 18000);
     const targetLine = target_role
@@ -371,8 +542,8 @@ Deno.serve(async (req) => {
       .insert({
         resume_id,
         user_id: userId,
-        overall_score: Math.round(parsed.overall_score ?? 0),
-        ats_score: Math.round(parsed.ats_score ?? 0),
+        overall_score: overallScore,
+        ats_score: atsResult.score,
         summary: parsed.summary ?? "",
         extracted: parsed.extracted ?? {},
         issues: parsed.issues ?? {},
@@ -381,7 +552,7 @@ Deno.serve(async (req) => {
         strengths: parsed.strengths ?? [],
         weaknesses: parsed.weaknesses ?? [],
         bullet_rewrites: parsed.bullet_rewrites ?? [],
-        score_breakdown: parsed.score_breakdown ?? {},
+        score_breakdown: subScores,
         job_match: parsed.job_match ?? {},
         target_role: target_role ?? null,
         model: "google/gemini-2.5-flash",
