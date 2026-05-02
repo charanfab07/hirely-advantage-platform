@@ -11,6 +11,7 @@ import {
   extToMime,
   extractResumeText,
 } from "@/lib/resumeParser";
+import { hashResumeText } from "@/lib/resumeHash";
 import { cn } from "@/lib/utils";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { PLAN_LABEL } from "@/lib/entitlements";
@@ -90,23 +91,48 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
         return;
       }
       setStage("uploading");
-      const { error: upErr } = await uploadPromise;
-      if (upErr) throw upErr;
 
-      // 2) Insert resume row
-      const { data: resumeRow, error: insErr } = await supabase
+      // Fingerprint the extracted text so re-uploads of the same resume reuse
+      // the same row (and therefore the same cached analysis & scores).
+      const contentHash = await hashResumeText(text);
+
+      const { data: existing } = await supabase
         .from("resumes")
-        .insert({
-          user_id: userId,
-          file_name: file.name,
-          file_path: path,
-          file_size: file.size,
-          mime_type: mime,
-          raw_text: text,
-        })
-        .select()
-        .single();
-      if (insErr) throw insErr;
+        .select("id, file_path")
+        .eq("user_id", userId)
+        .eq("content_hash", contentHash)
+        .maybeSingle();
+
+      let resumeRow: { id: string };
+
+      if (existing) {
+        // Same content already on file — skip the duplicate upload entirely.
+        // Cancel the in-flight storage upload's effect by removing the new
+        // object once it lands; keep the original file_path intact.
+        uploadPromise.then(({ error }) => {
+          if (!error) supabase.storage.from("resumes").remove([path]);
+        });
+        resumeRow = { id: existing.id };
+      } else {
+        const { error: upErr } = await uploadPromise;
+        if (upErr) throw upErr;
+
+        const { data: inserted, error: insErr } = await supabase
+          .from("resumes")
+          .insert({
+            user_id: userId,
+            file_name: file.name,
+            file_path: path,
+            file_size: file.size,
+            mime_type: mime,
+            raw_text: text,
+            content_hash: contentHash,
+          })
+          .select()
+          .single();
+        if (insErr) throw insErr;
+        resumeRow = inserted;
+      }
 
       // 4) Analyze
       setStage("analyzing");
