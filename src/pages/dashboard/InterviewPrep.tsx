@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
@@ -84,6 +84,15 @@ const InterviewPrep = () => {
   const [resumeLoading, setResumeLoading] = useState(true);
   const [generatingQ, setGeneratingQ] = useState(false);
   const [shuffleCount, setShuffleCount] = useState(0);
+
+  // Auto-grow the question textarea so the full question is always visible.
+  const questionRef = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    const el = questionRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [question, generatingQ]);
 
   // results
   const [analyzing, setAnalyzing] = useState(false);
@@ -461,12 +470,13 @@ const InterviewPrep = () => {
               </div>
 
               <textarea
+                ref={questionRef}
                 value={generatingQ && !question ? "" : question}
                 onChange={(e) => setQuestion(e.target.value)}
-                rows={3}
+                rows={2}
                 disabled={analyzing || generatingQ}
                 placeholder={generatingQ ? "Writing a question from your resume…" : "Hit Shuffle to get a personalized question."}
-                className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13.5px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none"
+                className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3.5 py-2.5 text-[14px] leading-[1.55] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none overflow-hidden min-h-[68px]"
               />
 
               {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
