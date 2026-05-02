@@ -691,10 +691,12 @@ const AnalysisView = ({
   analysis,
   onCopy,
   onUseImproved,
+  onPracticeAgain,
 }: {
   analysis: Analysis;
   onCopy: (text: string, label?: string) => void;
   onUseImproved: () => void;
+  onPracticeAgain: () => void;
 }) => {
   const score = analysis.overall_score ?? 0;
   const scoreColor =
@@ -721,6 +723,37 @@ const AnalysisView = ({
     { label: "Length", value: analysis.length_score },
   ];
 
+  // Local override of the improved answer so "Make shorter / more confident" can update in place.
+  const [improved, setImproved] = useState<string | null>(analysis.improved_answer ?? null);
+  const [styleLoading, setStyleLoading] = useState<null | "shorter" | "confident">(null);
+
+  // Reset when analysis changes.
+  useEffect(() => {
+    setImproved(analysis.improved_answer ?? null);
+    setStyleLoading(null);
+  }, [analysis.id, analysis.improved_answer]);
+
+  const restyle = async (style: "shorter" | "confident") => {
+    if (!improved) return;
+    setStyleLoading(style);
+    try {
+      const { data, error } = await supabase.functions.invoke("rewrite-improved-answer", {
+        body: { question: analysis.question, answer: improved, style },
+      });
+      if (error) throw new Error(error.message || "Rewrite failed");
+      const e = (data as { error?: string })?.error;
+      if (e) throw new Error(e);
+      const next = (data as { answer?: string }).answer;
+      if (!next) throw new Error("No rewrite returned");
+      setImproved(next);
+      toast.success(style === "shorter" ? "Tightened up." : "More confident tone.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't rewrite");
+    } finally {
+      setStyleLoading(null);
+    }
+  };
+
   return (
     <>
       <SectionCard>
@@ -739,18 +772,6 @@ const AnalysisView = ({
               </p>
             )}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {analysis.improved_answer && (
-              <button
-                type="button"
-                onClick={onUseImproved}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-[11.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
-              >
-                <Wand2 className="w-3 h-3" />
-                Use improved
-              </button>
-            )}
-          </div>
         </div>
 
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -759,6 +780,88 @@ const AnalysisView = ({
           ))}
         </div>
       </SectionCard>
+
+      {improved && (
+        <SectionCard className="p-0 overflow-hidden border-foreground/10 ring-1 ring-foreground/[0.04]">
+          <div className="px-5 sm:px-6 pt-5 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground text-background text-[10px] font-semibold tracking-[0.14em] uppercase">
+                <Sparkles className="w-2.5 h-2.5" />
+                AI Improved Answer
+              </span>
+            </div>
+            <p className="mt-2 text-[12.5px] text-foreground/60 tracking-tight leading-snug">
+              A stronger version of your answer using STAR structure, sharper clarity, and stronger
+              impact. Anything in [brackets] is a placeholder — replace with your real number.
+            </p>
+          </div>
+
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4">
+            <p className="whitespace-pre-wrap text-[13.5px] leading-[1.65] text-foreground tracking-tight">
+              {improved}
+            </p>
+          </div>
+
+          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onCopy(improved, "Improved answer copied")}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors"
+            >
+              <Copy className="w-3 h-3" />
+              Copy
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                // Push the currently-displayed (possibly restyled) improved answer back into the composer.
+                if (improved !== analysis.improved_answer) {
+                  navigator.clipboard?.writeText(improved).catch(() => {});
+                }
+                onUseImproved();
+              }}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground text-background text-[11.5px] font-medium tracking-tight hover:opacity-90 transition-opacity"
+            >
+              <Wand2 className="w-3 h-3" />
+              Use improved
+            </button>
+            <button
+              type="button"
+              onClick={() => restyle("shorter")}
+              disabled={!!styleLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+            >
+              {styleLoading === "shorter" ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Sparkles className="w-3 h-3" />
+              )}
+              Make shorter
+            </button>
+            <button
+              type="button"
+              onClick={() => restyle("confident")}
+              disabled={!!styleLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+            >
+              {styleLoading === "confident" ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Sparkles className="w-3 h-3" />
+              )}
+              Make more confident
+            </button>
+            <button
+              type="button"
+              onClick={onPracticeAgain}
+              className="ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors"
+            >
+              <Shuffle className="w-3 h-3" />
+              Practice again
+            </button>
+          </div>
+        </SectionCard>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <SectionCard>
@@ -870,36 +973,6 @@ const AnalysisView = ({
           )}
         </SectionCard>
       ) : null}
-
-      {analysis.improved_answer && (
-        <SectionCard className="p-0 overflow-hidden">
-          <div className="px-5 sm:px-6 pt-5 pb-3 flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium inline-flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3" />
-                Improved sample answer
-              </p>
-              <p className="text-[12px] text-foreground/55 tracking-tight mt-1">
-                Same story, sharper structure. Anything in [brackets] is a placeholder you should
-                replace with your real number.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onCopy(analysis.improved_answer ?? "", "Improved answer copied")}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] text-foreground/70 text-[11px] tracking-tight transition-colors shrink-0"
-            >
-              <Copy className="w-3 h-3" />
-              Copy
-            </button>
-          </div>
-          <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4">
-            <p className="whitespace-pre-wrap text-[13.5px] leading-[1.65] text-foreground tracking-tight">
-              {analysis.improved_answer}
-            </p>
-          </div>
-        </SectionCard>
-      )}
     </>
   );
 };
