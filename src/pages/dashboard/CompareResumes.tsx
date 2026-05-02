@@ -355,19 +355,13 @@ const UploadButton = ({ onFile }: { onFile: (f: File) => void }) => {
   );
 };
 
-const ResumePicker = ({
+const ResumeSlot = ({
   side,
-  resumes,
-  selected,
-  otherSelected,
-  onSelect,
+  resume,
   onDelete,
 }: {
   side: "A" | "B";
-  resumes: ResumeRow[];
-  selected: string | null;
-  otherSelected: string | null;
-  onSelect: (id: string) => void;
+  resume: ResumeRow;
   onDelete: (id: string) => void;
 }) => {
   return (
@@ -375,58 +369,23 @@ const ResumePicker = ({
       <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
         Resume {side}
       </p>
-      <div className="mt-2 space-y-1 max-h-64 overflow-auto pr-1">
-        {resumes.map((r) => {
-          const active = selected === r.id;
-          const disabled = otherSelected === r.id;
-          return (
-            <div
-              key={r.id}
-              className={cn(
-                "group w-full flex items-center gap-1.5 rounded-lg transition-colors",
-                active
-                  ? "bg-foreground text-background"
-                  : disabled
-                    ? "opacity-35"
-                    : "hover:bg-foreground/[0.06] text-foreground/80",
-              )}
-            >
-              <button
-                type="button"
-                onClick={() => !disabled && onSelect(r.id)}
-                disabled={disabled}
-                className={cn(
-                  "flex-1 min-w-0 flex items-center gap-2.5 pl-3 pr-1 py-2 text-left text-[13px] tracking-tight",
-                  disabled && "cursor-not-allowed",
-                )}
-                title={disabled ? "Already selected on the other side" : r.file_name}
-              >
-                <FileText className="w-3.5 h-3.5 shrink-0 opacity-70" />
-                <span className="truncate flex-1">{r.file_name}</span>
-                <span className={cn("text-[10.5px] shrink-0", active ? "text-background/60" : "text-foreground/40")}>
-                  {new Date(r.created_at).toLocaleDateString()}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(r.id);
-                }}
-                className={cn(
-                  "shrink-0 mr-1.5 w-7 h-7 rounded-md inline-flex items-center justify-center transition-colors",
-                  active
-                    ? "text-background/70 hover:bg-background/15 hover:text-background"
-                    : "text-foreground/40 hover:bg-foreground/[0.08] hover:text-red-500 opacity-0 group-hover:opacity-100 focus:opacity-100",
-                )}
-                aria-label={`Delete ${r.file_name}`}
-                title="Delete resume"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          );
-        })}
+      <div className="mt-2 flex items-center gap-2.5 rounded-lg bg-foreground text-background pl-3 pr-1.5 py-2.5">
+        <FileText className="w-3.5 h-3.5 shrink-0 opacity-80" />
+        <span className="truncate flex-1 text-[13px] tracking-tight font-medium">
+          {resume.file_name}
+        </span>
+        <span className="text-[10.5px] shrink-0 text-background/60">
+          {new Date(resume.created_at).toLocaleDateString()}
+        </span>
+        <button
+          type="button"
+          onClick={() => onDelete(resume.id)}
+          className="shrink-0 w-7 h-7 rounded-md inline-flex items-center justify-center text-background/70 hover:bg-background/15 hover:text-background transition-colors"
+          aria-label={`Delete ${resume.file_name}`}
+          title="Delete resume"
+        >
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );
