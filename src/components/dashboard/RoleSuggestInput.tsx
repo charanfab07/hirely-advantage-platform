@@ -134,13 +134,52 @@ export function RoleSuggestInput({
 }: Props) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const popRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click.
+  // Portal target — created lazily on first open so SSR-safe.
+  const [pos, setPos] = useState<{ top: number; left: number; width: number; maxHeight: number; placement: "below" | "above" } | null>(null);
+
+  const recompute = () => {
+    const el = inputRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const gap = 6;
+    const desired = 320; // ideal max-height
+    const spaceBelow = vh - r.bottom - 12;
+    const spaceAbove = r.top - 12;
+    const placeBelow = spaceBelow >= 200 || spaceBelow >= spaceAbove;
+    const maxHeight = Math.max(160, Math.min(desired, placeBelow ? spaceBelow : spaceAbove));
+    setPos({
+      top: placeBelow ? r.bottom + gap : r.top - gap - maxHeight,
+      left: r.left,
+      width: r.width,
+      maxHeight,
+      placement: placeBelow ? "below" : "above",
+    });
+  };
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    recompute();
+    const onScrollOrResize = () => recompute();
+    window.addEventListener("scroll", onScrollOrResize, true);
+    window.addEventListener("resize", onScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize, true);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [open]);
+
+  // Close on outside click — checks both the wrapper and the portaled panel.
   useEffect(() => {
     if (!open) return;
     function onDocClick(e: MouseEvent) {
-      if (!wrapRef.current) return;
-      if (!wrapRef.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (wrapRef.current?.contains(t)) return;
+      if (popRef.current?.contains(t)) return;
+      setOpen(false);
     }
     document.addEventListener("mousedown", onDocClick);
     return () => document.removeEventListener("mousedown", onDocClick);
@@ -158,6 +197,78 @@ export function RoleSuggestInput({
   }, [value]);
 
   const popular = ["Senior Product Manager", "Software Engineer", "Data Analyst", "Product Designer"];
+
+  const dropdown = open && !disabled && pos && typeof document !== "undefined"
+    ? createPortal(
+        <div
+          ref={popRef}
+          role="listbox"
+          style={{
+            position: "fixed",
+            top: pos.top,
+            left: pos.left,
+            width: pos.width,
+            maxHeight: pos.maxHeight,
+          }}
+          className="z-[60] overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-xl shadow-black/10"
+        >
+          <div className="sticky top-0 z-10 px-3 py-2 border-b border-foreground/[0.06] bg-background/95 backdrop-blur flex items-center gap-2 text-[11px] tracking-tight text-foreground/50">
+            <Search className="w-3 h-3" />
+            <span>
+              {value.trim()
+                ? `Matching "${value.trim()}"`
+                : "Suggestions — pick one or keep typing"}
+            </span>
+          </div>
+
+          {filteredGroups.length === 0 ? (
+            <div className="px-3 py-6 text-center text-[12px] text-foreground/50">
+              No matches. You can use{" "}
+              <span className="font-medium text-foreground/80">"{value.trim()}"</span> as your role.
+            </div>
+          ) : (
+            <div className="py-1">
+              {filteredGroups.map((g) => (
+                <div key={g.label} className="py-1">
+                  <div className="px-3 pt-1.5 pb-1 text-[10px] tracking-[0.18em] uppercase text-foreground/40 font-medium">
+                    {g.label}
+                  </div>
+                  <ul>
+                    {g.roles.map((r) => {
+                      const active = value.trim().toLowerCase() === r.toLowerCase();
+                      return (
+                        <li key={r}>
+                          <button
+                            type="button"
+                            role="option"
+                            aria-selected={active}
+                            onMouseDown={(e) => {
+                              // Prevent input blur from closing before we run.
+                              e.preventDefault();
+                              onChange(r);
+                              setOpen(false);
+                            }}
+                            className={cn(
+                              "w-full text-left px-3 py-1.5 text-[13px] tracking-tight transition-colors",
+                              active
+                                ? "bg-foreground/[0.07] text-foreground"
+                                : "text-foreground/80 hover:bg-foreground/[0.05]",
+                            )}
+                          >
+                            {r}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>,
+        document.body,
+      )
+    : null;
 
   return (
     <div ref={wrapRef} className={cn("relative", className)}>
@@ -190,6 +301,7 @@ export function RoleSuggestInput({
 
       <div className="relative">
         <input
+          ref={inputRef}
           id={id}
           type="text"
           value={value}
@@ -199,6 +311,9 @@ export function RoleSuggestInput({
           }}
           onFocus={() => setOpen(true)}
           onClick={() => setOpen(true)}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+          }}
           disabled={disabled}
           placeholder={placeholder}
           autoComplete="off"
@@ -215,66 +330,7 @@ export function RoleSuggestInput({
         />
       </div>
 
-      {open && !disabled && (
-        <div
-          role="listbox"
-          className="absolute z-30 mt-1.5 left-0 right-0 max-h-72 overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-lg shadow-black/5"
-        >
-          <div className="px-3 py-2 border-b border-foreground/[0.06] flex items-center gap-2 text-[11px] tracking-tight text-foreground/50">
-            <Search className="w-3 h-3" />
-            <span>
-              {value.trim()
-                ? `Matching "${value.trim()}"`
-                : "Suggestions — pick one or keep typing"}
-            </span>
-          </div>
-
-          {filteredGroups.length === 0 ? (
-            <div className="px-3 py-6 text-center text-[12px] text-foreground/50">
-              No matches. You can use{" "}
-              <span className="font-medium text-foreground/80">"{value.trim()}"</span> as your role.
-            </div>
-          ) : (
-            <div className="py-1">
-              {filteredGroups.map((g) => (
-                <div key={g.label} className="py-1">
-                  <div className="px-3 pt-1.5 pb-1 text-[10px] tracking-[0.18em] uppercase text-foreground/40 font-medium">
-                    {g.label}
-                  </div>
-                  <ul>
-                    {g.roles.map((r) => {
-                      const active = value.trim().toLowerCase() === r.toLowerCase();
-                      return (
-                        <li key={r}>
-                          <button
-                            type="button"
-                            role="option"
-                            aria-selected={active}
-                            onMouseDown={(e) => {
-                              // Prevent the input blur from closing before we run.
-                              e.preventDefault();
-                              onChange(r);
-                              setOpen(false);
-                            }}
-                            className={cn(
-                              "w-full text-left px-3 py-1.5 text-[13px] tracking-tight transition-colors",
-                              active
-                                ? "bg-foreground/[0.07] text-foreground"
-                                : "text-foreground/80 hover:bg-foreground/[0.05]",
-                            )}
-                          >
-                            {r}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      {dropdown}
     </div>
   );
 }
