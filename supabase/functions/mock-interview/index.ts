@@ -41,7 +41,14 @@ Your job each turn:
 3. Then ask ONE next question. Either:
    - a follow-up that drills into something they just said (preferred when their answer was vague, lacked metrics, or skipped STAR), OR
    - a fresh question if they nailed it.
-4. Track question kind: 'opening' (turn 1), 'follow_up' (drills in), 'new_topic' (fresh), 'curveball' (stress), 'wrap_up' (last turn).
+4. Track question kind: 'opening' (turn 1), 'follow_up' (drills in), 'new_topic' (fresh), 'curveball' (stress), 'wrap_up' (last turn), 'nonsense' (when the candidate's answer is gibberish/irrelevant and you re-ask).
+
+NONSENSE / IRRELEVANT ANSWER HANDLING (very important):
+- If the candidate's last answer is gibberish (random characters like "asdf", "olbujnbkn67f"), empty-of-meaning ("idk", "lol", "nothing", "test"), wildly off-topic, joking, abusive, or under ~5 real words with zero substance, you MUST:
+  1. Set score to a low number (0–15).
+  2. In feedback, kindly but firmly tell them their answer doesn't address the question and ask for a real, relevant response. Mention 1 concrete thing they should include (e.g. "give a specific situation you were in, what you did, and the outcome").
+  3. Set question_kind to 'nonsense' and RE-ASK the SAME question (rephrased slightly is fine). Do NOT move on to a new question.
+- Only move on once they give a real attempt, even if imperfect. An imperfect-but-genuine answer should get normal coaching + follow-up, NOT the nonsense path.
 
 Hard rules:
 - Never produce more than ONE question per turn.
@@ -72,7 +79,7 @@ const TURN_TOOL = {
         question: { type: "string", description: "The next interview question. One question only." },
         question_kind: {
           type: "string",
-          enum: ["opening", "follow_up", "new_topic", "curveball", "wrap_up"],
+          enum: ["opening", "follow_up", "new_topic", "curveball", "wrap_up", "nonsense"],
         },
         follow_up_hint: {
           type: "string",
@@ -294,14 +301,17 @@ async function handleRespond(
   const turnIndex = turns.length; // next turn will be this index
 
   const wrap = remaining <= 0.5 || turnIndex >= 12;
+  const suspect = looksLikeNonsense(answer.trim());
   chatMessages.push({
     role: "user",
     content: wrap
-      ? "Time is nearly up. Coach on the last answer briefly and ask ONE final wrap-up question (question_kind: 'wrap_up')."
-      : `Coach on the last answer in 1–3 sentences, then ask the next question. About ${Math.max(
-          0,
-          Math.round(remaining),
-        )} minutes left. Use 'follow_up' if their last answer was vague or missing metrics; 'new_topic' if they nailed it; 'curveball' only in stress mode and sparingly.`,
+      ? "Time is nearly up. Coach on the last answer briefly and ask ONE final wrap-up question (question_kind: 'wrap_up'). If the last answer is gibberish/irrelevant, still wrap up but call it out honestly."
+      : suspect
+        ? `The candidate's last answer looks like gibberish, off-topic, or has no real substance. DO NOT move on. Set question_kind to 'nonsense', score it low (0–15), tell them in feedback that the answer doesn't address the question and what a real answer needs (e.g. specific situation, action, outcome with a number), and RE-ASK the same question they were just asked. About ${Math.max(0, Math.round(remaining))} minutes left.`
+        : `Coach on the last answer in 1–3 sentences, then ask the next question. About ${Math.max(
+            0,
+            Math.round(remaining),
+          )} minutes left. Use 'follow_up' if their last answer was vague or missing metrics; 'new_topic' if they nailed it; 'curveball' only in stress mode and sparingly. If the answer is genuinely gibberish/irrelevant use 'nonsense' and re-ask the same question.`,
   });
 
   const turn = await callTurn(apiKey, chatMessages);
@@ -500,4 +510,30 @@ function json(payload: unknown, status = 200) {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+// Heuristic: does this answer look like gibberish / non-attempt?
+// Conservative — only flags clear cases. The model still makes the final call.
+function looksLikeNonsense(text: string): boolean {
+  const t = (text || "").trim().toLowerCase();
+  if (!t) return true;
+  const words = t.split(/\s+/).filter(Boolean);
+  // Very short answers (< 5 words) with no real content.
+  if (words.length < 5) {
+    const lowEffort = /^(idk|dunno|nothing|n\/a|na|none|lol|lmao|test|asdf+|hi|hello|ok|okay|yes|no|maybe|skip|pass)\.?$/i;
+    if (words.every((w) => lowEffort.test(w))) return true;
+    if (words.length < 3) return true;
+  }
+  // Detect keyboard-mash tokens: long-ish words with no vowels or absurd consonant runs.
+  const mashy = words.filter((w) => {
+    if (w.length < 5) return false;
+    if (!/[aeiou]/i.test(w)) return true; // no vowels at all
+    if (/[bcdfghjklmnpqrstvwxyz]{5,}/i.test(w)) return true; // 5+ consonants in a row
+    if (/^[a-z0-9]{6,}$/i.test(w) && !/[aeiou].*[aeiou]/i.test(w)) return true; // alphanumeric, ≤1 vowel
+    return false;
+  });
+  if (words.length > 0 && mashy.length / words.length >= 0.5) return true;
+  // Single long token with digits mixed in and no spaces (e.g. "olbujnbkn67f").
+  if (words.length === 1 && words[0].length >= 6 && /\d/.test(words[0]) && /[a-z]/.test(words[0])) return true;
+  return false;
 }
