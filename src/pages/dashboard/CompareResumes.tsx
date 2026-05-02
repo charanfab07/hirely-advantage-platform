@@ -134,19 +134,28 @@ const CompareResumes = () => {
     }
     try {
       toast.loading("Uploading resume…", { id: "compare-upload" });
-      const text = await extractResumeText(file);
+
+      // Extract text and upload to storage in parallel — they're independent.
+      const path = `${user.id}/${crypto.randomUUID()}-${file.name}`;
+      const contentType = extToMime(ext) ?? file.type ?? ACCEPTED_MIME[0];
+
+      const extractPromise = extractResumeText(file);
+      const uploadPromise = supabase.storage
+        .from("resumes")
+        .upload(path, file, { contentType, upsert: false });
+
+      const text = await extractPromise;
       if (!text || text.trim().length < 80) {
         toast.error("Couldn't read enough text from this file", { id: "compare-upload" });
+        // Best-effort cleanup if the storage upload succeeded.
+        uploadPromise.then(({ error }) => {
+          if (!error) supabase.storage.from("resumes").remove([path]);
+        });
         return;
       }
-      const path = `${user.id}/${crypto.randomUUID()}-${file.name}`;
-      const { error: upErr } = await supabase.storage
-        .from("resumes")
-        .upload(path, file, {
-          contentType: extToMime(ext) ?? file.type ?? ACCEPTED_MIME[0],
-          upsert: false,
-        });
+      const { error: upErr } = await uploadPromise;
       if (upErr) throw upErr;
+
       const { data: inserted, error: insErr } = await supabase
         .from("resumes")
         .insert({

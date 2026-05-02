@@ -70,25 +70,30 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
       }
       setFileName(file.name);
 
-      // 1) Extract text in browser
+      // 1) Extract text in browser AND upload to storage in parallel.
+      //    These are independent, so running them concurrently roughly
+      //    halves the perceived wait before analysis can start.
       setStage("extracting");
-      const text = await extractResumeText(file);
+      const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = `${userId}/${Date.now()}-${safeName}`;
+
+      const extractPromise = extractResumeText(file);
+      const uploadPromise = supabase.storage
+        .from("resumes")
+        .upload(path, file, { contentType: mime, upsert: false });
+
+      // Flip the visual stage once extraction is done so the user sees progress.
+      const text = await extractPromise;
       if (!text || text.length < 80) {
         toast.error("Couldn't read enough text. Try a different file.");
         reset();
         return;
       }
-
-      // 2) Upload original to storage
       setStage("uploading");
-      const safeName = file.name.replace(/[^\w.\-]+/g, "_");
-      const path = `${userId}/${Date.now()}-${safeName}`;
-      const { error: upErr } = await supabase.storage
-        .from("resumes")
-        .upload(path, file, { contentType: mime, upsert: false });
+      const { error: upErr } = await uploadPromise;
       if (upErr) throw upErr;
 
-      // 3) Insert resume row
+      // 2) Insert resume row
       const { data: resumeRow, error: insErr } = await supabase
         .from("resumes")
         .insert({
