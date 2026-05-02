@@ -85,6 +85,15 @@ const InterviewPrep = () => {
   const [generatingQ, setGeneratingQ] = useState(false);
   const [shuffleCount, setShuffleCount] = useState(0);
 
+  // Auto-grow the question textarea so the full question is always visible.
+  const questionRef = useRef<HTMLTextAreaElement | null>(null);
+  useEffect(() => {
+    const el = questionRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [question, generatingQ]);
+
   // results
   const [analyzing, setAnalyzing] = useState(false);
   const [history, setHistory] = useState<Analysis[]>([]);
