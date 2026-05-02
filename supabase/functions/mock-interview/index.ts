@@ -172,16 +172,29 @@ async function handleStart(
   const gate = await checkEntitlement(userId, "mock_interviews");
   if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "mock_interviews" }, gate.status);
 
-  let resumeText = "";
-  if (resume_id) {
-    const { data: r } = await supabase
-      .from("resumes")
-      .select("user_id, raw_text")
-      .eq("id", resume_id)
-      .single();
-    if (r && r.user_id === userId && r.raw_text) {
-      resumeText = r.raw_text.slice(0, 6000);
-    }
+  // Resume is REQUIRED — every question must be grounded in the candidate's
+  // actual resume. Reject the start if the resume is missing, doesn't belong
+  // to the user, or has no extracted text.
+  if (!resume_id || typeof resume_id !== "string") {
+    return json(
+      { error: "Upload your resume first — mock interview questions are based on your resume.", code: "RESUME_REQUIRED" },
+      400,
+    );
+  }
+  const { data: r } = await supabase
+    .from("resumes")
+    .select("user_id, raw_text")
+    .eq("id", resume_id)
+    .single();
+  if (!r || r.user_id !== userId) {
+    return json({ error: "Resume not found", code: "RESUME_REQUIRED" }, 404);
+  }
+  const resumeText = (r.raw_text ?? "").slice(0, 6000);
+  if (resumeText.trim().length < 80) {
+    return json(
+      { error: "We couldn't read text from your resume. Re-upload a text-based PDF.", code: "RESUME_REQUIRED" },
+      400,
+    );
   }
 
   const { data: session, error: sErr } = await supabase
@@ -439,7 +452,14 @@ INTERVIEW SETTINGS
 - Focus: ${session.focus} — ${FOCUS_GUIDE[session.focus] ?? ""}
 - Difficulty: ${session.difficulty} — ${DIFFICULTY_GUIDE[session.difficulty] ?? ""}
 - Time budget: ${session.duration_minutes} minutes total. Plan ~6–10 turns.
-${resumeText ? `\nCANDIDATE RESUME (use to ground questions and probe real claims):\n${resumeText}\n` : ""}`;
+
+GROUNDING RULE (STRICT):
+Every question (including the opening one) MUST be grounded in something concrete from the CANDIDATE RESUME below — a specific project, role, technology, achievement, metric, education, certification, or claim. Do NOT ask generic interview questions ("Tell me about yourself", "What's your biggest weakness", "Why this company") unless they are tied to a specific resume detail. If the resume mentions Project X, ask about Project X. If it lists a tech stack, drill into that stack. Reference the resume detail naturally inside the question itself (e.g. "On the Stress Recognition ML project at Rooman, …").
+
+CANDIDATE RESUME (sole grounding source — use this and only this for question content):
+"""
+${resumeText}
+"""`;
 }
 
 async function callTurn(apiKey: string, messages: ChatMsg[]) {

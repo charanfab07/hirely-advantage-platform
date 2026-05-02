@@ -112,6 +112,10 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
   }, [timeUp]);
 
   const start = async () => {
+    if (!resumeId) {
+      toast.error("Upload your resume first — questions are based on your resume.");
+      return;
+    }
     if (targetRole.trim().length < 2) {
       toast.error("Add the role you're practicing for.");
       return;
@@ -244,9 +248,21 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
               Set up your mock
             </p>
             <p className="mt-1 text-[12.5px] text-foreground/55 tracking-tight">
-              Pick a role, a difficulty, and a length. We'll run a real, adaptive interview.
+              Pick a role, a difficulty, and a length. We'll run a real, adaptive interview grounded in your resume.
             </p>
           </div>
+
+          {!resumeId && (
+            <div className="mx-5 sm:mx-6 mb-4 flex items-start gap-2.5 rounded-lg border border-amber-500/25 bg-amber-500/[0.08] px-3 py-2.5">
+              <AlertTriangle className="w-3.5 h-3.5 mt-[2px] text-amber-600 dark:text-amber-300 shrink-0" />
+              <div className="text-[12px] tracking-tight text-amber-800 dark:text-amber-200">
+                <p className="font-medium">Upload your resume first.</p>
+                <p className="text-amber-800/80 dark:text-amber-200/80">
+                  Questions are based strictly on your actual experience — projects, skills, metrics. Head to the Resume Analyzer (or the Practice tab) to upload, then come back.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-4 space-y-4">
             <div>
@@ -361,7 +377,8 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
             <button
               type="button"
               onClick={start}
-              disabled={starting}
+              disabled={starting || !resumeId}
+              title={!resumeId ? "Upload your resume to start a mock interview" : undefined}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[12.5px] font-medium tracking-tight bg-foreground text-background hover:opacity-90 disabled:opacity-50 transition-opacity"
             >
               {starting ? (
@@ -372,7 +389,7 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
               ) : (
                 <>
                   <Mic className="w-3.5 h-3.5" />
-                  Start mock interview
+                  {resumeId ? "Start mock interview" : "Upload resume to start"}
                 </>
               )}
             </button>
