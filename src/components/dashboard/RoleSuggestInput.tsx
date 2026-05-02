@@ -199,10 +199,12 @@ export function RoleSuggestInput({
 
   const popular = ["Senior Product Manager", "Software Engineer", "Data Analyst", "Product Designer"];
 
-  const dropdown = open && !disabled ? (
+  const dropdown = open && !disabled && pos ? (
         <div
+          ref={panelRef}
           role="listbox"
-          className="absolute left-0 right-0 top-[calc(100%+6px)] z-[80] max-h-[min(320px,42vh)] overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-xl shadow-black/10"
+          style={{ top: pos.top, left: pos.left, width: pos.width, maxHeight: pos.maxHeight }}
+          className="fixed z-[9999] overflow-y-auto rounded-xl border border-foreground/[0.08] bg-background/95 backdrop-blur shadow-xl shadow-black/10"
         >
           <div className="sticky top-0 z-10 px-3 py-2 border-b border-foreground/[0.06] bg-background/95 backdrop-blur flex items-center gap-2 text-[11px] tracking-tight text-foreground/50">
             <Search className="w-3 h-3" />
@@ -320,7 +322,7 @@ export function RoleSuggestInput({
         />
       </div>
 
-      {dropdown}
+      {typeof document !== "undefined" && dropdown ? createPortal(dropdown, document.body) : null}
     </div>
   );
 }
