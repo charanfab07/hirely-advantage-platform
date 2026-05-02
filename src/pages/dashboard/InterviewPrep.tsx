@@ -603,8 +603,8 @@ const InterviewPrep = () => {
             </div>
           </SectionCard>
 
-          {/* Result */}
-          <div className="md:col-span-5 lg:col-span-6 xl:col-span-7 space-y-4">
+          {/* Result — independently scrollable so page stays above the fold */}
+          <div className="md:col-span-5 lg:col-span-6 xl:col-span-7 space-y-3 md:max-h-[calc(100vh-220px)] md:overflow-y-auto md:pr-1 [scrollbar-width:thin]">
             {active ? (
               <AnalysisView
                 analysis={active}
