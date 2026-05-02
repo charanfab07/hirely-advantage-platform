@@ -609,9 +609,10 @@ const InterviewPrep = () => {
               <AnalysisView
                 analysis={active}
                 onCopy={copy}
-                onUseImproved={() => {
-                  if (active.improved_answer) {
-                    setAnswer(active.improved_answer);
+                onUseImproved={(text) => {
+                  const next = text ?? active.improved_answer;
+                  if (next) {
+                    setAnswer(next);
                     toast.success("Loaded improved answer — try delivering it now.");
                   }
                 }}
