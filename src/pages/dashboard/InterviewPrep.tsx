@@ -264,7 +264,7 @@ const InterviewPrep = () => {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto">
+    <div className="w-full max-w-[1760px] mx-auto xl:-ml-4 2xl:-ml-8">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
           Interview Prep
@@ -303,8 +303,8 @@ const InterviewPrep = () => {
       {tab === "mock" && <div className="mt-5"><MockInterviewPanel resumeId={resumeId} /></div>}
 
       {tab === "practice" && !resumeLoading && !resumeId && user && (
-        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <div className="lg:col-span-7 lg:col-start-3">
+        <div className="mt-5 grid grid-cols-1 xl:grid-cols-12 gap-4">
+          <div className="xl:col-span-8 xl:col-start-3">
             <SectionCard tone="dark" className="mb-4 p-5">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-medium">
                 Step 1 — Upload your resume
@@ -337,9 +337,9 @@ const InterviewPrep = () => {
       )}
 
       {tab === "practice" && resumeId && !practiceStarted && (
-        <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 gap-4">
-          <SectionCard className="lg:col-span-8 lg:col-start-3 p-0 overflow-visible">
-            <div className="px-6 sm:px-8 pt-7 pb-6">
+        <div className="mt-5 grid grid-cols-1 xl:grid-cols-12 gap-4">
+          <SectionCard className="xl:col-span-10 xl:col-start-2 p-0 overflow-visible">
+            <div className="px-6 sm:px-8 pt-6 pb-5">
               <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium">
                 Ready when you are
               </p>
@@ -421,7 +421,7 @@ const InterviewPrep = () => {
       {tab === "practice" && resumeId && practiceStarted && (
         <div className="mt-5 grid grid-cols-1 md:grid-cols-12 gap-4">
           {/* Composer */}
-          <SectionCard className="md:col-span-6 lg:col-span-5 p-0 overflow-visible">
+          <SectionCard className="md:col-span-7 lg:col-span-6 xl:col-span-5 p-0 overflow-visible">
             <div className="px-5 sm:px-6 pt-5 pb-4">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
@@ -582,7 +582,7 @@ const InterviewPrep = () => {
           </SectionCard>
 
           {/* Result */}
-          <div className="md:col-span-6 lg:col-span-7 space-y-4">
+          <div className="md:col-span-5 lg:col-span-6 xl:col-span-7 space-y-4">
             {active ? (
               <AnalysisView
                 analysis={active}
