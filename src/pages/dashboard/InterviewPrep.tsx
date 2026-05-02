@@ -478,6 +478,18 @@ const InterviewPrep = () => {
                 className="mt-3 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3.5 py-2.5 text-[14px] leading-[1.55] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors resize-none overflow-hidden min-h-[68px]"
               />
 
+              {/* Key focus line — tells the candidate what a strong answer needs to cover. */}
+              {question && (
+                <div className="mt-2 flex items-start gap-1.5 text-[11.5px] tracking-tight leading-snug">
+                  <span className="px-1.5 py-0.5 rounded-md bg-foreground/[0.06] text-foreground/65 text-[10px] font-medium uppercase tracking-[0.14em] shrink-0 mt-0.5">
+                    Focus
+                  </span>
+                  <span className="text-foreground/70">
+                    {focusLineFor(qType, questionMeta?.focus_area)}
+                  </span>
+                </div>
+              )}
+
               {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {questionMeta.focus_area && (
