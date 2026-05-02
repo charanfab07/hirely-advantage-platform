@@ -112,6 +112,10 @@ export const MockInterviewPanel = ({ resumeId }: { resumeId: string | null }) =>
   }, [timeUp]);
 
   const start = async () => {
+    if (!resumeId) {
+      toast.error("Upload your resume first — questions are based on your resume.");
+      return;
+    }
     if (targetRole.trim().length < 2) {
       toast.error("Add the role you're practicing for.");
       return;
