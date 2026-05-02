@@ -1,8 +1,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
+import { useEntitlements } from "@/hooks/useEntitlements";
 
 const suite = [
   { to: "/app/resume", label: "Resume Analyzer", icon: FileText },
@@ -12,9 +13,9 @@ const suite = [
 ];
 
 const tracking = [
-  { to: "/app/applications", label: "Applications", count: 28, icon: Briefcase },
-  { to: "/app/outreach", label: "Outreach", count: 14, icon: Send },
-  { to: "/app/saved", label: "Saved", count: 12, icon: Bookmark },
+  { to: "/app/applications", label: "Applications", icon: Briefcase },
+  { to: "/app/outreach", label: "Outreach", icon: Send },
+  { to: "/app/saved", label: "Saved", icon: Bookmark },
 ];
 
 const SectionLabel = ({ children }: { children: React.ReactNode }) => (
