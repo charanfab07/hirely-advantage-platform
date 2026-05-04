@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       return json({ error: "answer must be provided" }, 400);
     }
     if (!ALLOWED_STYLES.has(style)) {
-      return json({ error: "style must be 'shorter' or 'confident'" }, 400);
+      return json({ error: "style must be 'shorter', 'confident', or 'star'" }, 400);
     }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
