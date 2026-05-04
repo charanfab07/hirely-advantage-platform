@@ -609,6 +609,70 @@ const CoverLetterGenerator = () => {
             </div>
           </div>
 
+          {hasLetter && (personalizationScore !== null || resumeStrengths.length > 0) && (
+            <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+              {personalizationScore !== null && (
+                <div className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.02] p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                      Personalization score
+                    </p>
+                    <p
+                      className={cn(
+                        "text-[13px] font-semibold tracking-tight",
+                        personalizationScore >= 75
+                          ? "text-emerald-600"
+                          : personalizationScore >= 50
+                            ? "text-foreground"
+                            : "text-amber-600",
+                      )}
+                    >
+                      {personalizationScore}/100
+                    </p>
+                  </div>
+                  <div className="mt-2 h-1.5 w-full rounded-full bg-foreground/[0.08] overflow-hidden">
+                    <div
+                      className={cn(
+                        "h-full rounded-full transition-all",
+                        personalizationScore >= 75
+                          ? "bg-emerald-500"
+                          : personalizationScore >= 50
+                            ? "bg-foreground/70"
+                            : "bg-amber-500",
+                      )}
+                      style={{ width: `${personalizationScore}%` }}
+                    />
+                  </div>
+                  <p className="mt-1.5 text-[11px] text-foreground/50 tracking-tight">
+                    {personalizationScore >= 75
+                      ? "Strong fit — JD keywords, mission, and your strengths are woven in."
+                      : personalizationScore >= 50
+                        ? "Decent — try adding a hiring manager name or company URL for more lift."
+                        : "Generic — paste a richer JD or upload a resume to personalize further."}
+                  </p>
+                </div>
+              )}
+              {resumeStrengths.length > 0 && (
+                <div className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.02] p-3">
+                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                    Resume strengths detected
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {resumeStrengths.map((s, i) => (
+                      <li
+                        key={i}
+                        className="text-[12px] text-foreground/75 tracking-tight leading-snug flex gap-2"
+                      >
+                        <span className="text-foreground/35 shrink-0">•</span>
+                        <span>{s}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
             <LetterSheet
               doc={doc}
