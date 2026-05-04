@@ -21,7 +21,7 @@ type Stage = "idle" | "extracting" | "uploading" | "analyzing";
 
 type Props = {
   userId: string;
-  onAnalyzed: (analysisId: string) => void;
+  onAnalyzed: (analysisId: string, meta?: { cached?: boolean }) => void;
   className?: string;
 };
 
