@@ -852,9 +852,9 @@ const AnalysisView = ({
     { label: "Length", value: analysis.length_score },
   ];
 
-  // Local override of the improved answer so "Make shorter / more confident" can update in place.
+  // Local override of the improved answer so restyle buttons can update in place.
   const [improved, setImproved] = useState<string | null>(analysis.improved_answer ?? null);
-  const [styleLoading, setStyleLoading] = useState<null | "shorter" | "confident">(null);
+  const [styleLoading, setStyleLoading] = useState<null | "shorter" | "confident" | "star">(null);
 
   // Reset when analysis changes.
   useEffect(() => {
@@ -862,7 +862,7 @@ const AnalysisView = ({
     setStyleLoading(null);
   }, [analysis.id, analysis.improved_answer]);
 
-  const restyle = async (style: "shorter" | "confident") => {
+  const restyle = async (style: "shorter" | "confident" | "star") => {
     if (!improved) return;
     setStyleLoading(style);
     try {
