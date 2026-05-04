@@ -1,83 +1,50 @@
-# Plan: Top 5 high-impact improvements
+## What I'll ship
 
-I picked the 5 changes with the best ratio of user-visible impact to risk. No speculative features — every item is grounded in the current codebase.
-
----
-
-## 1. Remove fake counts on placeholder sidebar items
-
-**Problem:** Sidebar shows hardcoded `count: 28 / 14 / 12` for Applications, Outreach, Saved — but those routes render `PlaceholderPage`. It's misleading.
-
-**Fix:**
-- In `src/components/dashboard/Sidebar.tsx`, drop the `count` field for these three items and add a small "Soon" badge instead.
-- Keep the routes so links don't 404, but the sidebar stops lying about data.
+Two small, grounded improvements. Both are low-risk and independent.
 
 ---
 
-## 2. Dynamic upgrade card (Free → Pro, Pro → Advanced)
+### 1. Global usage meter strip in the dashboard shell
 
-**Problem:** Sidebar shows the same "Upgrade to Pro" block to everyone, including users already on Pro.
+**Why:** `UsageMeter` is currently mounted on 4 different pages (Analyzer, Cover Letter, Interview Prep, Compare). Each page refetches and users only see usage on the page they happen to be on.
 
-**Fix:**
-- In `Sidebar.tsx`, read `useEntitlements()` to determine the tier.
-- Free users see "Upgrade to Pro" (existing copy).
-- Pro users see "Unlock Advanced" pointing at unlimited analyses + voice mode (already memoed as Advanced-only).
-- Advanced users see no upgrade card — replace with a tiny "Advanced" pill.
+**Changes:**
+- New `src/components/dashboard/UsageMeterStrip.tsx` — renders three meters: `analyses`, `cover_letters`, `mock_interviews`. Each meter already hides itself when the plan grants unlimited, so on Advanced/Teams the strip renders nothing.
+- `src/pages/dashboard/DashboardLayout.tsx` — mount the strip once, top-right of the main pane (desktop) and below the mobile top bar.
+- Remove the per-page mounts from `ResumeAnalyzer.tsx` (line 196), `CoverLetterGenerator.tsx` (line 760), `InterviewPrep.tsx` (lines 284–285).
+- `CompareResumes.tsx` keeps its `resume_uploads` meter (it's the only page that exposes that counter and it sits next to the Upload button — contextually useful).
 
----
-
-## 3. Move `UsageMeter` into the dashboard shell
-
-**Problem:** `UsageMeter` is mounted per-page. Users only see usage on the page they happen to visit, and each page refetches.
-
-**Fix:**
-- Mount `UsageMeter` once in the dashboard layout (the file that renders `<Outlet />` for `/app/*`), in the header or above the sidebar footer.
-- Remove the per-page mounts from `InterviewPrep`, `CoverLetterGenerator`, `ResumeAnalyzer`, `MockInterview`.
-- One fetch, always visible, no duplication.
+One fetch source per session (`useEntitlements`), always visible, no duplication.
 
 ---
 
-## 4. Refactor `CoverLetterGenerator.tsx` (1457 lines)
+### 2. "Cached — Re-run" affordance on Resume Analyzer
 
-**Problem:** One file holds export logic, typography helpers, the editor, the preview, history, and the form. Hard to scan, slow to edit, easy to break.
+**Why:** `ResumeUploadCard` now silently reuses a prior analysis when `(content_hash, target_role)` matches. Power users have no way to force a fresh AI run when they want one (e.g. iterating on prompts, trying again after a model improvement).
 
-**Fix — extract into:**
-- `src/lib/letterExport.ts` — DOCX/PDF/copy helpers
-- `src/components/dashboard/cover-letter/LetterEditor.tsx` — editable letter body
-- `src/components/dashboard/cover-letter/LetterPreview.tsx` — read-only formatted view
-- `src/components/dashboard/cover-letter/LetterHistory.tsx` — past letters list
-- `CoverLetterGenerator.tsx` becomes the orchestrator (form + state + composition).
+**Changes:**
+- `ResumeUploadCard.tsx`: add an optional `forceRefresh?: boolean` prop. When true, skip the cached-analysis lookup and always invoke `analyze-resume`.
+- `ResumeAnalyzer.tsx`: when `latest` exists and the user re-uploads, surface a small "Loaded from cache" pill on the score hero with a "Re-run analysis" link that re-invokes the edge function for the same `(resume_id, target_role)`.
+  - Implementation: small "Re-analyze" button next to the score (calls `analyze-resume` directly with `resume_id` + `target_role` from `latest`, then `refresh()`).
+  - Respects entitlement: button disabled + tooltip when `ent.can("analyses")` is false; on click of disabled, opens `UpgradePlanDialog`.
+- Track when the most recent analysis came from cache: `ResumeUploadCard` already returns the `analysisId`; we add a second callback arg `{ cached: boolean }` so the Analyzer can show a one-time "Loaded cached analysis · Re-run" toast/pill.
 
-No behavior change. Pure structural refactor with the same props/state shape.
-
----
-
-## 5. Cache resume analyses by content hash
-
-**Problem:** `resumes.content_hash` already exists, but `ResumeAnalyzer` re-runs the AI analysis every time the user clicks Analyze on the same resume + role. Wastes a Pro-cap unit and adds latency.
-
-**Fix:**
-- Before invoking the analyze edge function, query `resume_analyses` for `(user_id, resume_id, target_role)` ordered by `created_at desc limit 1`.
-- If a row exists and the resume's `content_hash` hasn't changed since that analysis, hydrate the UI from it instead of calling the model. Add a small "Cached — Re-run" button so users can force a fresh run.
-- No schema change required (all needed columns exist).
+No DB or edge-function changes needed.
 
 ---
 
-## Out of scope (intentionally deferred)
+## Files touched
 
-- Voice interview mode — already memoed for Advanced; build when monetization is ready.
-- `ResumeAnalyzer.tsx` (1195 lines) refactor — valuable but lower urgency than the cover letter one because tabs already partially split it.
-- `MeshGradient` re-animation polish — cosmetic.
-- Practice-again / pinning for interview questions — feature, not polish.
+- `src/components/dashboard/UsageMeterStrip.tsx` *(new)*
+- `src/pages/dashboard/DashboardLayout.tsx`
+- `src/pages/dashboard/ResumeAnalyzer.tsx`
+- `src/pages/dashboard/CoverLetterGenerator.tsx`
+- `src/pages/dashboard/InterviewPrep.tsx`
+- `src/components/dashboard/ResumeUploadCard.tsx`
 
----
+## Out of scope (deferred, as before)
 
-## Technical notes
-
-- No DB migrations.
-- No new edge functions.
-- No new dependencies.
-- Entitlement gating reuses existing `useEntitlements` + `UpgradeAdvancedDialog` (per Core memory).
-- All five items are independent and can ship in any order; I'll do them in the listed order.
+- Cover Letter refactor (1457 lines) — separate pass, bigger diff.
+- CompareResumes route removal — needs your decision on whether the page stays as a standalone tool.
 
 Approve and I'll execute.

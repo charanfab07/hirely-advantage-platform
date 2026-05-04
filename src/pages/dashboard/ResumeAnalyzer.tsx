@@ -18,7 +18,7 @@ import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
-import { UsageMeter } from "@/components/dashboard/UsageMeter";
+
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -119,6 +119,8 @@ const ResumeAnalyzer = () => {
   const [tab, setTab] = useState("score");
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
+  const [latestCached, setLatestCached] = useState(false);
+  const [reanalyzing, setReanalyzing] = useState(false);
 
   const latest = analyses[0];
 
@@ -143,9 +145,47 @@ const ResumeAnalyzer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  const handleAnalyzed = async () => {
+  const handleAnalyzed = async (_id: string, meta?: { cached?: boolean }) => {
+    setLatestCached(!!meta?.cached);
     await refresh();
     setTab("score");
+  };
+
+  const handleReanalyze = async () => {
+    if (!latest) return;
+    if (!ent.can("analyses")) {
+      toast.error("You've reached your monthly analysis limit.");
+      return;
+    }
+    setReanalyzing(true);
+    try {
+      const { data: resume } = await supabase
+        .from("resumes")
+        .select("raw_text")
+        .eq("id", latest.resume_id)
+        .maybeSingle();
+      if (!resume?.raw_text) throw new Error("Resume text unavailable");
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke(
+        "analyze-resume",
+        {
+          body: {
+            resume_id: latest.resume_id,
+            raw_text: resume.raw_text,
+            target_role: latest.target_role || undefined,
+          },
+        },
+      );
+      if (fnErr) throw new Error(fnErr.message || "Analysis failed");
+      if (fnData?.error) throw new Error(fnData.error);
+      toast.success("Fresh analysis ready.");
+      setLatestCached(false);
+      await refresh();
+      ent.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Re-analysis failed");
+    } finally {
+      setReanalyzing(false);
+    }
   };
 
   const insightsColumns: InsightsColumn[] | undefined = useMemo(() => {
@@ -193,7 +233,7 @@ const ResumeAnalyzer = () => {
           {today}
         </p>
         <div className="flex items-center gap-2">
-          <UsageMeter feature="analyses" label="Analyses" className="hidden sm:inline-flex" />
+          
           <div className="relative hidden sm:block">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" />
             <input
@@ -273,9 +313,25 @@ const ResumeAnalyzer = () => {
           <SectionCard className="mt-5">
             <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_220px] gap-5 lg:gap-7 items-end">
               <div className="min-w-0">
-                <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                  Resume readiness
-                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                    Resume readiness
+                  </p>
+                  {latestCached && (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-foreground/[0.05] border border-foreground/[0.08] text-[10.5px] tracking-tight text-foreground/65">
+                      <span className="w-1 h-1 rounded-full bg-foreground/40" />
+                      Loaded from cache
+                      <button
+                        type="button"
+                        onClick={handleReanalyze}
+                        disabled={reanalyzing}
+                        className="ml-0.5 font-medium text-foreground/85 hover:text-foreground underline-offset-2 hover:underline disabled:opacity-50"
+                      >
+                        {reanalyzing ? "Re-running…" : "Re-run"}
+                      </button>
+                    </span>
+                  )}
+                </div>
                 <p className="mt-2 text-[64px] sm:text-[72px] leading-none font-semibold tracking-[-0.045em] text-foreground tabular-nums">
                   {latest.overall_score}
                   <span className="text-[22px] text-foreground/30 tracking-tight">/100</span>

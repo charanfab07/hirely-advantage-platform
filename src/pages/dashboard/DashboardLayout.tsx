@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { DashboardSidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
+import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
 import { useAuth } from "@/hooks/useAuth";
 
 const DashboardLayout = () => {
@@ -48,6 +49,12 @@ const DashboardLayout = () => {
                 Hirely
               </span>
             </div>
+            <UsageMeterStrip className="ml-auto" />
+          </div>
+
+          {/* Desktop usage strip — top-right of main pane */}
+          <div className="hidden md:flex justify-end mb-3">
+            <UsageMeterStrip />
           </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}

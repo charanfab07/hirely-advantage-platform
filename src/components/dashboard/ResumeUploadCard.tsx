@@ -21,7 +21,7 @@ type Stage = "idle" | "extracting" | "uploading" | "analyzing";
 
 type Props = {
   userId: string;
-  onAnalyzed: (analysisId: string) => void;
+  onAnalyzed: (analysisId: string, meta?: { cached?: boolean }) => void;
   className?: string;
 };
 
@@ -153,8 +153,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
           : cachedQuery.is("target_role", null);
         const { data: cached } = await cachedQuery.maybeSingle();
         if (cached?.id) {
-          toast.success("Loaded cached analysis.");
-          onAnalyzed(cached.id);
+          onAnalyzed(cached.id, { cached: true });
           reset();
           return;
         }
@@ -192,7 +191,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
       if (!analysisId) throw new Error("No analysis returned");
 
       toast.success("Resume analyzed.");
-      onAnalyzed(analysisId);
+      onAnalyzed(analysisId, { cached: false });
       ent.refresh();
       reset();
     } catch (e) {
