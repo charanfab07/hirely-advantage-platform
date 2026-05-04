@@ -160,6 +160,8 @@ Deno.serve(async (req) => {
     // diversify. Each insert is unique by (user_id, question_hash).
     for (let i = 0; i < safeCount; i++) {
       const userPrompt = `QUESTION TYPE: ${safeType}
+ROUND: ${safeRound} — ${ROUND_GUIDE[safeRound]}
+DIFFICULTY: ${safeDifficulty} — ${DIFFICULTY_GUIDE[safeDifficulty]}
 TARGET ROLE: ${target_role?.toString().trim() || "(not specified — infer from resume)"}
 
 CANDIDATE RESUME:
@@ -170,7 +172,7 @@ ${resumeText}
 ALREADY_SEEN QUESTIONS (do NOT repeat or paraphrase any of these — pick a different angle, project, or skill):
 ${seen.length ? seen.map((q, idx) => `${idx + 1}. ${q}`).join("\n") : "(none yet)"}
 
-Now propose ONE new ${safeType} question grounded in this resume. Vary the focus area from the seen list. Call propose_question.`;
+Now propose ONE new ${safeType} question for a ${safeRound} round at ${safeDifficulty} difficulty. Ground it in a specific item from the resume (name the project, company, or tech in your rationale). Call propose_question.`;
 
       const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
