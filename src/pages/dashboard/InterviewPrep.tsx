@@ -1010,6 +1010,19 @@ const AnalysisView = ({
               ) : null}
               More confident
             </button>
+            <button
+              type="button"
+              onClick={() => restyle("star")}
+              disabled={!!styleLoading}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
+            >
+              {styleLoading === "star" ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <ListOrdered className="w-3 h-3" />
+              )}
+              Use STAR
+            </button>
 
             <button
               type="button"
