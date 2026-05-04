@@ -599,3 +599,211 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </section>
 );
 
+
+// =====================================================
+// AI-added claims verification
+// =====================================================
+const CONFIDENCE_TONE: Record<string, string> = {
+  high: "bg-[hsl(150_55%_45%/0.12)] text-[hsl(150_45%_28%)]",
+  medium: "bg-[hsl(35_92%_55%/0.14)] text-[hsl(28_70%_38%)]",
+  low: "bg-[hsl(0_75%_55%/0.12)] text-[hsl(0_60%_42%)]",
+};
+
+const ClaimsVerification = ({ enhancement }: { enhancement: Enhancement }) => {
+  const [claims, setClaims] = useState<VerifiableClaim[]>(
+    () => enhancement.verifiable_claims ?? [],
+  );
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  // Sync when a regenerate produces a new enhancement
+  useEffect(() => {
+    setClaims(enhancement.verifiable_claims ?? []);
+    setEditingId(null);
+  }, [enhancement.id, enhancement.verifiable_claims]);
+
+  if (!claims.length) return null;
+
+  const pendingCount = claims.filter((c) => c.status === "pending").length;
+  const confirmedCount = claims.filter((c) => c.status === "confirmed").length;
+  const editedCount = claims.filter((c) => c.status === "edited").length;
+  const removedCount = claims.filter((c) => c.status === "removed").length;
+
+  const persist = async (next: VerifiableClaim[]) => {
+    setClaims(next);
+    setSaving(true);
+    const { error } = await supabase
+      .from("resume_enhancements")
+      .update({ verifiable_claims: next })
+      .eq("id", enhancement.id);
+    setSaving(false);
+    if (error) toast.error("Couldn't save — try again");
+  };
+
+  const setStatus = (id: string, status: VerifiableClaim["status"]) => {
+    persist(claims.map((c) => (c.id === id ? { ...c, status } : c)));
+  };
+
+  const startEdit = (c: VerifiableClaim) => {
+    setEditingId(c.id);
+    setDraft(c.edited_text ?? c.text);
+  };
+
+  const saveEdit = (id: string) => {
+    const trimmed = draft.trim();
+    if (!trimmed) {
+      toast.error("Claim can't be empty — use Remove instead");
+      return;
+    }
+    persist(
+      claims.map((c) =>
+        c.id === id ? { ...c, edited_text: trimmed, status: "edited" } : c,
+      ),
+    );
+    setEditingId(null);
+  };
+
+  return (
+    <SectionCard className="!p-0 overflow-hidden">
+      <div className="px-5 sm:px-6 pt-5 pb-4 flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <div className="inline-flex items-center gap-1.5 text-[10.5px] tracking-[0.18em] uppercase text-[hsl(28_70%_38%)] font-medium">
+            <ShieldAlert className="w-3.5 h-3.5" />
+            Needs verification
+          </div>
+          <h3 className="mt-1.5 text-[16.5px] font-semibold tracking-[-0.01em] text-foreground">
+            These claims were enhanced by AI — confirm before using
+          </h3>
+          <p className="mt-1 text-[12.5px] text-foreground/60 tracking-tight max-w-xl">
+            We added realistic metrics to make your resume land harder. Sanity-check each one
+            against your real impact. Confirm what's accurate, edit the numbers, or remove
+            anything you can't back up in an interview.
+          </p>
+        </div>
+        <div className="text-right shrink-0">
+          <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+            Status
+          </p>
+          <p className="mt-1 text-[12px] text-foreground/70 tracking-tight tabular-nums">
+            {confirmedCount} confirmed · {editedCount} edited · {removedCount} removed
+            {pendingCount > 0 && (
+              <span className="text-[hsl(28_70%_38%)] font-medium"> · {pendingCount} pending</span>
+            )}
+          </p>
+        </div>
+      </div>
+
+      <ul className="border-t border-foreground/[0.06] divide-y divide-foreground/[0.06]">
+        {claims.map((c) => {
+          const isEditing = editingId === c.id;
+          const isRemoved = c.status === "removed";
+          const display = c.edited_text ?? c.text;
+          return (
+            <li
+              key={c.id}
+              className={cn(
+                "px-5 sm:px-6 py-4 transition-colors",
+                isRemoved && "opacity-50",
+                c.status === "confirmed" && "bg-[hsl(150_55%_45%/0.04)]",
+                c.status === "edited" && "bg-[hsl(258_45%_58%/0.04)]",
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={cn(
+                    "shrink-0 px-2 py-0.5 rounded-full text-[10px] tracking-[0.12em] uppercase font-semibold",
+                    CONFIDENCE_TONE[c.confidence] ?? CONFIDENCE_TONE.medium,
+                  )}
+                  title={`${c.confidence} confidence`}
+                >
+                  {c.metric}
+                </span>
+                <div className="min-w-0 flex-1">
+                  {isEditing ? (
+                    <textarea
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value.slice(0, 240))}
+                      rows={2}
+                      className="w-full rounded-md border border-foreground/15 bg-background px-3 py-2 text-[13px] tracking-tight text-foreground outline-none focus:border-foreground/40 transition-colors resize-y"
+                    />
+                  ) : (
+                    <p
+                      className={cn(
+                        "text-[13px] leading-[1.5] tracking-tight text-foreground/90",
+                        isRemoved && "line-through",
+                      )}
+                    >
+                      {display}
+                    </p>
+                  )}
+                  <p className="mt-1 text-[11.5px] text-foreground/50 tracking-tight">
+                    {c.location} · {c.reason}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 flex items-center gap-1.5 flex-wrap pl-[68px]">
+                {isEditing ? (
+                  <>
+                    <button
+                      onClick={() => saveEdit(c.id)}
+                      disabled={saving}
+                      className="inline-flex items-center gap-1.5 rounded-md bg-foreground text-background px-2.5 py-1.5 text-[11.5px] font-medium tracking-tight hover:bg-foreground/90 transition-colors disabled:opacity-50"
+                    >
+                      <Check className="w-3 h-3" />
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingId(null)}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-foreground/15 bg-foreground/[0.03] px-2.5 py-1.5 text-[11.5px] font-medium tracking-tight text-foreground/75 hover:bg-foreground/[0.06] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setStatus(c.id, "confirmed")}
+                      disabled={saving || c.status === "confirmed"}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-60",
+                        c.status === "confirmed"
+                          ? "bg-[hsl(150_55%_45%/0.18)] text-[hsl(150_45%_24%)]"
+                          : "border border-foreground/15 bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]",
+                      )}
+                    >
+                      <Check className="w-3 h-3" />
+                      {c.status === "confirmed" ? "Confirmed" : "Confirm"}
+                    </button>
+                    <button
+                      onClick={() => startEdit(c)}
+                      disabled={saving}
+                      className="inline-flex items-center gap-1.5 rounded-md border border-foreground/15 bg-foreground/[0.03] px-2.5 py-1.5 text-[11.5px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
+                    >
+                      <Edit3 className="w-3 h-3" />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => setStatus(c.id, isRemoved ? "pending" : "removed")}
+                      disabled={saving}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11.5px] font-medium tracking-tight transition-colors",
+                        isRemoved
+                          ? "border border-foreground/15 bg-foreground/[0.03] text-foreground/80 hover:bg-foreground/[0.06]"
+                          : "border border-[hsl(0_60%_55%/0.3)] bg-[hsl(0_75%_55%/0.06)] text-[hsl(0_60%_42%)] hover:bg-[hsl(0_75%_55%/0.1)]",
+                      )}
+                    >
+                      <X className="w-3 h-3" />
+                      {isRemoved ? "Restore" : "Remove"}
+                    </button>
+                  </>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </SectionCard>
+  );
+};
