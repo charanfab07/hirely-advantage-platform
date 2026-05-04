@@ -357,6 +357,7 @@ Deno.serve(async (req) => {
     // ---- Personalization step 2: extract JD keywords + resume skills via AI ----
     let jdKeywords: string[] = [];
     let resumeSkills: string[] = [];
+    let resumeStrengths: string[] = [];
     if (jd || resumeText) {
       try {
         const kwResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -371,7 +372,7 @@ Deno.serve(async (req) => {
               {
                 role: "system",
                 content:
-                  "Extract job keywords and resume skills. Be precise — only concrete tools, technologies, methodologies, and role-specific terms. Skip soft generics. Always lowercase. Always call the tool.",
+                  "Extract job keywords, resume skills, and the candidate's strongest selling points for THIS JD. Be precise — only concrete tools, technologies, methodologies, and role-specific terms. Skip soft generics. For strengths, pull SPECIFIC achievements from the resume only — never invent. Always lowercase keywords/skills. Always call the tool.",
               },
               {
                 role: "user",
@@ -392,6 +393,9 @@ Deno.serve(async (req) => {
               : [];
             resumeSkills = Array.isArray(parsed.resume_skills)
               ? parsed.resume_skills.map((s: string) => s.toLowerCase().trim()).filter(Boolean).slice(0, 25)
+              : [];
+            resumeStrengths = Array.isArray(parsed.resume_strengths)
+              ? parsed.resume_strengths.map((s: string) => String(s).trim()).filter(Boolean).slice(0, 5)
               : [];
           }
         }
