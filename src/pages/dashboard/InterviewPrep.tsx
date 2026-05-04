@@ -193,6 +193,8 @@ const InterviewPrep = () => {
           body: {
             resume_id: resumeId,
             question_type: type,
+            round_type: roundType,
+            difficulty,
             target_role: targetRole.trim() || undefined,
             count: 1,
           },
