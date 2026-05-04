@@ -170,7 +170,10 @@ const CoverLetterGenerator = () => {
           company: doc.companyName.trim() || jdParsed.company || "the company",
           role: "this role",
           tone,
-          length: pages === 3 ? "three_page" : pages === 2 ? "two_page" : "one_page",
+          length,
+          experience_level: experienceLevel,
+          letter_style: companyStyle,
+          avoid_generic: avoidGeneric,
           job_description: jd.trim(),
           hiring_manager: doc.hiringManager.trim() || jdParsed.hiringManager || undefined,
           resume_id: resumeId ?? undefined,
@@ -187,8 +190,17 @@ const CoverLetterGenerator = () => {
       if (error) throw new Error(error.message || "Generation failed");
       const errMsg = (data as { error?: string })?.error;
       if (errMsg) throw new Error(errMsg);
-      const full = (data as { letter?: { full_letter?: string } })?.letter?.full_letter ?? "";
+      const payload = data as {
+        letter?: { full_letter?: string };
+        resume_strengths?: string[];
+        personalization_score?: number;
+      };
+      const full = payload?.letter?.full_letter ?? "";
       if (!full) throw new Error("No letter returned");
+      setResumeStrengths(payload.resume_strengths ?? []);
+      setPersonalizationScore(
+        typeof payload.personalization_score === "number" ? payload.personalization_score : null,
+      );
 
       const hiringManager = doc.hiringManager || jdParsed.hiringManager || "";
       const salutation = guessSalutation(hiringManager);
