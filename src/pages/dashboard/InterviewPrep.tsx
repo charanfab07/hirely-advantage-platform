@@ -280,10 +280,8 @@ const InterviewPrep = () => {
         <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/40 font-medium">
           Interview Prep
         </p>
-        <div className="flex items-center gap-2 flex-wrap">
-          <UsageMeter feature="interview_questions" label="Questions" />
-          <UsageMeter feature="mock_interviews" label="Mock interviews" />
-        </div>
+        <div className="flex items-center gap-2 flex-wrap" />
+
       </div>
       <h1 className="mt-2 text-[36px] sm:text-[44px] leading-[1.04] font-semibold tracking-[-0.035em] text-foreground">
         Practice under pressure.{" "}
