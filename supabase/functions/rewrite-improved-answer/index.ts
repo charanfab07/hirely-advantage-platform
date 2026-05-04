@@ -9,13 +9,15 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const ALLOWED_STYLES = new Set(["shorter", "confident"]);
+const ALLOWED_STYLES = new Set(["shorter", "confident", "star"]);
 
 const styleInstruction: Record<string, string> = {
   shorter:
     "Rewrite the answer to be SIGNIFICANTLY SHORTER (target 90–130 words). Keep STAR structure, keep the strongest metric, cut filler, hedging, and repeated context. Stay faithful to the candidate's experience.",
   confident:
     "Rewrite the answer to sound MORE CONFIDENT. Use active voice and decisive verbs (\"led\", \"built\", \"delivered\", \"decided\"). Remove hedging like \"kind of\", \"I think maybe\", \"I tried to\", \"sort of\". Keep STAR structure and the same facts.",
+  star:
+    "Rewrite the answer in EXPLICIT STAR structure. Open with one sentence of Situation, then Task, then Action (the bulk — what THEY did), then a measurable Result. Each section should be clearly distinguishable when read aloud. Keep facts faithful; if the original had no metric, keep a placeholder in [brackets]. Target 150–250 words.",
 };
 
 Deno.serve(async (req) => {
