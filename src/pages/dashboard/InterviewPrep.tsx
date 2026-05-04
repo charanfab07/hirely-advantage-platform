@@ -875,7 +875,13 @@ const AnalysisView = ({
       const next = (data as { answer?: string }).answer;
       if (!next) throw new Error("No rewrite returned");
       setImproved(next);
-      toast.success(style === "shorter" ? "Tightened up." : "More confident tone.");
+      toast.success(
+        style === "shorter"
+          ? "Tightened up."
+          : style === "confident"
+            ? "More confident tone."
+            : "Restructured in STAR format.",
+      );
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't rewrite");
     } finally {
