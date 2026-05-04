@@ -1,0 +1,180 @@
+// Types, constants, and small pure helpers shared across the cover letter
+// flow. Kept framework-free so they can be imported from both UI and
+// export-utility modules.
+import { AlignmentType } from "docx";
+
+export type Tone = "confident" | "warm" | "direct" | "formal";
+
+export const TONES: { value: Tone; label: string; hint: string }[] = [
+  { value: "confident", label: "Confident", hint: "Clear & bold" },
+  { value: "warm", label: "Warm", hint: "Personable" },
+  { value: "direct", label: "Direct", hint: "No fluff" },
+  { value: "formal", label: "Formal", hint: "Polished" },
+];
+
+export type LetterDoc = {
+  senderName: string;
+  senderEmail: string;
+  senderPhone: string;
+  senderLocation: string;
+  date: string;
+  hiringManager: string;
+  companyName: string;
+  companyAddress: string;
+  salutation: string;
+  body: string;
+  signOff: string;
+};
+
+export type FontKey =
+  | "times"
+  | "georgia"
+  | "cambria"
+  | "garamond"
+  | "bookman"
+  | "inter"
+  | "helvetica"
+  | "arial"
+  | "calibri"
+  | "verdana"
+  | "tahoma"
+  | "trebuchet"
+  | "jetbrains"
+  | "courier";
+
+export type AlignKey = "left" | "center" | "justify";
+
+export type TypoSettings = {
+  font: FontKey;
+  fontSize: number; // px in preview, mapped to pt for exports
+  lineHeight: number;
+  align: AlignKey;
+  bold: boolean;
+  italic: boolean;
+};
+
+export const FONT_STACKS: Record<FontKey, string> = {
+  times: '"Times New Roman", Times, serif',
+  georgia: 'Georgia, "Iowan Old Style", serif',
+  cambria: 'Cambria, "Hoefler Text", serif',
+  garamond: '"EB Garamond", Garamond, "Apple Garamond", serif',
+  bookman: '"Bookman Old Style", "URW Bookman L", serif',
+  inter: '"Inter", "Helvetica Neue", Arial, sans-serif',
+  helvetica: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+  arial: 'Arial, "Liberation Sans", sans-serif',
+  calibri: 'Calibri, "Carlito", "Trebuchet MS", sans-serif',
+  verdana: 'Verdana, Geneva, sans-serif',
+  tahoma: 'Tahoma, "DejaVu Sans", sans-serif',
+  trebuchet: '"Trebuchet MS", "Lucida Sans", sans-serif',
+  jetbrains: '"JetBrains Mono", "SF Mono", Menlo, Consolas, monospace',
+  courier: '"Courier New", Courier, monospace',
+};
+
+export const FONT_LABELS: Record<FontKey, string> = {
+  times: "Times New Roman",
+  georgia: "Georgia",
+  cambria: "Cambria",
+  garamond: "Garamond",
+  bookman: "Bookman",
+  inter: "Inter",
+  helvetica: "Helvetica",
+  arial: "Arial",
+  calibri: "Calibri",
+  verdana: "Verdana",
+  tahoma: "Tahoma",
+  trebuchet: "Trebuchet MS",
+  jetbrains: "JetBrains Mono",
+  courier: "Courier New",
+};
+
+// jsPDF has 3 built-in font families. Map each choice to the closest match.
+export const PDF_FONT: Record<FontKey, "times" | "helvetica" | "courier"> = {
+  times: "times",
+  georgia: "times",
+  cambria: "times",
+  garamond: "times",
+  bookman: "times",
+  inter: "helvetica",
+  helvetica: "helvetica",
+  arial: "helvetica",
+  calibri: "helvetica",
+  verdana: "helvetica",
+  tahoma: "helvetica",
+  trebuchet: "helvetica",
+  jetbrains: "courier",
+  courier: "courier",
+};
+
+export const DOCX_FONT: Record<FontKey, string> = {
+  times: "Times New Roman",
+  georgia: "Georgia",
+  cambria: "Cambria",
+  garamond: "Garamond",
+  bookman: "Bookman Old Style",
+  inter: "Inter",
+  helvetica: "Helvetica",
+  arial: "Arial",
+  calibri: "Calibri",
+  verdana: "Verdana",
+  tahoma: "Tahoma",
+  trebuchet: "Trebuchet MS",
+  jetbrains: "JetBrains Mono",
+  courier: "Courier New",
+};
+
+export const DOCX_ALIGN: Record<AlignKey, (typeof AlignmentType)[keyof typeof AlignmentType]> = {
+  left: AlignmentType.LEFT,
+  center: AlignmentType.CENTER,
+  justify: AlignmentType.JUSTIFIED,
+};
+
+export const todayLong = () =>
+  new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+export const emptyDoc = (): LetterDoc => ({
+  senderName: "",
+  senderEmail: "",
+  senderPhone: "",
+  senderLocation: "",
+  date: todayLong(),
+  hiringManager: "",
+  companyName: "",
+  companyAddress: "",
+  salutation: "",
+  body: "",
+  signOff: "Sincerely,",
+});
+
+// Strip a possibly full-letter blob the AI returned down to just the body
+// paragraphs (no greeting / sign-off), so we can display it cleanly inside
+// the structured letter layout.
+export function extractBody(full: string, _salutationGuess: string): string {
+  if (!full) return "";
+  let text = full.replace(/\r\n/g, "\n").trim();
+  const lines = text.split("\n");
+  while (lines.length && /^\s*(dear|hello|hi|to whom)\b/i.test(lines[0])) {
+    lines.shift();
+    if (lines.length && lines[0].trim() === "") lines.shift();
+  }
+  while (lines.length) {
+    const last = lines[lines.length - 1].trim();
+    if (
+      last === "" ||
+      /^(sincerely|regards|best regards|kind regards|best|warmly|thank you|thanks|yours truly|respectfully)[,.]?$/i.test(
+        last,
+      )
+    ) {
+      lines.pop();
+      continue;
+    }
+    break;
+  }
+  text = lines.join("\n").trim();
+  text = text.replace(/\n{3,}/g, "\n\n");
+  return text;
+}
+
+export function guessSalutation(hiringManager: string) {
+  const name = hiringManager.trim();
+  return name ? `Dear ${name},` : "Dear Hiring Manager,";
+}
