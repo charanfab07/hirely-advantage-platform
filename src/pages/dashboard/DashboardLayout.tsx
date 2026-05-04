@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { MeshGradient } from "@/components/landing/MeshGradient";
 import { DashboardSidebar, MobileSidebar } from "@/components/dashboard/Sidebar";
+import { UsageMeterStrip } from "@/components/dashboard/UsageMeterStrip";
 import { useAuth } from "@/hooks/useAuth";
 
 const DashboardLayout = () => {
