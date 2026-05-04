@@ -138,7 +138,11 @@ export const ResumeEditor = ({
   onClose?: () => void;
 }) => {
   const ent = useEntitlements();
-  const canExport = ent.unlocked("resume_export");
+  // Clean (no watermark) export — Pro+
+  const canExportClean = ent.unlocked("resume_export");
+  // Watermarked export — Free can also use this
+  const canExportAny = canExportClean || ent.unlocked("resume_export_watermark");
+  const watermark = !canExportClean;
   const [resume, setResume] = useState<EditableResume>(initial);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [typo, setTypo] = useState<ResumeTypography>(DEFAULT_TYPO);
@@ -155,23 +159,36 @@ export const ResumeEditor = ({
   );
 
   const blockExport = () => {
-    toast.error("Resume exports are a Pro feature. Upgrade to download PDF, DOCX, or ATS .txt.");
+    toast.error("Resume export isn't included on your plan. Upgrade to download PDF, DOCX, or ATS .txt.");
+  };
+
+  const notifyWatermark = () => {
+    if (watermark) {
+      toast.message("Free download includes a watermark", {
+        description: "Upgrade to Pro for clean PDF / DOCX with no Hirely mark.",
+      });
+    }
   };
 
   const handleDownloadTxt = () => {
-    if (!canExport) return blockExport();
-    const text = toPlainText(resume);
+    if (!canExportAny) return blockExport();
+    const text = toPlainText(resume) +
+      (watermark
+        ? "\n\n— — —\nGenerated with Hirely Free · hirely.app\nUpgrade to Pro to remove this watermark."
+        : "");
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     saveAs(blob, `${fileBase}_ATS.txt`);
     toast.success("Plain-text ATS resume downloaded");
+    notifyWatermark();
   };
 
   const handleDownloadPdf = () => {
-    if (!canExport) return blockExport();
+    if (!canExportAny) return blockExport();
     try {
-      const doc = renderPdf(resume, typo);
+      const doc = renderPdf(resume, typo, watermark);
       doc.save(`${fileBase}.pdf`);
       toast.success("PDF downloaded");
+      notifyWatermark();
     } catch (e) {
       console.error(e);
       toast.error("PDF export failed");
@@ -179,12 +196,13 @@ export const ResumeEditor = ({
   };
 
   const handleDownloadDocx = async () => {
-    if (!canExport) return blockExport();
+    if (!canExportAny) return blockExport();
     try {
-      const doc = renderDocx(resume, typo);
+      const doc = renderDocx(resume, typo, watermark);
       const blob = await Packer.toBlob(doc);
       saveAs(blob, `${fileBase}.docx`);
       toast.success("DOCX downloaded");
+      notifyWatermark();
     } catch (e) {
       console.error(e);
       toast.error("DOCX export failed");
