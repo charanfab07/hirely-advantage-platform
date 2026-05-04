@@ -236,7 +236,7 @@ Now propose ONE new ${safeType} question for a ${safeRound} round at ${safeDiffi
           question: cleanQ,
           rationale: parsed.rationale ?? null,
           focus_area: parsed.focus_area ?? null,
-          difficulty: parsed.difficulty ?? null,
+          difficulty: safeDifficulty,
           question_hash: hash,
         })
         .select()
