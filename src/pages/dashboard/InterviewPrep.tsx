@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
+import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText, Lightbulb, ListOrdered } from "lucide-react";
 import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ import { cn } from "@/lib/utils";
 
 type QuestionType = "behavioral" | "technical" | "case" | "general";
 type GenerableType = "behavioral" | "technical" | "case";
+type RoundType = "hr" | "technical" | "manager" | "case";
+type Difficulty = "easy" | "medium" | "hard";
 
 type GeneratedQuestion = {
   id: string;
@@ -59,6 +61,19 @@ const QUESTION_TYPES: { type: GenerableType; label: string }[] = [
   { type: "behavioral", label: "Behavioral" },
   { type: "technical", label: "Technical" },
   { type: "case", label: "Case / PM" },
+];
+
+const ROUND_TYPES: { value: RoundType; label: string }[] = [
+  { value: "hr", label: "HR" },
+  { value: "technical", label: "Technical" },
+  { value: "manager", label: "Manager" },
+  { value: "case", label: "Case" },
+];
+
+const DIFFICULTIES: { value: Difficulty; label: string }[] = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "hard", label: "Hard" },
 ];
 
 const tabs = [
