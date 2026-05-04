@@ -32,9 +32,21 @@ type Enhancement = {
   achievements: string[];
   changelog: { category: string; title: string; detail: string }[];
   added_keywords: { keyword: string; confidence: "high" | "medium" | "low"; reason: string }[];
+  verifiable_claims?: VerifiableClaim[];
   estimated_score_before: number | null;
   estimated_score_after: number | null;
   created_at: string;
+};
+
+export type VerifiableClaim = {
+  id: string;
+  text: string;
+  metric: string;
+  location: string;
+  confidence: "high" | "medium" | "low";
+  reason: string;
+  status: "pending" | "confirmed" | "edited" | "removed";
+  edited_text?: string;
 };
 
 const ROLE_OPTIONS = [
