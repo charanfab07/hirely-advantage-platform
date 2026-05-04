@@ -161,7 +161,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={480}>
-            <div className="pt-6 mt-2 border-t border-foreground/5 grid sm:grid-cols-3 gap-3 text-left">
+            <div className="pt-4 mt-1 border-t border-foreground/5 grid sm:grid-cols-3 gap-3 text-left">
               <div className="flex items-start gap-2.5">
                 <GraduationCap className="w-4 h-4 mt-0.5 text-foreground/70 shrink-0" />
                 <p className="text-xs text-foreground/65 leading-snug">
