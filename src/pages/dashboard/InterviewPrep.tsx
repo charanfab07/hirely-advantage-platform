@@ -408,6 +408,53 @@ const InterviewPrep = () => {
                 </div>
               </div>
 
+              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                    Round
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {ROUND_TYPES.map((r) => (
+                      <button
+                        key={r.value}
+                        type="button"
+                        onClick={() => setRoundType(r.value)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight transition-colors border",
+                          roundType === r.value
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
+                        )}
+                      >
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                    Difficulty
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {DIFFICULTIES.map((d) => (
+                      <button
+                        key={d.value}
+                        type="button"
+                        onClick={() => setDifficulty(d.value)}
+                        className={cn(
+                          "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight transition-colors border",
+                          difficulty === d.value
+                            ? "bg-foreground text-background border-foreground"
+                            : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
+                        )}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
               <div className="mt-5">
                 <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Target role (optional)
