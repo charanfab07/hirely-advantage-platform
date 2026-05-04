@@ -1575,6 +1575,24 @@ function renderDocx(r: EditableResume, typo: ResumeTypography, watermark = false
     });
   }
 
+  if (watermark) {
+    children.push(
+      new Paragraph({
+        spacing: { before: 400 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            font: FONT,
+            text: "— Generated with Hirely Free · upgrade to Pro to remove this watermark —",
+            size: sz(16),
+            color: "AAAAB5",
+            italics: true,
+          }),
+        ],
+      }),
+    );
+  }
+
   return new DocxDocument({
     styles: {
       default: { document: { run: { font: "Calibri", size: sz(20) } } },
