@@ -11,21 +11,37 @@ const corsHeaders = {
 };
 
 const ALLOWED_TYPES = new Set(["behavioral", "technical", "case"]);
+const ALLOWED_ROUNDS = new Set(["hr", "technical", "manager", "case"]);
+const ALLOWED_DIFFICULTY = new Set(["easy", "medium", "hard"]);
+
+const ROUND_GUIDE: Record<string, string> = {
+  hr: "An HR / recruiter-style screen — culture fit, motivation, communication, red flags. Less depth, more story and self-awareness.",
+  technical: "A technical interviewer — depth on systems, code, tools, debugging, tradeoffs. Push for specifics.",
+  manager: "A hiring manager — leadership, ownership, cross-functional collaboration, prioritization, dealing with ambiguity.",
+  case: "A case-style interviewer — structured problem-solving, frameworks, metrics, recommendation under uncertainty.",
+};
+
+const DIFFICULTY_GUIDE: Record<string, string> = {
+  easy: "warm-up question — surface-level, one concrete thing. The kind asked in the first 5 minutes.",
+  medium: "standard mid-loop question — pushes for specifics, expects STAR or structured reasoning.",
+  hard: "stretch / curveball — ambiguous, multi-layered, or stress-tests judgment. Senior-loop level.",
+};
 
 const SYSTEM_PROMPT = `You generate personalized interview questions for a specific candidate.
 
-You receive the candidate's resume, a target role (optional), a question type, and a list of question STEMS the candidate has already seen. Your job is to invent a NEW question that:
+You receive the candidate's resume, a target role (optional), a question type, a ROUND type, a DIFFICULTY level, and a list of question STEMS the candidate has already seen. Your job is to invent a NEW question that:
 - Is concretely grounded in something on the resume (a specific project, technology, role, achievement, gap, education, certification, or claim) — never generic.
 - Does NOT duplicate or paraphrase any "already_seen" stem. Vary topic, focus area, angle, and phrasing.
 - Sounds like a real interviewer at a top company would ask it.
 - Is one question, 1–3 sentences max. No multi-part stacks.
+- Matches the requested ROUND tone and DIFFICULTY level exactly.
 
 For TYPE:
 - behavioral: probe leadership, conflict, ownership, decisions, failure, growth — anchored to a real experience on the resume.
 - technical: probe technical depth, system design, debugging, tradeoffs — anchored to a real technology, project, or domain on the resume.
 - case: probe structured problem-solving, product/PM/analyst thinking, metrics — relevant to the candidate's domain and target role.
 
-Difficulty should reflect the candidate's seniority shown on the resume.
+For RATIONALE: Be SPECIFIC. Quote actual items from the resume — company names, project names, technologies, role titles. Bad: "based on your experience". Good: "Based on your Rooman Technologies internship and the Python data-processing project you shipped." Max 220 chars.
 
 ALWAYS respond by calling the propose_question tool.`;
 
@@ -95,6 +111,8 @@ Deno.serve(async (req) => {
     const {
       resume_id,
       question_type = "behavioral",
+      round_type = "hr",
+      difficulty = "medium",
       target_role,
       count = 1,
     } = body ?? {};
@@ -103,6 +121,8 @@ Deno.serve(async (req) => {
       return json({ error: "resume_id is required" }, 400);
     }
     const safeType = ALLOWED_TYPES.has(question_type) ? question_type : "behavioral";
+    const safeRound = ALLOWED_ROUNDS.has(round_type) ? round_type : "hr";
+    const safeDifficulty = ALLOWED_DIFFICULTY.has(difficulty) ? difficulty : "medium";
     const safeCount = Math.max(1, Math.min(5, Number(count) || 1));
 
     // Resume must belong to the user.
