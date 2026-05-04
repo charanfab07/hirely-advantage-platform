@@ -119,6 +119,8 @@ const ResumeAnalyzer = () => {
   const [tab, setTab] = useState("score");
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
+  const [latestCached, setLatestCached] = useState(false);
+  const [reanalyzing, setReanalyzing] = useState(false);
 
   const latest = analyses[0];
 
@@ -143,9 +145,47 @@ const ResumeAnalyzer = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  const handleAnalyzed = async () => {
+  const handleAnalyzed = async (_id: string, meta?: { cached?: boolean }) => {
+    setLatestCached(!!meta?.cached);
     await refresh();
     setTab("score");
+  };
+
+  const handleReanalyze = async () => {
+    if (!latest) return;
+    if (!ent.can("analyses")) {
+      toast.error("You've reached your monthly analysis limit.");
+      return;
+    }
+    setReanalyzing(true);
+    try {
+      const { data: resume } = await supabase
+        .from("resumes")
+        .select("raw_text")
+        .eq("id", latest.resume_id)
+        .maybeSingle();
+      if (!resume?.raw_text) throw new Error("Resume text unavailable");
+      const { data: fnData, error: fnErr } = await supabase.functions.invoke(
+        "analyze-resume",
+        {
+          body: {
+            resume_id: latest.resume_id,
+            raw_text: resume.raw_text,
+            target_role: latest.target_role || undefined,
+          },
+        },
+      );
+      if (fnErr) throw new Error(fnErr.message || "Analysis failed");
+      if (fnData?.error) throw new Error(fnData.error);
+      toast.success("Fresh analysis ready.");
+      setLatestCached(false);
+      await refresh();
+      ent.refresh();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Re-analysis failed");
+    } finally {
+      setReanalyzing(false);
+    }
   };
 
   const insightsColumns: InsightsColumn[] | undefined = useMemo(() => {
