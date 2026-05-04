@@ -153,8 +153,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
           : cachedQuery.is("target_role", null);
         const { data: cached } = await cachedQuery.maybeSingle();
         if (cached?.id) {
-          toast.success("Loaded cached analysis.");
-          onAnalyzed(cached.id);
+          onAnalyzed(cached.id, { cached: true });
           reset();
           return;
         }
