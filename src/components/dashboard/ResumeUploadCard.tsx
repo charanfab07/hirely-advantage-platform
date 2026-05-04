@@ -191,7 +191,7 @@ export const ResumeUploadCard = ({ userId, onAnalyzed, className }: Props) => {
       if (!analysisId) throw new Error("No analysis returned");
 
       toast.success("Resume analyzed.");
-      onAnalyzed(analysisId);
+      onAnalyzed(analysisId, { cached: false });
       ent.refresh();
       reset();
     } catch (e) {
