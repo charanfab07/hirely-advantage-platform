@@ -615,7 +615,7 @@ const InterviewPrep = () => {
                 </div>
               )}
 
-              {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
+              {questionMeta && (questionMeta.focus_area || questionMeta.difficulty) && (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {questionMeta.focus_area && (
                     <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight">
@@ -627,11 +627,25 @@ const InterviewPrep = () => {
                       {questionMeta.difficulty}
                     </span>
                   )}
-                  {questionMeta.rationale && (
-                    <span className="text-[11px] text-foreground/55 tracking-tight leading-snug w-full mt-1">
-                      Why this: {questionMeta.rationale}
-                    </span>
-                  )}
+                  <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight capitalize">
+                    {roundType} round
+                  </span>
+                </div>
+              )}
+
+              {questionMeta?.rationale && (
+                <div className="mt-3 rounded-lg border border-primary/20 bg-primary/[0.04] px-3.5 py-2.5 flex items-start gap-2.5">
+                  <span className="mt-0.5 size-6 rounded-md bg-primary/10 grid place-items-center shrink-0">
+                    <Lightbulb className="w-3.5 h-3.5 text-primary" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10.5px] tracking-[0.18em] uppercase text-primary/80 font-semibold">
+                      Why this question?
+                    </p>
+                    <p className="mt-1 text-[12.5px] text-foreground/80 tracking-tight leading-snug">
+                      {questionMeta.rationale}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
