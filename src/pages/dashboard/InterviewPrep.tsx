@@ -99,6 +99,8 @@ const InterviewPrep = () => {
 
   // form
   const [qType, setQType] = useState<GenerableType>("behavioral");
+  const [roundType, setRoundType] = useState<RoundType>("hr");
+  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [question, setQuestion] = useState<string>("");
   const [questionMeta, setQuestionMeta] = useState<{ rationale: string | null; focus_area: string | null; difficulty: string | null } | null>(null);
   const [answer, setAnswer] = useState("");
