@@ -7,10 +7,8 @@ import { FeatureBlock } from "@/components/landing/FeatureBlock";
 import { VisualATS, VisualOutreach, VisualVoiceCoach } from "@/components/landing/FeatureVisuals";
 
 import { HowItWorks } from "@/components/landing/HowItWorks";
-import { Testimonials } from "@/components/landing/Testimonials";
 import { ResumeCompare } from "@/components/landing/ResumeCompare";
 import { ProductShowcase } from "@/components/landing/ProductShowcase";
-import { HiredWall } from "@/components/landing/HiredWall";
 import { ProofQuote } from "@/components/landing/ProofQuote";
 import { Pricing } from "@/components/landing/Pricing";
 import { FinalCTA } from "@/components/landing/FinalCTA";
@@ -84,8 +82,6 @@ const Index = () => {
       <ResumeCompare />
       <HowItWorks />
       <ProductShowcase />
-      <Testimonials />
-      <HiredWall />
       <Pricing />
       <FinalCTA />
       <Footer />
