@@ -515,6 +515,7 @@ export type Database = {
           skills: Json
           summary: string | null
           user_id: string
+          verifiable_claims: Json
         }
         Insert: {
           achievements?: Json
@@ -535,6 +536,7 @@ export type Database = {
           skills?: Json
           summary?: string | null
           user_id: string
+          verifiable_claims?: Json
         }
         Update: {
           achievements?: Json
@@ -555,6 +557,7 @@ export type Database = {
           skills?: Json
           summary?: string | null
           user_id?: string
+          verifiable_claims?: Json
         }
         Relationships: []
       }
