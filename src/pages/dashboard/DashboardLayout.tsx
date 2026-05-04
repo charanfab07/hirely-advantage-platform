@@ -49,6 +49,12 @@ const DashboardLayout = () => {
                 Hirely
               </span>
             </div>
+            <UsageMeterStrip className="ml-auto" />
+          </div>
+
+          {/* Desktop usage strip — top-right of main pane */}
+          <div className="hidden md:flex justify-end mb-3">
+            <UsageMeterStrip />
           </div>
 
           {/* key on pathname re-runs the enter animation on every nav within /app */}
