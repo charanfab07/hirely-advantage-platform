@@ -46,7 +46,7 @@ export const PLAN_LIMITS: Record<AppPlan, PlanLimits> = {
     mock_interviews: 0,
     voice_mock_interview: false,
     resume_export: false,           // no clean PDF/DOCX
-    resume_export_watermark: true,  // BUT can export with watermark
+    resume_export_watermark: true as unknown as Limit,  // BUT can export with watermark
     application_tracker: false,
   },
   pro: {
