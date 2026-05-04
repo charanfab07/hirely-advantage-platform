@@ -221,6 +221,7 @@ const TOOL_SCHEMA = {
         "experience",
         "changelog",
         "added_keywords",
+        "verifiable_claims",
         "estimated_score_before",
         "estimated_score_after",
       ],
