@@ -313,9 +313,25 @@ const ResumeAnalyzer = () => {
           <SectionCard className="mt-5">
             <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_220px] gap-5 lg:gap-7 items-end">
               <div className="min-w-0">
-                <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                  Resume readiness
-                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
+                    Resume readiness
+                  </p>
+                  {latestCached && (
+                    <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-foreground/[0.05] border border-foreground/[0.08] text-[10.5px] tracking-tight text-foreground/65">
+                      <span className="w-1 h-1 rounded-full bg-foreground/40" />
+                      Loaded from cache
+                      <button
+                        type="button"
+                        onClick={handleReanalyze}
+                        disabled={reanalyzing}
+                        className="ml-0.5 font-medium text-foreground/85 hover:text-foreground underline-offset-2 hover:underline disabled:opacity-50"
+                      >
+                        {reanalyzing ? "Re-running…" : "Re-run"}
+                      </button>
+                    </span>
+                  )}
+                </div>
                 <p className="mt-2 text-[64px] sm:text-[72px] leading-none font-semibold tracking-[-0.045em] text-foreground tabular-nums">
                   {latest.overall_score}
                   <span className="text-[22px] text-foreground/30 tracking-tight">/100</span>
