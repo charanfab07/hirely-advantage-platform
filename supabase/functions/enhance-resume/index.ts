@@ -16,7 +16,8 @@ Your job: take a candidate's existing resume PLUS the prior analysis (issues, we
 Hard rules:
 - Never invent jobs, companies, schools, degrees, or dates. Keep all factual anchors verbatim.
 - You MAY add tools/skills the candidate plausibly used given their context. Mark these in 'added_keywords' with a confidence level.
-- Every bullet must follow: strong action verb → what you did → quantified impact. If the original had no metric, infer a realistic, plausible one and flag it in the changelog.
+- Every bullet must follow: strong action verb → what you did → quantified impact. If the original had no metric, infer a realistic, plausible one — AND record it in 'verifiable_claims' so the user can confirm before using.
+- 'verifiable_claims' must list EVERY metric/percentage/count/dollar figure you added that wasn't in the original resume. Be exhaustive — missing claims = lost user trust.
 - Fix every weak bullet, missing section, ATS issue, formatting problem, and grammar issue from the analysis.
 - Tone: confident, specific, senior. No fluff, no clichés ("team player", "results-driven", "passionate about").
 - Summary: 2-3 sentences, third-person-implied, role-aligned, with one quantified headline achievement.
@@ -172,6 +173,39 @@ const TOOL_SCHEMA = {
             additionalProperties: false,
           },
         },
+        verifiable_claims: {
+          type: "array",
+          description:
+            "EVERY metric, percentage, count, dollar amount, or quantified outcome you ADDED or INFERRED that was not explicitly stated in the original resume. The user must confirm these before using. Be exhaustive — if you wrote 'improved performance by 30%' and the original didn't say 30%, list it here. Do NOT include numbers that were already in the source resume.",
+          items: {
+            type: "object",
+            properties: {
+              text: {
+                type: "string",
+                description: "The exact phrase/bullet sentence containing the inferred metric, as it appears in the rewritten resume. ≤220 chars.",
+              },
+              metric: {
+                type: "string",
+                description: "Just the inferred number/claim (e.g. '15%', '$2M ARR', '15 bugs'). ≤40 chars.",
+              },
+              location: {
+                type: "string",
+                description: "Where in the resume this appears, e.g. 'Experience · Acme Corp · bullet 2' or 'Summary'. ≤120 chars.",
+              },
+              confidence: {
+                type: "string",
+                enum: ["high", "medium", "low"],
+                description: "How plausible the inferred metric is given the candidate's context.",
+              },
+              reason: {
+                type: "string",
+                description: "Why this number is plausible / how the user should sanity-check it. ≤160 chars.",
+              },
+            },
+            required: ["text", "metric", "location", "confidence", "reason"],
+            additionalProperties: false,
+          },
+        },
         estimated_score_before: {
           type: "number",
           description: "0-100 estimate of original resume score.",
@@ -188,6 +222,7 @@ const TOOL_SCHEMA = {
         "experience",
         "changelog",
         "added_keywords",
+        "verifiable_claims",
         "estimated_score_before",
         "estimated_score_after",
       ],
@@ -344,6 +379,15 @@ Now call enhance_resume.`;
         achievements: parsed.achievements ?? [],
         changelog: parsed.changelog ?? [],
         added_keywords: parsed.added_keywords ?? [],
+        verifiable_claims: (parsed.verifiable_claims ?? []).map((c: any, i: number) => ({
+          id: `claim-${i}-${Math.random().toString(36).slice(2, 8)}`,
+          text: String(c.text ?? "").slice(0, 240),
+          metric: String(c.metric ?? "").slice(0, 60),
+          location: String(c.location ?? "").slice(0, 140),
+          confidence: ["high", "medium", "low"].includes(c.confidence) ? c.confidence : "medium",
+          reason: String(c.reason ?? "").slice(0, 200),
+          status: "pending",
+        })),
         estimated_score_before:
           parsed.estimated_score_before != null
             ? Math.round(parsed.estimated_score_before)
