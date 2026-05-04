@@ -1144,7 +1144,7 @@ function setFontSafe(
   }
 }
 
-function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
+function renderPdf(r: EditableResume, typo: ResumeTypography, watermark = false): jsPDF {
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
