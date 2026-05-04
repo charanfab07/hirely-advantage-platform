@@ -379,6 +379,15 @@ Now call enhance_resume.`;
         achievements: parsed.achievements ?? [],
         changelog: parsed.changelog ?? [],
         added_keywords: parsed.added_keywords ?? [],
+        verifiable_claims: (parsed.verifiable_claims ?? []).map((c: any, i: number) => ({
+          id: `claim-${i}-${Math.random().toString(36).slice(2, 8)}`,
+          text: String(c.text ?? "").slice(0, 240),
+          metric: String(c.metric ?? "").slice(0, 60),
+          location: String(c.location ?? "").slice(0, 140),
+          confidence: ["high", "medium", "low"].includes(c.confidence) ? c.confidence : "medium",
+          reason: String(c.reason ?? "").slice(0, 200),
+          status: "pending",
+        })),
         estimated_score_before:
           parsed.estimated_score_before != null
             ? Math.round(parsed.estimated_score_before)
