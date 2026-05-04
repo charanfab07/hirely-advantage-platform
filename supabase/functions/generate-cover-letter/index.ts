@@ -522,6 +522,26 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       ? Math.round((matched.length / jdKeywords.length) * 100)
       : null;
 
+    // ---- Personalization score: keyword coverage + concrete signals ----
+    // Base 60% comes from keyword coverage. Bonuses: hiring manager (+8),
+    // company mission used (+8), strengths surfaced (+8), JD provided (+8),
+    // resume provided (+8). Capped at 100.
+    const lcLetter = fullLetter.toLowerCase();
+    let bonus = 0;
+    if (safeHiringManager) bonus += 8;
+    if (companyMission) bonus += 8;
+    if (jd) bonus += 8;
+    if (resumeText) bonus += 8;
+    if (resumeStrengths.length) {
+      const strengthHit = resumeStrengths.some((s) => {
+        const tokens = s.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 4).slice(0, 4);
+        return tokens.length > 0 && tokens.every((t) => lcLetter.includes(t));
+      });
+      if (strengthHit) bonus += 8;
+    }
+    const baseScore = matchScore ?? 50;
+    const personalizationScore = Math.max(0, Math.min(100, Math.round(baseScore * 0.6 + bonus)));
+
     const { data: inserted, error: insertErr } = await supabase
       .from("cover_letters")
       .insert({
@@ -556,7 +576,11 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
     }
 
     await incrementUsage(userId, "cover_letters");
-    return json({ letter: inserted });
+    return json({
+      letter: inserted,
+      resume_strengths: resumeStrengths,
+      personalization_score: personalizationScore,
+    });
   } catch (e) {
     console.error("generate-cover-letter error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
