@@ -69,7 +69,7 @@ const KEYWORD_TOOL = {
   type: "function",
   function: {
     name: "extract_personalization",
-    description: "Extract keywords from a job description and skills from a resume.",
+    description: "Extract keywords from a job description, skills from a resume, and the candidate's strongest selling points.",
     parameters: {
       type: "object",
       properties: {
@@ -83,8 +83,13 @@ const KEYWORD_TOOL = {
           description: "10–25 concrete skills/tools the candidate demonstrably has based on resume. Lowercase.",
           items: { type: "string" },
         },
+        resume_strengths: {
+          type: "array",
+          description: "3–5 short bullet phrases describing the candidate's STRONGEST selling points for THIS specific JD — pulled from the resume only, never invented. Each ≤ 90 chars. Examples: 'Led 4-person team shipping React analytics dashboard', 'Cut API latency 38% via Redis caching at Acme'.",
+          items: { type: "string" },
+        },
       },
-      required: ["jd_keywords", "resume_skills"],
+      required: ["jd_keywords", "resume_skills", "resume_strengths"],
       additionalProperties: false,
     },
   },
@@ -281,6 +286,7 @@ Deno.serve(async (req) => {
       salary_expectation,
       mention_relocation = false,
       relocation_preference,
+      avoid_generic = true,
     } = body ?? {};
 
     if (
