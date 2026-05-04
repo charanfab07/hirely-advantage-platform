@@ -543,6 +543,56 @@ const InterviewPrep = () => {
                 </button>
               </div>
 
+              {/* Round + Difficulty — auto-regenerate when changed */}
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                <span className="text-[10px] tracking-[0.18em] uppercase text-foreground/40 font-medium">Round</span>
+                <div className="flex flex-wrap gap-1">
+                  {ROUND_TYPES.map((r) => (
+                    <button
+                      key={r.value}
+                      type="button"
+                      onClick={async () => {
+                        if (r.value === roundType) return;
+                        setRoundType(r.value);
+                        if (resumeId) await generateQuestion(qType);
+                      }}
+                      disabled={analyzing || generatingQ}
+                      className={cn(
+                        "px-2 py-0.5 rounded-full text-[11px] font-medium tracking-tight transition-colors border",
+                        roundType === r.value
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/65 hover:bg-foreground/[0.06]",
+                      )}
+                    >
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[10px] tracking-[0.18em] uppercase text-foreground/40 font-medium ml-1">Difficulty</span>
+                <div className="flex flex-wrap gap-1">
+                  {DIFFICULTIES.map((d) => (
+                    <button
+                      key={d.value}
+                      type="button"
+                      onClick={async () => {
+                        if (d.value === difficulty) return;
+                        setDifficulty(d.value);
+                        if (resumeId) await generateQuestion(qType);
+                      }}
+                      disabled={analyzing || generatingQ}
+                      className={cn(
+                        "px-2 py-0.5 rounded-full text-[11px] font-medium tracking-tight transition-colors border",
+                        difficulty === d.value
+                          ? "bg-foreground text-background border-foreground"
+                          : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/65 hover:bg-foreground/[0.06]",
+                      )}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <textarea
                 ref={questionRef}
                 value={generatingQ && !question ? "" : question}
