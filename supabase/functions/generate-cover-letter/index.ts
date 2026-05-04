@@ -69,7 +69,7 @@ const KEYWORD_TOOL = {
   type: "function",
   function: {
     name: "extract_personalization",
-    description: "Extract keywords from a job description and skills from a resume.",
+    description: "Extract keywords from a job description, skills from a resume, and the candidate's strongest selling points.",
     parameters: {
       type: "object",
       properties: {
@@ -83,8 +83,13 @@ const KEYWORD_TOOL = {
           description: "10–25 concrete skills/tools the candidate demonstrably has based on resume. Lowercase.",
           items: { type: "string" },
         },
+        resume_strengths: {
+          type: "array",
+          description: "3–5 short bullet phrases describing the candidate's STRONGEST selling points for THIS specific JD — pulled from the resume only, never invented. Each ≤ 90 chars. Examples: 'Led 4-person team shipping React analytics dashboard', 'Cut API latency 38% via Redis caching at Acme'.",
+          items: { type: "string" },
+        },
       },
-      required: ["jd_keywords", "resume_skills"],
+      required: ["jd_keywords", "resume_skills", "resume_strengths"],
       additionalProperties: false,
     },
   },
@@ -281,6 +286,7 @@ Deno.serve(async (req) => {
       salary_expectation,
       mention_relocation = false,
       relocation_preference,
+      avoid_generic = true,
     } = body ?? {};
 
     if (
@@ -351,6 +357,7 @@ Deno.serve(async (req) => {
     // ---- Personalization step 2: extract JD keywords + resume skills via AI ----
     let jdKeywords: string[] = [];
     let resumeSkills: string[] = [];
+    let resumeStrengths: string[] = [];
     if (jd || resumeText) {
       try {
         const kwResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -365,7 +372,7 @@ Deno.serve(async (req) => {
               {
                 role: "system",
                 content:
-                  "Extract job keywords and resume skills. Be precise — only concrete tools, technologies, methodologies, and role-specific terms. Skip soft generics. Always lowercase. Always call the tool.",
+                  "Extract job keywords, resume skills, and the candidate's strongest selling points for THIS JD. Be precise — only concrete tools, technologies, methodologies, and role-specific terms. Skip soft generics. For strengths, pull SPECIFIC achievements from the resume only — never invent. Always lowercase keywords/skills. Always call the tool.",
               },
               {
                 role: "user",
@@ -386,6 +393,9 @@ Deno.serve(async (req) => {
               : [];
             resumeSkills = Array.isArray(parsed.resume_skills)
               ? parsed.resume_skills.map((s: string) => s.toLowerCase().trim()).filter(Boolean).slice(0, 25)
+              : [];
+            resumeStrengths = Array.isArray(parsed.resume_strengths)
+              ? parsed.resume_strengths.map((s: string) => String(s).trim()).filter(Boolean).slice(0, 5)
               : [];
           }
         }
@@ -453,6 +463,11 @@ ${resumeText ? `--- CANDIDATE'S RESUME ---\n${resumeText}` : "(No resume — kee
 JD keywords: ${jdKeywords.join(", ") || "(none)"}
 Candidate's real skills: ${resumeSkills.join(", ") || "(none)"}
 must_use_keywords (use ≥70%, exact wording, naturally embedded): ${mustUse.join(", ") || "(none)"}
+${resumeStrengths.length ? `Candidate's strongest selling points (weave into 'alignment' or 'proof' — do NOT invent new ones):\n- ${resumeStrengths.join("\n- ")}` : ""}
+
+${avoid_generic ? `--- AVOID GENERIC AI PHRASES (STRICT) ---
+Do NOT use any of these tired phrases or close variants: "passionate about", "team player", "results-driven", "detail-oriented", "go-getter", "hit the ground running", "think outside the box", "synergy", "leverage my skills", "well-versed in", "proven track record", "dynamic environment", "fast-paced environment", "wealth of experience", "perfect fit", "dream job", "honed my skills", "skill set", "I believe", "I feel that", "It would be an honor", "Thank you for your time and consideration".
+Replace clichés with specific, concrete, resume-grounded sentences. Every claim must be backed by a fact from the resume or JD.` : ""}
 
 Now call generate_cover_letter. The hook must NOT start with "I". Respect the length target strictly.`;
 
@@ -507,6 +522,26 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       ? Math.round((matched.length / jdKeywords.length) * 100)
       : null;
 
+    // ---- Personalization score: keyword coverage + concrete signals ----
+    // Base 60% comes from keyword coverage. Bonuses: hiring manager (+8),
+    // company mission used (+8), strengths surfaced (+8), JD provided (+8),
+    // resume provided (+8). Capped at 100.
+    const lcLetter = fullLetter.toLowerCase();
+    let bonus = 0;
+    if (safeHiringManager) bonus += 8;
+    if (companyMission) bonus += 8;
+    if (jd) bonus += 8;
+    if (resumeText) bonus += 8;
+    if (resumeStrengths.length) {
+      const strengthHit = resumeStrengths.some((s) => {
+        const tokens = s.toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 4).slice(0, 4);
+        return tokens.length > 0 && tokens.every((t) => lcLetter.includes(t));
+      });
+      if (strengthHit) bonus += 8;
+    }
+    const baseScore = matchScore ?? 50;
+    const personalizationScore = Math.max(0, Math.min(100, Math.round(baseScore * 0.6 + bonus)));
+
     const { data: inserted, error: insertErr } = await supabase
       .from("cover_letters")
       .insert({
@@ -541,7 +576,11 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
     }
 
     await incrementUsage(userId, "cover_letters");
-    return json({ letter: inserted });
+    return json({
+      letter: inserted,
+      resume_strengths: resumeStrengths,
+      personalization_score: personalizationScore,
+    });
   } catch (e) {
     console.error("generate-cover-letter error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);
