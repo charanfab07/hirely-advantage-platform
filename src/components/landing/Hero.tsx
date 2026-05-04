@@ -182,38 +182,6 @@ export const Hero = () => {
               </div>
             </div>
           </Reveal>
-
-          <Reveal delay={480}>
-            <div className="pt-6 mt-2 border-t border-foreground/5 flex flex-col gap-5">
-              <div className="flex items-center justify-center lg:justify-start gap-3">
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <span className="text-sm font-medium text-foreground/60">
-                  4.9 from 2,400+ candidates hired at
-                </span>
-              </div>
-              <div className="flex items-center justify-center lg:justify-start flex-wrap gap-x-8 gap-y-3 opacity-50">
-                <span className="font-display font-bold text-lg tracking-tighter uppercase text-foreground">
-                  Omnisearch
-                </span>
-                <span className="font-sans font-medium text-lg tracking-widest text-foreground">
-                  VANGUARD
-                </span>
-                <span className="font-display font-semibold text-xl tracking-tight lowercase text-foreground">
-                  streamer
-                </span>
-                <span className="font-display italic font-medium text-lg text-foreground">
-                  Lumina
-                </span>
-                <span className="font-display font-bold text-lg tracking-tight text-foreground">
-                  Northwind
-                </span>
-              </div>
-            </div>
-          </Reveal>
         </div>
 
         {/* Right: mockup */}
