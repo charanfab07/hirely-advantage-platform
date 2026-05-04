@@ -1,4 +1,4 @@
-import { ArrowRight, Play, Star, Sparkles, ArrowDown } from "lucide-react";
+import { ArrowRight, Play, Sparkles, ArrowDown, ShieldCheck, GraduationCap, Info } from "lucide-react";
 import { Reveal } from "./Reveal";
 import { AppTransitionLink } from "@/components/AppTransitionLink";
 
