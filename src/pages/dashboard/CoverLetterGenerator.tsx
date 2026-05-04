@@ -232,6 +232,8 @@ const CoverLetterGenerator = () => {
   const reset = () => {
     setHasLetter(false);
     setJd("");
+    setResumeStrengths([]);
+    setPersonalizationScore(null);
     setDoc((d) => ({
       ...emptyDoc(),
       senderName: d.senderName,
