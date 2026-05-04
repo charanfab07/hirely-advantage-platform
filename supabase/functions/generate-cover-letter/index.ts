@@ -463,6 +463,11 @@ ${resumeText ? `--- CANDIDATE'S RESUME ---\n${resumeText}` : "(No resume — kee
 JD keywords: ${jdKeywords.join(", ") || "(none)"}
 Candidate's real skills: ${resumeSkills.join(", ") || "(none)"}
 must_use_keywords (use ≥70%, exact wording, naturally embedded): ${mustUse.join(", ") || "(none)"}
+${resumeStrengths.length ? `Candidate's strongest selling points (weave into 'alignment' or 'proof' — do NOT invent new ones):\n- ${resumeStrengths.join("\n- ")}` : ""}
+
+${avoid_generic ? `--- AVOID GENERIC AI PHRASES (STRICT) ---
+Do NOT use any of these tired phrases or close variants: "passionate about", "team player", "results-driven", "detail-oriented", "go-getter", "hit the ground running", "think outside the box", "synergy", "leverage my skills", "well-versed in", "proven track record", "dynamic environment", "fast-paced environment", "wealth of experience", "perfect fit", "dream job", "honed my skills", "skill set", "I believe", "I feel that", "It would be an honor", "Thank you for your time and consideration".
+Replace clichés with specific, concrete, resume-grounded sentences. Every claim must be backed by a fact from the resume or JD.` : ""}
 
 Now call generate_cover_letter. The hook must NOT start with "I". Respect the length target strictly.`;
 
