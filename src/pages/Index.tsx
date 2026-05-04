@@ -82,8 +82,6 @@ const Index = () => {
       <ResumeCompare />
       <HowItWorks />
       <ProductShowcase />
-      <Testimonials />
-      <HiredWall />
       <Pricing />
       <FinalCTA />
       <Footer />
