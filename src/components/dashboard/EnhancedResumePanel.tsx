@@ -420,6 +420,9 @@ const EnhancedResumeView = ({
         </div>
       </SectionCard>
 
+      <ClaimsVerification enhancement={enhancement} />
+
+
       {/* Fullscreen preview */}
       {fullscreen && (
         <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm flex flex-col">
