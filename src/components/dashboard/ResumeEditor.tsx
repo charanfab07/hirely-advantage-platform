@@ -1362,7 +1362,7 @@ function renderPdf(r: EditableResume, typo: ResumeTypography, watermark = false)
 }
 
 // ----- DOCX -----
-function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
+function renderDocx(r: EditableResume, typo: ResumeTypography, watermark = false): DocxDocument {
   const children: Paragraph[] = [];
   const SC = typo.sizeScale;
   const FONT = DOCX_FONT_NAME[typo.font];
