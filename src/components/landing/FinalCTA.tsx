@@ -37,7 +37,7 @@ export const FinalCTA = () => {
             </form>
 
             <p className="mt-6 text-xs text-foreground/45">
-              Free forever for analysis · Premium plans from $19/mo
+              Beta · Resume scores are AI-generated · Always verify final claims before applying
             </p>
           </div>
         </Reveal>
