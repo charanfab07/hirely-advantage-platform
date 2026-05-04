@@ -17,8 +17,12 @@ export type FeatureKey =
   | "cover_letters"
   | "cover_letter_clean"
   | "interview_questions"
+  | "improved_answer"
   | "mock_interviews"
-  | "resume_export";
+  | "voice_mock_interview"
+  | "resume_export"
+  | "resume_export_watermark"
+  | "application_tracker";
 
 type Limit = number | "unlimited" | false;
 
@@ -34,12 +38,16 @@ const LIMITS: Record<AppPlan, Record<FeatureKey, Limit>> = {
     issues_panel: false,
     cover_letters: 1,
     cover_letter_clean: false,
-    interview_questions: 3,
+    interview_questions: 5,
+    improved_answer: false,
     mock_interviews: 0,
+    voice_mock_interview: false,
     resume_export: false,
+    resume_export_watermark: true as unknown as Limit,
+    application_tracker: false,
   },
   pro: {
-    resume_uploads: "unlimited",
+    resume_uploads: 10,
     analyses: 15,
     ats_breakdown: true as unknown as Limit,
     quick_wins: "unlimited",
@@ -49,12 +57,16 @@ const LIMITS: Record<AppPlan, Record<FeatureKey, Limit>> = {
     issues_panel: true as unknown as Limit,
     cover_letters: 20,
     cover_letter_clean: true as unknown as Limit,
-    interview_questions: "unlimited",
+    interview_questions: 30,
+    improved_answer: true as unknown as Limit,
     mock_interviews: 5,
+    voice_mock_interview: false,
     resume_export: true as unknown as Limit,
+    resume_export_watermark: true as unknown as Limit,
+    application_tracker: 10,
   },
   advanced: {
-    resume_uploads: "unlimited",
+    resume_uploads: 50,
     analyses: "unlimited",
     ats_breakdown: true as unknown as Limit,
     quick_wins: "unlimited",
@@ -65,8 +77,12 @@ const LIMITS: Record<AppPlan, Record<FeatureKey, Limit>> = {
     cover_letters: 100,
     cover_letter_clean: true as unknown as Limit,
     interview_questions: "unlimited",
+    improved_answer: true as unknown as Limit,
     mock_interviews: "unlimited",
+    voice_mock_interview: true as unknown as Limit,
     resume_export: true as unknown as Limit,
+    resume_export_watermark: true as unknown as Limit,
+    application_tracker: "unlimited",
   },
   teams: {
     resume_uploads: "unlimited",
@@ -80,8 +96,12 @@ const LIMITS: Record<AppPlan, Record<FeatureKey, Limit>> = {
     cover_letters: "unlimited",
     cover_letter_clean: true as unknown as Limit,
     interview_questions: "unlimited",
+    improved_answer: true as unknown as Limit,
     mock_interviews: "unlimited",
+    voice_mock_interview: true as unknown as Limit,
     resume_export: true as unknown as Limit,
+    resume_export_watermark: true as unknown as Limit,
+    application_tracker: "unlimited",
   },
 };
 
@@ -115,13 +135,6 @@ export async function getPlan(userId: string): Promise<AppPlan> {
   return (data?.plan as AppPlan) ?? "free";
 }
 
-/**
- * Check whether the user can perform `feature`. Returns
- * { ok: true } if allowed, { ok: false, reason, status } otherwise.
- *
- * If `feature` has a numeric monthly cap, this also reads the current
- * counter row. Caller is responsible for `incrementUsage` after success.
- */
 export async function checkEntitlement(
   userId: string,
   feature: FeatureKey,
@@ -171,10 +184,6 @@ export async function checkEntitlement(
   return { ok: true, plan };
 }
 
-/**
- * Increment a usage counter by 1. Idempotent on (user_id, period_start)
- * via ON CONFLICT.
- */
 export async function incrementUsage(
   userId: string,
   feature: FeatureKey,
@@ -185,7 +194,6 @@ export async function incrementUsage(
   const admin = adminClient();
   const period = periodStartIso();
 
-  // Ensure row exists, then increment.
   await admin
     .from("usage_counters")
     .upsert(

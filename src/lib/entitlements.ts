@@ -1,24 +1,31 @@
 // Plan / entitlement source of truth — kept in one place so UI and
 // (via mirror in supabase/functions/_shared) edge functions agree on limits.
+//
+// NOTE: the DB enum column `profiles.plan` still uses 'advanced' — the UI
+// just renames that tier to "Career Pro" via PLAN_LABEL.
 
 export type AppPlan = "free" | "pro" | "advanced" | "teams";
 
 export type FeatureKey =
   | "resume_uploads"
   | "analyses"
-  | "ats_breakdown"        // full ATS deep-dive panels
-  | "quick_wins"           // how many quick wins to surface
-  | "enhanced_resume"      // Enhanced tab
-  | "compare_versions"     // Compare tab + history
-  | "tailored_edits"       // Tailored tab
-  | "issues_panel"         // Issues tab
-  | "cover_letters"        // monthly count
-  | "cover_letter_clean"   // clean (un-watermarked) export
-  | "interview_questions"  // monthly count
-  | "mock_interviews"      // monthly count
-  | "resume_export";       // PDF / DOCX / TXT export from ResumeEditor
+  | "ats_breakdown"           // full ATS deep-dive panels
+  | "quick_wins"              // how many quick wins to surface
+  | "enhanced_resume"         // Enhanced tab
+  | "compare_versions"        // Compare tab + history
+  | "tailored_edits"          // Tailored tab
+  | "issues_panel"            // Issues tab
+  | "cover_letters"           // monthly count
+  | "cover_letter_clean"      // clean (un-watermarked) cover letter export
+  | "interview_questions"     // monthly count
+  | "improved_answer"         // AI-rewritten "improved" interview answers
+  | "mock_interviews"         // text-based mock interview sessions / month
+  | "voice_mock_interview"    // voice mode (Career Pro only)
+  | "resume_export"           // PDF / DOCX / TXT — true means clean (no watermark)
+  | "resume_export_watermark" // can export at all, watermarked
+  | "application_tracker";    // monthly cap on applications, false = locked
 
-export type Limit = number | "unlimited" | false; // false = feature locked, number = monthly cap
+export type Limit = number | "unlimited" | false; // false = feature locked, number = monthly/total cap
 
 export type PlanLimits = Record<FeatureKey, Limit>;
 
@@ -26,20 +33,24 @@ export const PLAN_LIMITS: Record<AppPlan, PlanLimits> = {
   free: {
     resume_uploads: 1,
     analyses: 1,
-    ats_breakdown: false,
+    ats_breakdown: false,           // limited preview only
     quick_wins: 2,
     enhanced_resume: false,
     compare_versions: false,
     tailored_edits: false,
     issues_panel: false,
     cover_letters: 1,
-    cover_letter_clean: false,
-    interview_questions: 3,
+    cover_letter_clean: false,      // watermarked exports allowed
+    interview_questions: 5,
+    improved_answer: false,
     mock_interviews: 0,
-    resume_export: false,
+    voice_mock_interview: false,
+    resume_export: false,           // no clean PDF/DOCX
+    resume_export_watermark: true,  // BUT can export with watermark
+    application_tracker: false,
   },
   pro: {
-    resume_uploads: "unlimited",
+    resume_uploads: 10,
     analyses: 15,
     ats_breakdown: true as unknown as Limit,
     quick_wins: "unlimited",
@@ -49,12 +60,17 @@ export const PLAN_LIMITS: Record<AppPlan, PlanLimits> = {
     issues_panel: true as unknown as Limit,
     cover_letters: 20,
     cover_letter_clean: true as unknown as Limit,
-    interview_questions: "unlimited",
+    interview_questions: 30,
+    improved_answer: true as unknown as Limit,
     mock_interviews: 5,
+    voice_mock_interview: false,
     resume_export: true as unknown as Limit,
+    resume_export_watermark: true as unknown as Limit,
+    application_tracker: 10,         // limited tracker
   },
   advanced: {
-    resume_uploads: "unlimited",
+    // Career Pro
+    resume_uploads: 50,
     analyses: "unlimited",
     ats_breakdown: true as unknown as Limit,
     quick_wins: "unlimited",
@@ -65,8 +81,12 @@ export const PLAN_LIMITS: Record<AppPlan, PlanLimits> = {
     cover_letters: 100,
     cover_letter_clean: true as unknown as Limit,
     interview_questions: "unlimited",
+    improved_answer: true as unknown as Limit,
     mock_interviews: "unlimited",
+    voice_mock_interview: true as unknown as Limit,
     resume_export: true as unknown as Limit,
+    resume_export_watermark: true as unknown as Limit,
+    application_tracker: "unlimited",
   },
   teams: {
     resume_uploads: "unlimited",
@@ -80,8 +100,12 @@ export const PLAN_LIMITS: Record<AppPlan, PlanLimits> = {
     cover_letters: "unlimited",
     cover_letter_clean: true as unknown as Limit,
     interview_questions: "unlimited",
+    improved_answer: true as unknown as Limit,
     mock_interviews: "unlimited",
+    voice_mock_interview: true as unknown as Limit,
     resume_export: true as unknown as Limit,
+    resume_export_watermark: true as unknown as Limit,
+    application_tracker: "unlimited",
   },
 };
 
@@ -118,7 +142,6 @@ export function isUnlocked(plan: AppPlan, feature: FeatureKey): boolean {
   if (l === false) return false;
   if (l === "unlimited") return true;
   if (typeof l === "number") return l > 0;
-  // boolean-as-Limit (true)
   return true;
 }
 
@@ -146,6 +169,6 @@ export function canUse(plan: AppPlan, feature: FeatureKey, usage: Usage): boolea
 export const PLAN_LABEL: Record<AppPlan, string> = {
   free: "Free",
   pro: "Pro",
-  advanced: "Advanced",
+  advanced: "Career Pro",
   teams: "Teams",
 };
