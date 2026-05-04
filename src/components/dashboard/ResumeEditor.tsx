@@ -1358,6 +1358,33 @@ function renderPdf(r: EditableResume, typo: ResumeTypography, watermark = false)
     });
   }
 
+  if (watermark) {
+    const totalPages = (doc as unknown as {
+      internal: { getNumberOfPages: () => number };
+    }).internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      const gs = doc as unknown as {
+        GState: new (o: { opacity: number }) => unknown;
+        setGState: (g: unknown) => void;
+      };
+      try { gs.setGState(new gs.GState({ opacity: 0.07 })); } catch (_e) { /* noop */ }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(72);
+      doc.setTextColor(120, 120, 120);
+      doc.text("HIRELY FREE", pageW / 2, pageH / 2, { align: "center", angle: -30 });
+      try { gs.setGState(new gs.GState({ opacity: 1 })); } catch (_e) { /* noop */ }
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text(
+        "Generated with Hirely Free · upgrade to Pro to remove this watermark",
+        pageW / 2,
+        pageH - 28,
+        { align: "center" },
+      );
+    }
+  }
   return doc;
 }
 
