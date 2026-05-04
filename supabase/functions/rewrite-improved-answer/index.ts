@@ -1,6 +1,7 @@
 // Rewrites an existing improved answer in a specific style — shorter, or more confident.
 // Frontend-driven: used by the Interview Prep "Make shorter" / "Make more confident" buttons.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { getPlan } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -33,6 +34,18 @@ Deno.serve(async (req) => {
 
     const { data: userData, error: userErr } = await supabase.auth.getUser();
     if (userErr || !userData.user) return json({ error: "Unauthorized" }, 401);
+
+    // Improved answer rewriting is a paid feature.
+    const plan = await getPlan(userData.user.id);
+    if (plan === "free") {
+      return json(
+        {
+          error: "Improved-answer rewrites are a Pro feature. Upgrade to unlock.",
+          locked: true,
+        },
+        402,
+      );
+    }
 
     const { question, answer, style } = (await req.json()) ?? {};
     if (typeof answer !== "string" || answer.trim().length < 20) {

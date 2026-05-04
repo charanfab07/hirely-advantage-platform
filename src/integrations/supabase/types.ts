@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          applied_at: string | null
+          company: string
+          cover_letter_id: string | null
+          created_at: string
+          id: string
+          job_url: string | null
+          last_touch_at: string | null
+          location: string | null
+          notes: string | null
+          resume_id: string | null
+          role: string
+          salary: string | null
+          source: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          applied_at?: string | null
+          company: string
+          cover_letter_id?: string | null
+          created_at?: string
+          id?: string
+          job_url?: string | null
+          last_touch_at?: string | null
+          location?: string | null
+          notes?: string | null
+          resume_id?: string | null
+          role: string
+          salary?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          applied_at?: string | null
+          company?: string
+          cover_letter_id?: string | null
+          created_at?: string
+          id?: string
+          job_url?: string | null
+          last_touch_at?: string | null
+          location?: string | null
+          notes?: string | null
+          resume_id?: string | null
+          role?: string
+          salary?: string | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       cover_letters: {
         Row: {
           alignment: string | null
@@ -670,6 +727,13 @@ export type Database = {
     Enums: {
       app_plan: "free" | "pro" | "advanced" | "teams"
       app_role: "admin" | "user"
+      application_status:
+        | "saved"
+        | "applied"
+        | "interviewing"
+        | "offer"
+        | "rejected"
+        | "withdrawn"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -799,6 +863,14 @@ export const Constants = {
     Enums: {
       app_plan: ["free", "pro", "advanced", "teams"],
       app_role: ["admin", "user"],
+      application_status: [
+        "saved",
+        "applied",
+        "interviewing",
+        "offer",
+        "rejected",
+        "withdrawn",
+      ],
     },
   },
 } as const

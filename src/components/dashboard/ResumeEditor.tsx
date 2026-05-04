@@ -138,7 +138,11 @@ export const ResumeEditor = ({
   onClose?: () => void;
 }) => {
   const ent = useEntitlements();
-  const canExport = ent.unlocked("resume_export");
+  // Clean (no watermark) export — Pro+
+  const canExportClean = ent.unlocked("resume_export");
+  // Watermarked export — Free can also use this
+  const canExportAny = canExportClean || ent.unlocked("resume_export_watermark");
+  const watermark = !canExportClean;
   const [resume, setResume] = useState<EditableResume>(initial);
   const [mode, setMode] = useState<"edit" | "preview">("edit");
   const [typo, setTypo] = useState<ResumeTypography>(DEFAULT_TYPO);
@@ -155,23 +159,36 @@ export const ResumeEditor = ({
   );
 
   const blockExport = () => {
-    toast.error("Resume exports are a Pro feature. Upgrade to download PDF, DOCX, or ATS .txt.");
+    toast.error("Resume export isn't included on your plan. Upgrade to download PDF, DOCX, or ATS .txt.");
+  };
+
+  const notifyWatermark = () => {
+    if (watermark) {
+      toast.message("Free download includes a watermark", {
+        description: "Upgrade to Pro for clean PDF / DOCX with no Hirely mark.",
+      });
+    }
   };
 
   const handleDownloadTxt = () => {
-    if (!canExport) return blockExport();
-    const text = toPlainText(resume);
+    if (!canExportAny) return blockExport();
+    const text = toPlainText(resume) +
+      (watermark
+        ? "\n\n— — —\nGenerated with Hirely Free · hirely.app\nUpgrade to Pro to remove this watermark."
+        : "");
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
     saveAs(blob, `${fileBase}_ATS.txt`);
     toast.success("Plain-text ATS resume downloaded");
+    notifyWatermark();
   };
 
   const handleDownloadPdf = () => {
-    if (!canExport) return blockExport();
+    if (!canExportAny) return blockExport();
     try {
-      const doc = renderPdf(resume, typo);
+      const doc = renderPdf(resume, typo, watermark);
       doc.save(`${fileBase}.pdf`);
       toast.success("PDF downloaded");
+      notifyWatermark();
     } catch (e) {
       console.error(e);
       toast.error("PDF export failed");
@@ -179,12 +196,13 @@ export const ResumeEditor = ({
   };
 
   const handleDownloadDocx = async () => {
-    if (!canExport) return blockExport();
+    if (!canExportAny) return blockExport();
     try {
-      const doc = renderDocx(resume, typo);
+      const doc = renderDocx(resume, typo, watermark);
       const blob = await Packer.toBlob(doc);
       saveAs(blob, `${fileBase}.docx`);
       toast.success("DOCX downloaded");
+      notifyWatermark();
     } catch (e) {
       console.error(e);
       toast.error("DOCX export failed");
@@ -221,44 +239,61 @@ export const ResumeEditor = ({
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          {watermark && canExportAny && (
+            <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-amber-500/10 text-amber-700 px-2 py-0.5 text-[10.5px] tracking-[0.14em] uppercase font-medium">
+              <Lock className="w-2.5 h-2.5" /> Watermarked · Free
+            </span>
+          )}
           <button
             type="button"
             onClick={handleDownloadPdf}
-            title={canExport ? "Download PDF" : "Resume exports are a Pro feature"}
+            title={
+              !canExportAny
+                ? "Resume exports require Pro"
+                : watermark
+                ? "Download watermarked PDF — upgrade for clean export"
+                : "Download PDF"
+            }
             className={cn(
               "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors",
-              canExport
+              canExportAny
                 ? "bg-foreground text-background hover:bg-foreground/90"
                 : "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed",
             )}
           >
-            {canExport ? <Download className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} PDF
+            {canExportAny ? <Download className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} PDF
           </button>
           <button
             type="button"
             onClick={handleDownloadDocx}
-            title={canExport ? "Download DOCX" : "Resume exports are a Pro feature"}
+            title={
+              !canExportAny
+                ? "Resume exports require Pro"
+                : watermark
+                ? "Download watermarked DOCX — upgrade for clean export"
+                : "Download DOCX"
+            }
             className={cn(
               "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors",
-              canExport
+              canExportAny
                 ? "bg-foreground/[0.06] hover:bg-foreground/[0.1] text-foreground"
                 : "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed",
             )}
           >
-            {canExport ? <FileType className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} DOCX
+            {canExportAny ? <FileType className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} DOCX
           </button>
           <button
             type="button"
             onClick={handleDownloadTxt}
-            title={canExport ? "Download ATS plain text" : "Resume exports are a Pro feature"}
+            title={canExportAny ? "Download ATS plain text" : "Resume exports require Pro"}
             className={cn(
               "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight flex items-center gap-1.5 transition-colors",
-              canExport
+              canExportAny
                 ? "bg-foreground/[0.06] hover:bg-foreground/[0.1] text-foreground"
                 : "bg-foreground/[0.06] text-foreground/45 cursor-not-allowed",
             )}
           >
-            {canExport ? <FileText className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} ATS .txt
+            {canExportAny ? <FileText className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />} ATS .txt
           </button>
           {onClose && (
             <button
@@ -1109,7 +1144,7 @@ function setFontSafe(
   }
 }
 
-function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
+function renderPdf(r: EditableResume, typo: ResumeTypography, watermark = false): jsPDF {
   const doc = new jsPDF({ unit: "pt", format: "letter" });
   const pageW = doc.internal.pageSize.getWidth();
   const pageH = doc.internal.pageSize.getHeight();
@@ -1323,11 +1358,38 @@ function renderPdf(r: EditableResume, typo: ResumeTypography): jsPDF {
     });
   }
 
+  if (watermark) {
+    const totalPages = (doc as unknown as {
+      internal: { getNumberOfPages: () => number };
+    }).internal.getNumberOfPages();
+    for (let p = 1; p <= totalPages; p++) {
+      doc.setPage(p);
+      const gs = doc as unknown as {
+        GState: new (o: { opacity: number }) => unknown;
+        setGState: (g: unknown) => void;
+      };
+      try { gs.setGState(new gs.GState({ opacity: 0.07 })); } catch (_e) { /* noop */ }
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(72);
+      doc.setTextColor(120, 120, 120);
+      doc.text("HIRELY FREE", pageW / 2, pageH / 2, { align: "center", angle: -30 });
+      try { gs.setGState(new gs.GState({ opacity: 1 })); } catch (_e) { /* noop */ }
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text(
+        "Generated with Hirely Free · upgrade to Pro to remove this watermark",
+        pageW / 2,
+        pageH - 28,
+        { align: "center" },
+      );
+    }
+  }
   return doc;
 }
 
 // ----- DOCX -----
-function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
+function renderDocx(r: EditableResume, typo: ResumeTypography, watermark = false): DocxDocument {
   const children: Paragraph[] = [];
   const SC = typo.sizeScale;
   const FONT = DOCX_FONT_NAME[typo.font];
@@ -1511,6 +1573,24 @@ function renderDocx(r: EditableResume, typo: ResumeTypography): DocxDocument {
         }),
       );
     });
+  }
+
+  if (watermark) {
+    children.push(
+      new Paragraph({
+        spacing: { before: 400 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({
+            font: FONT,
+            text: "— Generated with Hirely Free · upgrade to Pro to remove this watermark —",
+            size: sz(16),
+            color: "AAAAB5",
+            italics: true,
+          }),
+        ],
+      }),
+    );
   }
 
   return new DocxDocument({

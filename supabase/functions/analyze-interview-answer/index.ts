@@ -1,6 +1,7 @@
 // Live answer analysis for interview prep — scores an answer across six axes,
 // returns structured feedback and a rewritten sample answer.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { getPlan } from "../_shared/entitlements.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -244,6 +245,10 @@ Score this answer rigorously and call analyze_answer.`;
       return json({ error: "AI returned invalid JSON" }, 500);
     }
 
+    // Free plan: hide improved_answer and coaching_note (locked feature).
+    const plan = await getPlan(userId);
+    const improvedLocked = plan === "free";
+
     const record = {
       user_id: userId,
       resume_id: resume_id ?? null,
@@ -263,8 +268,8 @@ Score this answer rigorously and call analyze_answer.`;
       matched_keywords: parsed.matched_keywords ?? [],
       missing_keywords: parsed.missing_keywords ?? [],
       star_breakdown: parsed.star_breakdown ?? {},
-      improved_answer: parsed.improved_answer ?? "",
-      coaching_note: parsed.coaching_note ?? "",
+      improved_answer: improvedLocked ? "" : (parsed.improved_answer ?? ""),
+      coaching_note: improvedLocked ? "" : (parsed.coaching_note ?? ""),
       word_count: wc,
       model: "google/gemini-2.5-flash",
     };
@@ -279,10 +284,10 @@ Score this answer rigorously and call analyze_answer.`;
         console.error("Insert error", insertErr);
         return json({ error: "Failed to save analysis" }, 500);
       }
-      return json({ analysis: inserted });
+      return json({ analysis: inserted, improved_locked: improvedLocked });
     }
 
-    return json({ analysis: record });
+    return json({ analysis: record, improved_locked: improvedLocked });
   } catch (e) {
     console.error("analyze-interview-answer error", e);
     return json({ error: e instanceof Error ? e.message : "Unknown error" }, 500);

@@ -781,6 +781,23 @@ const AnalysisView = ({
         </div>
       </SectionCard>
 
+      {!improved && (
+        <SectionCard className="p-5 ring-1 ring-foreground/10 bg-foreground/[0.02]">
+          <p className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase font-semibold text-foreground/55">
+            <Sparkles className="w-3 h-3" /> AI Improved Answer · Pro
+          </p>
+          <p className="mt-2 text-[13px] text-foreground/70 tracking-tight leading-snug max-w-xl">
+            Free shows your score and gaps. Upgrade to Pro to see the full STAR-aligned rewrite and one-click "make shorter / more confident" remixes.
+          </p>
+          <a
+            href="/app/upgrade"
+            className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3.5 py-1.5 text-[12px] font-medium tracking-tight hover:opacity-90"
+          >
+            <Sparkles className="w-3 h-3" /> Unlock improved answers
+          </a>
+        </SectionCard>
+      )}
+
       {improved && (
         <SectionCard className="p-0 overflow-hidden ring-1 ring-primary/15 shadow-[0_24px_60px_-30px_hsl(var(--primary)/0.35)]">
           {/* Premium gradient header */}
