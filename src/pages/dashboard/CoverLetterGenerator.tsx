@@ -44,13 +44,22 @@ const CoverLetterGenerator = () => {
   const canGenerate = ent.can("cover_letters");
   const [jd, setJd] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
-  const [pages, setPages] = useState<1 | 2 | 3>(1);
+  const [length, setLength] = useState<"short" | "medium" | "detailed">("medium");
+  const [experienceLevel, setExperienceLevel] = useState<
+    "fresher" | "intern" | "junior" | "experienced"
+  >("junior");
+  const [companyStyle, setCompanyStyle] = useState<"startup" | "corporate" | "formal">(
+    "corporate",
+  );
+  const [avoidGeneric, setAvoidGeneric] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [hasLetter, setHasLetter] = useState(false);
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [resumeStrengths, setResumeStrengths] = useState<string[]>([]);
+  const [personalizationScore, setPersonalizationScore] = useState<number | null>(null);
   const [typo, setTypo] = useState<TypoSettings>({
     font: "times",
     fontSize: 14,
