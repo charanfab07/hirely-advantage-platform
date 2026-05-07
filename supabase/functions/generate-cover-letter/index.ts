@@ -325,14 +325,14 @@ Deno.serve(async (req) => {
       relocation_preference,
     } = body ?? {};
 
-    if (
-      typeof company !== "string" ||
-      company.trim().length < 1 ||
-      typeof role !== "string" ||
-      role.trim().length < 2
-    ) {
-      return json({ error: "company and role are required" }, 400);
+    if (typeof role !== "string" || role.trim().length < 2) {
+      return json({ error: "role is required" }, 400);
     }
+    // Company is OPTIONAL — if missing or a placeholder, treat as "no company".
+    const PLACEHOLDER_COMPANY = /^(the\s+company|company|n\/a|none|tbd|unknown)$/i;
+    const rawCompany = typeof company === "string" ? company.trim() : "";
+    const hasCompany = rawCompany.length >= 1 && !PLACEHOLDER_COMPANY.test(rawCompany);
+    const companyForPrompt = hasCompany ? rawCompany : "(company name not provided)";
     const safeTone = ALLOWED_TONES.has(tone) ? tone : "confident";
     const ALLOWED_LENGTHS = new Set(["short", "medium", "detailed", "one_page", "two_page", "three_page"]);
     const ALLOWED_LEVELS = new Set(["fresher", "intern", "junior", "experienced"]);
