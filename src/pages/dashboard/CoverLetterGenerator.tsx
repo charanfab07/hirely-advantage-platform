@@ -506,6 +506,7 @@ const CoverLetterGenerator = () => {
               typo={typo}
               compact
             />
+            <DraftingOverlay active={generating} />
 
             {/* Action bar */}
             <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
