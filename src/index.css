@@ -285,6 +285,57 @@ html.is-leaving body > #root > main {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+@keyframes shine-sweep {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(220%) skewX(-18deg); }
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.95; }
+}
+@keyframes step-pop {
+  0% { opacity: 0; transform: translateY(4px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@layer components {
+  .skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--foreground) / 0.05) 0%,
+      hsl(var(--foreground) / 0.10) 40%,
+      hsl(var(--foreground) / 0.18) 50%,
+      hsl(var(--foreground) / 0.10) 60%,
+      hsl(var(--foreground) / 0.05) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite, skeleton-pulse 2.4s ease-in-out infinite;
+    border-radius: 6px;
+  }
+  .shine-on-hover, .shine-button {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .shine-button::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 0;
+    width: 35%;
+    background: linear-gradient(90deg, transparent, hsl(0 0% 100% / 0.45), transparent);
+    transform: translateX(-120%) skewX(-18deg);
+    animation: shine-sweep 1.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .step-pop { animation: step-pop 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer, .shine-button::after { animation: none !important; }
+}
 @keyframes aurora-stream-one {
   0% { transform: translate3d(-58%, -60%, 0) rotate(-18deg) scale(0.95); opacity: 0.58; }
   45% { transform: translate3d(-49%, -51%, 0) rotate(-8deg) scale(1.08); opacity: 0.86; }
