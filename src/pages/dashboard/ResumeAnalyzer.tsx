@@ -18,6 +18,7 @@ import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useAuth } from "@/hooks/useAuth";
@@ -122,6 +123,7 @@ const ResumeAnalyzer = () => {
   const [latestCached, setLatestCached] = useState(false);
   const [reanalyzing, setReanalyzing] = useState(false);
   const [showUploader, setShowUploader] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const latest = analyses[0];
 
@@ -310,7 +312,13 @@ const ResumeAnalyzer = () => {
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setShowUploader(true)}
+            onClick={() => {
+              if (!ent.can("resume_uploads") || !ent.can("analyses")) {
+                setShowUpgrade(true);
+                return;
+              }
+              setShowUploader(true);
+            }}
             className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity inline-flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
@@ -869,6 +877,13 @@ const ResumeAnalyzer = () => {
       <DashboardFooterRail
         lastSync={latest?.created_at}
         analysesCount={analyses.length}
+      />
+
+      <UpgradePlanDialog
+        open={showUpgrade}
+        onOpenChange={setShowUpgrade}
+        currentPlan={ent.plan}
+        feature={!ent.can("analyses") ? "analyses" : "resume_uploads"}
       />
     </div>
   );
