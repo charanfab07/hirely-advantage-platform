@@ -152,11 +152,13 @@ const CoverLetterGenerator = () => {
         }
       }
       const jdParsed = parseJobDescription(jd);
+      const companyForRequest = (doc.companyName.trim() || jdParsed.company || "").trim();
+      const roleForRequest = (jdParsed.role || "this role").trim();
 
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
         body: {
-          company: doc.companyName.trim() || jdParsed.company || "the company",
-          role: "this role",
+          company: companyForRequest, // empty string is fine — backend treats as "not provided"
+          role: roleForRequest,
           tone,
           length: pages === 3 ? "three_page" : pages === 2 ? "two_page" : "one_page",
           job_description: jd.trim(),
