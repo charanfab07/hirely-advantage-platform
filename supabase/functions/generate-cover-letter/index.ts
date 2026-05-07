@@ -31,12 +31,14 @@ Use ONE of these proven opener templates (rotate naturally — pick whichever fi
 
 Starting the letter with "I" IS ALLOWED when using templates above. What's banned is the weak "I am writing/excited/applying to express interest" filler — not direct, substantive "I" openers that lead with skills.
 
+ROLE ANCHORING — the exact role title (as provided, e.g. "Junior Data Analyst", "Data Analyst Intern", "Entry-Level Data Analyst", "Business Analyst") MUST appear by name AT LEAST 3 TIMES across the letter — once in the hook, once in alignment or proof, and once in the closing. NEVER substitute "this role", "the role", "this position", or "the position" when you can name the actual title. Vague references like "this role" are only allowed AFTER the title has already been used at least twice in that paragraph.
+
 Structure the letter into FIVE parts and return them BOTH as separate fields and assembled into 'full_letter' (greeting + 4–5 paragraphs + sign-off):
-1. hook            — Direct opener using one of the templates above. 1–2 sentences. Must name the role and 3+ concrete skills.
-2. alignment       — Map 2–3 of the candidate's most relevant skills directly to what the JD asks for. 2–4 sentences.
-3. proof           — One concrete achievement with a real metric from the resume. 2–3 sentences.
+1. hook            — Direct opener using one of the templates above. 1–2 sentences. Must name the EXACT role title and 3+ concrete skills.
+2. alignment       — Map 2–3 of the candidate's most relevant skills directly to what the JD asks for. 2–4 sentences. Reference the role by name at least once.
+3. proof           — One concrete achievement with a real metric from the resume, framed as relevant to the {ROLE} title. 2–3 sentences.
 4. culture_fit     — A specific reason the candidate fits THIS company's mission/values. Avoid clichés. 2–3 sentences.
-5. closing         — Confident close. Suggests a next step. 1–2 sentences.
+5. closing         — Confident close. MUST reference the exact role title by name (e.g. "I'd welcome the chance to discuss the Junior Data Analyst role further"). 1–2 sentences.
 
 PERSONALIZATION ENGINE — you will be given: (a) extracted JD keywords, (b) candidate skills from resume, (c) the company mission. You MUST:
 - Naturally weave AT LEAST 70% of the provided "must_use_keywords" into the letter using their exact wording (case-insensitive). Don't list them — embed them.
