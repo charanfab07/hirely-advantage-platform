@@ -191,6 +191,7 @@ export const LetterSheet = ({
         <EditableLine
           value={doc.senderName}
           onChange={(v) => update("senderName", v)}
+          onBlurTransform={toTitleCaseName}
           placeholder="Your full name"
           accentBold
         />
