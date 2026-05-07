@@ -284,10 +284,47 @@ const ResumeAnalyzer = () => {
         )}
       </div>
 
-      {/* Upload only visible until first analysis exists */}
-      {user && !latest && (
+      {/* Upload — shows on first run, or when user clicks "Analyze new resume" */}
+      {user && (!latest || showUploader) && (
         <div className="mt-5">
+          {latest && showUploader && (
+            <div className="mb-2 flex items-center justify-between">
+              <p className="text-[11.5px] tracking-tight text-foreground/55">
+                Upload a new or updated resume to run a fresh analysis.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowUploader(false)}
+                className="text-[11.5px] text-foreground/55 hover:text-foreground tracking-tight"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
           <ResumeUploadCard userId={user.id} onAnalyzed={handleAnalyzed} />
+        </div>
+      )}
+
+      {/* Quick actions when an analysis already exists */}
+      {latest && !showUploader && (
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowUploader(true)}
+            className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity inline-flex items-center gap-1.5"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Analyze new resume
+          </button>
+          <button
+            type="button"
+            onClick={handleReanalyze}
+            disabled={reanalyzing}
+            className="px-4 py-2 rounded-full border border-foreground/10 text-foreground/75 text-[12.5px] tracking-tight hover:bg-foreground/5 transition-colors inline-flex items-center gap-1.5 disabled:opacity-50"
+          >
+            <RefreshCw className={cn("w-3.5 h-3.5", reanalyzing && "animate-spin")} />
+            {reanalyzing ? "Re-running…" : "Re-run on current resume"}
+          </button>
         </div>
       )}
 
