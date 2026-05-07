@@ -53,12 +53,18 @@ Starting the letter with "I" IS ALLOWED when using templates above. What's banne
 
 ROLE ANCHORING — the exact role title (as provided, e.g. "Junior Data Analyst", "Data Analyst Intern", "Entry-Level Data Analyst", "Business Analyst") MUST appear by name AT LEAST 3 TIMES across the letter — once in the hook, once in alignment or proof, and once in the closing. NEVER substitute "this role", "the role", "this position", or "the position" when you can name the actual title. Vague references like "this role" are only allowed AFTER the title has already been used at least twice in that paragraph.
 
-FORMATTING — the letter must be SCANNABLE (recruiters spend 10–15 seconds). Structure 'full_letter' as 4 short, distinct paragraphs separated by ONE BLANK LINE between each. NEVER produce one wall of text. Each paragraph has a clear job:
-  • Para 1 — Hook/intro (2–3 sentences). Names the exact role + 3–4 concrete skills.
-  • Para 2 — Skills match (3–4 sentences). Map candidate skills directly to JD requirements.
-  • Para 3 — Proof: internship/project/achievement (3–4 sentences) with a real metric.
-  • Para 4 — Close (2–3 sentences). Names the exact role title and signals next step.
-For longer length targets (two_page, three_page) keep the same 4-bucket logic but split paras 2 and 3 into 2–3 paragraphs each. Always preserve blank lines between paragraphs in 'full_letter'.
+FORMATTING — the letter must be SCANNABLE (recruiters spend 10–15 seconds). Structure 'full_letter' as 4 short, distinct paragraphs separated by ONE BLANK LINE between each. NEVER produce one wall of text. Each paragraph has ONE clear job and a LOAD-BEARING TOPIC SENTENCE (the first sentence must carry the point so a recruiter skimming only the openers still gets the case):
+  • Para 1 — HOOK (2–3 sentences). Topic sentence names the exact role + 3–4 concrete tools/skills from the resume that map to the JD. No mission talk, no industry commentary.
+  • Para 2 — SKILLS MATCH (3–4 sentences). Topic sentence: "Three things in the {ROLE} JD line up with what I already do:" (or a natural variant). Then map 2–3 specific JD requirements to specific resume tools/skills — pair them tightly (JD ask → my proof). One concrete artifact (a reusable template, a dashboard, a script, a dataset size).
+  • Para 3 — PROOF (3–4 sentences). ONE specific story from the resume — name the employer/project, the tools used, what was built, and a real number/outcome. No second example. No vague "various projects".
+  • Para 4 — CLOSE (2–3 sentences). Names the exact role title once, gives ONE specific reason this employer (not a generic compliment), and a clear next step ("Happy to walk through the {project} in a quick call.").
+RECRUITER-FLOW RULES:
+- Each paragraph must START with a substantive sentence — NEVER with a transition word ("Furthermore", "Moreover", "Additionally", "In addition", "What's more").
+- Vary sentence length: mix one short punchy sentence (≤8 words) with longer specific ones in every paragraph.
+- Every paragraph must contain at least ONE concrete noun from the resume (a tool, a project name, a number, an employer, a dataset). If a sentence has no concrete noun, DELETE or REWRITE it.
+- No paragraph may begin with "I am" or "I'm a/an". Lead with the work, the skill, or the role.
+- Never repeat the same opener verb across paragraphs (e.g. don't start two paragraphs with "My …").
+For longer length targets (two_page, three_page) keep the same 4-bucket logic but split paras 2 and 3 into 2–3 paragraphs each, each with its own topic sentence and concrete artifact. Always preserve blank lines between paragraphs in 'full_letter'.
 
 Return both as separate fields and assembled into 'full_letter' (greeting + paragraphs + sign-off, blank line between each):
 1. hook            — Para 1. Direct opener using one of the templates above. Names exact role title + 3+ concrete skills.
