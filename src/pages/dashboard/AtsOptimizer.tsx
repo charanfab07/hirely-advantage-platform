@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, Lock } from "lucide-react";
+import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, Lock, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { supabase } from "@/integrations/supabase/client";
