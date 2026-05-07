@@ -542,7 +542,11 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
 
     // ---- Personalization step 4: compute keyword coverage of the final letter ----
     let fullLetter: string = parsed.full_letter ?? "";
-    const roleTitle = role.trim();
+    const rawRole = role.trim();
+    // Treat generic placeholders as "no real role title" — never anchor with them.
+    const PLACEHOLDER_ROLE = /^(this\s+role|the\s+role|this\s+position|the\s+position|role|position|n\/a|tbd|unknown)$/i;
+    const hasRoleTitle = rawRole.length >= 2 && !PLACEHOLDER_ROLE.test(rawRole);
+    const roleTitle = hasRoleTitle ? rawRole : "";
     const companyName = hasCompany ? rawCompany : "";
     // Safety net: scrub any "the company" / placeholder phrasing the model slipped through.
     const scrubCompany = (text: string) => {
@@ -567,18 +571,52 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
     // Role anchoring: ensure the exact role title appears enough times.
     // Replace generic "this role / the role / this position / the position"
     // with the real title until we hit a healthy count, then leave the rest.
+    // CRITICAL: only run when we actually HAVE a real role title — otherwise we'd
+    // produce nonsense like "the this role role" by inserting the placeholder back in.
     const ensureRoleAnchored = (text: string, minOccurrences = 2) => {
       if (!roleTitle) return text;
-      const titleRe = new RegExp(`\\b${roleTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi");
+      const escaped = roleTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const titleRe = new RegExp(`\\b${escaped}\\b`, "gi");
       let current = (text.match(titleRe) ?? []).length;
       const generics = /\b(?:this|the)\s+(?:role|position|opening|opportunity)\b/gi;
       return text.replace(generics, (match) => {
         if (current >= minOccurrences) return match;
         current += 1;
-        // Preserve leading capitalization of the matched phrase.
         return /^[A-Z]/.test(match) ? roleTitle : roleTitle;
       });
     };
+
+    // Cleanup pass — fix any artifact phrasing the AI or our scrubbers may have produced.
+    // Examples we've seen in the wild:
+    //   "the {ROLE} role"        -> "the {ROLE} role"   (kept; valid English)
+    //   "what the {ROLE} role"   -> kept
+    //   "the this role role"     -> "this role"
+    //   "this {ROLE} role role"  -> "the {ROLE} role"
+    //   "{ROLE} role role"       -> "{ROLE} role"
+    //   "{ROLE} position role"   -> "{ROLE} role"
+    //   immediate duplicate words like "role role" / "position position"
+    const fixRoleArtifacts = (text: string) => {
+      if (!text) return text;
+      let out = text;
+      // 1. Collapse "the this role" / "a this role" produced when the model wrote
+      //    "the {ROLE}" while role itself was the placeholder "this role".
+      out = out.replace(/\b(the|a|an)\s+(this|the)\s+(role|position|opening|opportunity)\b/gi,
+        (_m, _art, det, noun) => `${det} ${noun}`);
+      // 2. Collapse immediate duplicate role/position words: "role role" -> "role".
+      out = out.replace(/\b(role|position|opening|opportunity)\s+\1\b/gi, "$1");
+      // 3. "{ROLE} position role" or "{ROLE} role position" -> "{ROLE} role".
+      if (roleTitle) {
+        const escaped = roleTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        out = out.replace(
+          new RegExp(`\\b${escaped}\\s+(role|position)\\s+(role|position)\\b`, "gi"),
+          `${roleTitle} role`,
+        );
+      }
+      // 4. "this this" / "the the" stutters anywhere.
+      out = out.replace(/\b(this|the|a|an)\s+\1\b/gi, "$1");
+      return out;
+    };
+
 
     // Vague-language scrubber: rewrite filler phrases into more concrete language.
     const scrubVague = (text: string) => {
