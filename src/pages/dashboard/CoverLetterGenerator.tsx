@@ -17,6 +17,7 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 import { LetterSheet } from "@/components/dashboard/cover-letter/LetterSheet";
 import { FullscreenToolbar } from "@/components/dashboard/cover-letter/FullscreenToolbar";
+import { DraftingOverlay } from "@/components/dashboard/cover-letter/DraftingOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
@@ -416,6 +417,7 @@ const CoverLetterGenerator = () => {
                   generating || jd.trim().length < 40
                     ? "bg-foreground/10 text-foreground/40 cursor-not-allowed"
                     : "bg-foreground text-background hover:bg-foreground/90",
+                  generating && "shine-button",
                 )}
               >
                 {generating ? (
@@ -495,7 +497,7 @@ const CoverLetterGenerator = () => {
             </div>
           </div>
 
-          <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
+          <div className="relative border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
             <LetterSheet
               doc={doc}
               update={update}
@@ -504,6 +506,7 @@ const CoverLetterGenerator = () => {
               typo={typo}
               compact
             />
+            <DraftingOverlay active={generating} />
 
             {/* Action bar */}
             <div className="mx-auto mt-4 max-w-[640px] flex flex-wrap items-center gap-2">
