@@ -47,6 +47,7 @@ const CoverLetterGenerator = () => {
   const [pages, setPages] = useState<1 | 2 | 3>(1);
   const [generating, setGenerating] = useState(false);
   const [hasLetter, setHasLetter] = useState(false);
+  const [matchScore, setMatchScore] = useState<number | null>(null);
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
@@ -152,11 +153,22 @@ const CoverLetterGenerator = () => {
         }
       }
       const jdParsed = parseJobDescription(jd);
+      const companyForRequest = (doc.companyName.trim() || jdParsed.company || "").trim();
+      // Extract role from JD using common patterns; fall back to "this role".
+      const roleFromJd =
+        jd.match(/\b(?:hiring|seeking|looking for|recruiting|the position of|role of|position:|title:)\s+(?:a |an |our )?([A-Z][A-Za-z0-9 /+\-]{2,60}?)(?:\s+(?:to|who|with|at|in|for|role|position)\b|[.\n])/)
+          ?.[1]
+          ?.trim() ||
+        jd.split("\n").map((l) => l.trim()).find((l) =>
+          /^[A-Z][A-Za-z0-9 /+\-]{2,60}$/.test(l) &&
+          /(engineer|developer|analyst|manager|designer|scientist|intern|consultant|architect|lead|director|specialist|associate)/i.test(l),
+        );
+      const roleForRequest = (roleFromJd || "this role").trim();
 
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
         body: {
-          company: doc.companyName.trim() || jdParsed.company || "the company",
-          role: "this role",
+          company: companyForRequest, // empty string is fine — backend treats as "not provided"
+          role: roleForRequest,
           tone,
           length: pages === 3 ? "three_page" : pages === 2 ? "two_page" : "one_page",
           job_description: jd.trim(),
@@ -175,8 +187,12 @@ const CoverLetterGenerator = () => {
       if (error) throw new Error(error.message || "Generation failed");
       const errMsg = (data as { error?: string })?.error;
       if (errMsg) throw new Error(errMsg);
-      const full = (data as { letter?: { full_letter?: string } })?.letter?.full_letter ?? "";
+      const letterPayload = (data as {
+        letter?: { full_letter?: string; match_score?: number | null };
+      })?.letter;
+      const full = letterPayload?.full_letter ?? "";
       if (!full) throw new Error("No letter returned");
+      setMatchScore(typeof letterPayload?.match_score === "number" ? letterPayload.match_score : null);
 
       const hiringManager = doc.hiringManager || jdParsed.hiringManager || "";
       const salutation = guessSalutation(hiringManager);
@@ -207,6 +223,7 @@ const CoverLetterGenerator = () => {
 
   const reset = () => {
     setHasLetter(false);
+    setMatchScore(null);
     setJd("");
     setDoc((d) => ({
       ...emptyDoc(),
@@ -440,6 +457,22 @@ const CoverLetterGenerator = () => {
               </p>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
+              {hasLetter && matchScore !== null && (
+                <span
+                  title="Personalization score — % of JD keywords woven into your letter"
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium tracking-tight border",
+                    matchScore >= 75
+                      ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+                      : matchScore >= 50
+                        ? "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                        : "bg-rose-500/10 text-rose-600 border-rose-500/20",
+                  )}
+                >
+                  <span className="opacity-70">Match</span>
+                  <span>{matchScore}%</span>
+                </span>
+              )}
               <button
                 onClick={() => setFullscreen(true)}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-foreground/[0.1] bg-foreground/[0.03] px-2.5 py-1.5 text-[12px] font-medium tracking-tight text-foreground/80 hover:bg-foreground/[0.06] transition-colors"
