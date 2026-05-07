@@ -1,5 +1,6 @@
 // Heuristic parsers for resume header (sender) and JD (company / hiring
 // manager). Best-effort, never throw — return undefined when unsure.
+import { toTitleCaseName } from "./types";
 
 export function parseResumeContact(raw: string): {
   name?: string;
