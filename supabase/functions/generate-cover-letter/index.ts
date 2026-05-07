@@ -20,6 +20,26 @@ HARD BANS — never use any of these openings or phrases:
 - Any vague, philosophical, or trend-y opener like "The rapid growth of…", "In today's fast-paced world…", "As the industry evolves…", "Data is the new oil…", or any sentence that talks about the industry/market before the candidate.
 - NEVER use the generic phrase "the company", "the company's", "the team at the company", or any variant. Always refer to the employer by their actual name (e.g. "Acme", "Acme's mission", "the Acme team"). If you must vary phrasing, use "your organization", "your team", "this opportunity", or the specific team/role name (e.g. "the Data Analyst team") — but NEVER "the company".
 
+VAGUE-LANGUAGE BAN — these words/phrases are FORBIDDEN because they sound like AI fluff. Never use any of them, in any tense or variation:
+- "immense opportunity", "incredible opportunity", "exciting opportunity", "great opportunity" (when used as filler)
+- "budding" (e.g. "budding professional", "budding analyst", "budding engineer")
+- "deeply resonates", "truly resonates", "resonates with me", "resonates deeply"
+- "continued success", "continued growth", "ongoing success"
+- "innovative solutions", "innovative data solutions", "cutting-edge solutions", "state-of-the-art solutions"
+- "passionate about", "deeply passionate", "extremely passionate"
+- "thrive in", "thrive on" (as filler)
+- "dynamic environment", "fast-paced environment", "dynamic team"
+- "synergy", "synergies", "leverage" (as a verb), "spearhead", "spearheaded"
+- "I am eager to contribute", "eager to learn", "eager to grow"
+- "make a meaningful impact", "make a real difference", "drive impact"
+- "strong fit", "perfect fit", "ideal candidate", "uniquely positioned"
+- "robust", "holistic", "seamless" (as filler adjectives)
+- "wealth of experience", "proven track record" (replace with actual achievements)
+- "industry-leading", "best-in-class", "world-class"
+- Any sentence that is pure adjective stacking with no concrete fact, tool, or number.
+
+Replace vague claims with concrete specifics: a tool, a number, a project, or a measurable outcome. If you can't make a sentence specific, DELETE IT.
+
 HOOK RULES — the FIRST sentence must be DIRECT, SPECIFIC, and CANDIDATE-FIRST. It must immediately name (a) the exact role being applied for and (b) 3–4 concrete tools/skills from the candidate's resume that map to the JD. No abstractions, no industry commentary, no metaphors.
 
 Use ONE of these proven opener templates (rotate naturally — pick whichever fits best, vary wording so it doesn't feel templated):
@@ -537,15 +557,67 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       });
     };
 
-    const scrub = (text: string, minRole = 1) => ensureRoleAnchored(scrubCompany(text), minRole);
+    // Vague-language scrubber: rewrite filler phrases into more concrete language.
+    const scrubVague = (text: string) => {
+      if (!text) return text;
+      const replacements: Array<[RegExp, string]> = [
+        [/\bimmense opportunity\b/gi, "opportunity"],
+        [/\bincredible opportunity\b/gi, "opportunity"],
+        [/\bexciting opportunity\b/gi, "opportunity"],
+        [/\bgreat opportunity\b/gi, "opportunity"],
+        [/\bbudding (data professional|professional|analyst|engineer|developer|designer)\b/gi, "$1"],
+        [/\b(deeply|truly) resonates with me\b/gi, "matches my focus"],
+        [/\b(deeply|truly) resonates\b/gi, "matches my focus"],
+        [/\bresonates with me\b/gi, "matches my focus"],
+        [/\bresonates deeply\b/gi, "matches my focus"],
+        [/\bcontinued success\b/gi, "next stage of growth"],
+        [/\bcontinued growth\b/gi, "next stage of growth"],
+        [/\bongoing success\b/gi, "next stage of growth"],
+        [/\binnovative data solutions\b/gi, "data work"],
+        [/\binnovative solutions\b/gi, "the work"],
+        [/\bcutting-edge solutions\b/gi, "the work"],
+        [/\bstate-of-the-art solutions\b/gi, "the work"],
+        [/\b(deeply|extremely|truly) passionate about\b/gi, "focused on"],
+        [/\bpassionate about\b/gi, "focused on"],
+        [/\bdynamic (environment|team)\b/gi, "$1"],
+        [/\bfast-paced environment\b/gi, "environment"],
+        [/\bsynergies\b/gi, "overlap"],
+        [/\bsynergy\b/gi, "overlap"],
+        [/\bleverage\b/gi, "use"],
+        [/\bspearheaded\b/gi, "led"],
+        [/\bspearhead\b/gi, "lead"],
+        [/\bI am eager to contribute\b/gi, "I want to contribute"],
+        [/\beager to learn and grow\b/gi, "ready to take on the work"],
+        [/\beager to (learn|grow|contribute)\b/gi, "ready to $1"],
+        [/\bmake a meaningful impact\b/gi, "deliver measurable results"],
+        [/\bmake a real difference\b/gi, "deliver measurable results"],
+        [/\bstrong fit\b/gi, "match"],
+        [/\bperfect fit\b/gi, "match"],
+        [/\bideal candidate\b/gi, "candidate"],
+        [/\buniquely positioned\b/gi, "positioned"],
+        [/\b(robust|holistic|seamless) /gi, ""],
+        [/\bwealth of experience\b/gi, "experience"],
+        [/\bproven track record\b/gi, "track record"],
+        [/\bindustry-leading\b/gi, ""],
+        [/\bbest-in-class\b/gi, ""],
+        [/\bworld-class\b/gi, ""],
+      ];
+      let out = text;
+      for (const [re, rep] of replacements) out = out.replace(re, rep);
+      // Collapse double spaces produced by deletions and tidy spacing before punctuation.
+      out = out.replace(/ {2,}/g, " ").replace(/ ([,.;:!?])/g, "$1");
+      return out;
+    };
+
+    const scrub = (text: string, minRole = 1) => scrubVague(ensureRoleAnchored(scrubCompany(text), minRole));
 
     parsed.hook = scrub(parsed.hook ?? "", 1);
     parsed.alignment = scrub(parsed.alignment ?? "", 1);
     parsed.proof = scrub(parsed.proof ?? "", 1);
-    parsed.culture_fit = scrubCompany(parsed.culture_fit ?? "");
+    parsed.culture_fit = scrubVague(scrubCompany(parsed.culture_fit ?? ""));
     parsed.closing = scrub(parsed.closing ?? "", 1);
     // Reassemble full letter scrub (covers greeting/sign-off too) with broader anchoring.
-    fullLetter = ensureRoleAnchored(scrubCompany(fullLetter), 3);
+    fullLetter = scrubVague(ensureRoleAnchored(scrubCompany(fullLetter), 3));
 
     const { matched, missing } = jdKeywords.length
       ? findMatches(fullLetter, jdKeywords)
