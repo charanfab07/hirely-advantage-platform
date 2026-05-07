@@ -657,7 +657,7 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       .insert({
         user_id: userId,
         resume_id: resume_id ?? null,
-        company: company.trim(),
+        company: companyName,
         role: role.trim(),
         company_url: safeCompanyUrl,
         company_mission: companyMission ? companyMission.slice(0, 2000) : null,
