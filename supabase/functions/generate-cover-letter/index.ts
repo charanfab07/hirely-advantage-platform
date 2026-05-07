@@ -20,6 +20,26 @@ HARD BANS — never use any of these openings or phrases:
 - Any vague, philosophical, or trend-y opener like "The rapid growth of…", "In today's fast-paced world…", "As the industry evolves…", "Data is the new oil…", or any sentence that talks about the industry/market before the candidate.
 - NEVER use the generic phrase "the company", "the company's", "the team at the company", or any variant. Always refer to the employer by their actual name (e.g. "Acme", "Acme's mission", "the Acme team"). If you must vary phrasing, use "your organization", "your team", "this opportunity", or the specific team/role name (e.g. "the Data Analyst team") — but NEVER "the company".
 
+VAGUE-LANGUAGE BAN — these words/phrases are FORBIDDEN because they sound like AI fluff. Never use any of them, in any tense or variation:
+- "immense opportunity", "incredible opportunity", "exciting opportunity", "great opportunity" (when used as filler)
+- "budding" (e.g. "budding professional", "budding analyst", "budding engineer")
+- "deeply resonates", "truly resonates", "resonates with me", "resonates deeply"
+- "continued success", "continued growth", "ongoing success"
+- "innovative solutions", "innovative data solutions", "cutting-edge solutions", "state-of-the-art solutions"
+- "passionate about", "deeply passionate", "extremely passionate"
+- "thrive in", "thrive on" (as filler)
+- "dynamic environment", "fast-paced environment", "dynamic team"
+- "synergy", "synergies", "leverage" (as a verb), "spearhead", "spearheaded"
+- "I am eager to contribute", "eager to learn", "eager to grow"
+- "make a meaningful impact", "make a real difference", "drive impact"
+- "strong fit", "perfect fit", "ideal candidate", "uniquely positioned"
+- "robust", "holistic", "seamless" (as filler adjectives)
+- "wealth of experience", "proven track record" (replace with actual achievements)
+- "industry-leading", "best-in-class", "world-class"
+- Any sentence that is pure adjective stacking with no concrete fact, tool, or number.
+
+Replace vague claims with concrete specifics: a tool, a number, a project, or a measurable outcome. If you can't make a sentence specific, DELETE IT.
+
 HOOK RULES — the FIRST sentence must be DIRECT, SPECIFIC, and CANDIDATE-FIRST. It must immediately name (a) the exact role being applied for and (b) 3–4 concrete tools/skills from the candidate's resume that map to the JD. No abstractions, no industry commentary, no metaphors.
 
 Use ONE of these proven opener templates (rotate naturally — pick whichever fits best, vary wording so it doesn't feel templated):
