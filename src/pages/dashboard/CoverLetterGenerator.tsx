@@ -17,6 +17,7 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 import { LetterSheet } from "@/components/dashboard/cover-letter/LetterSheet";
 import { FullscreenToolbar } from "@/components/dashboard/cover-letter/FullscreenToolbar";
+import { DraftingOverlay } from "@/components/dashboard/cover-letter/DraftingOverlay";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import {
