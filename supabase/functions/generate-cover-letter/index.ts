@@ -53,17 +53,27 @@ Starting the letter with "I" IS ALLOWED when using templates above. What's banne
 
 ROLE ANCHORING — the exact role title (as provided, e.g. "Junior Data Analyst", "Data Analyst Intern", "Entry-Level Data Analyst", "Business Analyst") MUST appear by name AT LEAST 3 TIMES across the letter — once in the hook, once in alignment or proof, and once in the closing. NEVER substitute "this role", "the role", "this position", or "the position" when you can name the actual title. Vague references like "this role" are only allowed AFTER the title has already been used at least twice in that paragraph.
 
-Structure the letter into FIVE parts and return them BOTH as separate fields and assembled into 'full_letter' (greeting + 4–5 paragraphs + sign-off):
-1. hook            — Direct opener using one of the templates above. 1–2 sentences. Must name the EXACT role title and 3+ concrete skills.
-2. alignment       — Map 2–3 of the candidate's most relevant skills directly to what the JD asks for. 2–4 sentences. Reference the role by name at least once.
-3. proof           — One concrete achievement with a real metric from the resume, framed as relevant to the {ROLE} title. 2–3 sentences.
-4. culture_fit     — A specific reason the candidate fits THIS company's mission/values. Avoid clichés. 2–3 sentences.
-5. closing         — Confident close. MUST reference the exact role title by name (e.g. "I'd welcome the chance to discuss the Junior Data Analyst role further"). 1–2 sentences.
+FORMATTING — the letter must be SCANNABLE (recruiters spend 10–15 seconds). Structure 'full_letter' as 4 short, distinct paragraphs separated by ONE BLANK LINE between each. NEVER produce one wall of text. Each paragraph has a clear job:
+  • Para 1 — Hook/intro (2–3 sentences). Names the exact role + 3–4 concrete skills.
+  • Para 2 — Skills match (3–4 sentences). Map candidate skills directly to JD requirements.
+  • Para 3 — Proof: internship/project/achievement (3–4 sentences) with a real metric.
+  • Para 4 — Close (2–3 sentences). Names the exact role title and signals next step.
+For longer length targets (two_page, three_page) keep the same 4-bucket logic but split paras 2 and 3 into 2–3 paragraphs each. Always preserve blank lines between paragraphs in 'full_letter'.
+
+Return both as separate fields and assembled into 'full_letter' (greeting + paragraphs + sign-off, blank line between each):
+1. hook            — Para 1. Direct opener using one of the templates above. Names exact role title + 3+ concrete skills.
+2. alignment       — Para 2. Map 2–3 of the candidate's most relevant skills directly to JD requirements. Reference the role by name at least once.
+3. proof           — Para 3. One concrete internship/project/achievement with a real metric from the resume, framed for the {ROLE}.
+4. culture_fit     — Optional. Only include as its own block when there's a SPECIFIC, non-generic reason rooted in the company. Otherwise leave brief or fold into para 2/4. NEVER write generic mission-statement filler.
+5. closing         — Para 4. Confident close. MUST reference the exact role title by name.
 
 PERSONALIZATION ENGINE — you will be given: (a) extracted JD keywords, (b) candidate skills from resume, (c) the company mission. You MUST:
 - Naturally weave AT LEAST 70% of the provided "must_use_keywords" into the letter using their exact wording (case-insensitive). Don't list them — embed them.
-- Reference the company mission specifically in 'culture_fit' (paraphrased, not quoted).
+- Reference the company mission specifically only if non-empty AND specific. Otherwise skip culture_fit rather than invent.
 - Only use skills the candidate actually has from their resume.
+- HIGHLIGHT resume-based achievements with real numbers/outcomes — never invent metrics.
+
+COMPANY NAME FALLBACK — if the user did NOT provide a real company name (you'll see "(company name not provided)" in the prompt), NEVER write "the company", "your company", or any placeholder. Instead refer to the employer as "your team", "your organization", or by the specific team/role (e.g. "the Data Analyst team"). Do not fabricate a company name.
 
 Tone parameter changes voice but never breaks the rules:
 - confident: clear, direct, slightly bold
