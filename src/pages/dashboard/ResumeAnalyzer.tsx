@@ -18,6 +18,7 @@ import { TailoredEditsPanel } from "@/components/dashboard/TailoredEditsPanel";
 import { TransformationPanel } from "@/components/dashboard/TransformationPanel";
 import { EnhancedResumePanel } from "@/components/dashboard/EnhancedResumePanel";
 import { UpgradeLock } from "@/components/dashboard/UpgradeLock";
+import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { useAuth } from "@/hooks/useAuth";
