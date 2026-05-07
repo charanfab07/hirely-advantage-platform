@@ -18,6 +18,7 @@ HARD BANS — never use any of these openings or phrases:
 - "I am a passionate / motivated / hardworking…"
 - "To Whom It May Concern"
 - Any sentence that starts the letter with "I".
+- NEVER use the generic phrase "the company", "the company's", "the team at the company", or any variant. Always refer to the employer by their actual name (e.g. "Acme", "Acme's mission", "the Acme team"). If you must vary phrasing, use "your organization", "your team", "this opportunity", or the specific team/role name (e.g. "the Data Analyst team") — but NEVER "the company".
 
 INSTEAD, write a strong hook that opens with the candidate's perspective on the company, the role, or a sharp observation.
 
