@@ -311,7 +311,13 @@ const ResumeAnalyzer = () => {
         <div className="mt-5 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setShowUploader(true)}
+            onClick={() => {
+              if (!ent.can("resume_uploads") || !ent.can("analyses")) {
+                setShowUpgrade(true);
+                return;
+              }
+              setShowUploader(true);
+            }}
             className="px-4 py-2 rounded-full bg-foreground text-background text-[12.5px] font-medium tracking-tight hover:opacity-90 transition-opacity inline-flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5" />
