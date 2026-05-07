@@ -78,7 +78,7 @@ export function useEntitlements(): Entitlements {
     if (!user?.id) return;
     const call = () => refreshRef.current();
     const channel = supabase
-      .channel(`entitlements:${user.id}`)
+      .channel(`entitlements:${user.id}:${Math.random().toString(36).slice(2)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "profiles", filter: `user_id=eq.${user.id}` },
