@@ -306,6 +306,14 @@ function ResultsView({ result }: { result: Result }) {
   const found = result.jd_keywords.filter((k) => k.found_in_resume).length;
   const missing = result.jd_keywords.filter((k) => !k.found_in_resume);
 
+  // Keyword Safety Score — % of suggested keywords backed by real resume evidence.
+  const sugTotal = result.suggestions.length;
+  const sugAdd = result.suggestions.filter((s) => s.recommendation === "add").length;
+  const sugSkip = sugTotal - sugAdd;
+  const safety = sugTotal === 0 ? 100 : Math.round((sugAdd / sugTotal) * 100);
+  const safetyTone: "good" | "warn" | "risk" =
+    safety >= 85 ? "good" : safety >= 60 ? "warn" : "risk";
+
   return (
     <div className="space-y-5">
       {/* Score before/after */}
@@ -326,6 +334,15 @@ function ResultsView({ result }: { result: Result }) {
           <Stat label="Missing" value={`${missing.length}`} />
         </div>
       </SectionCard>
+
+      {/* Keyword Safety Score */}
+      <SafetyCard
+        score={safety}
+        tone={safetyTone}
+        addCount={sugAdd}
+        skipCount={sugSkip}
+        total={sugTotal}
+      />
 
       {/* Keyword grid */}
       <SectionCard>
