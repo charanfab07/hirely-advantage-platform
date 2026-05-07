@@ -497,7 +497,7 @@ const CoverLetterGenerator = () => {
             </div>
           </div>
 
-          <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
+          <div className="relative border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
             <LetterSheet
               doc={doc}
               update={update}
