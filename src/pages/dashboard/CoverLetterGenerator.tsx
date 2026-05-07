@@ -47,6 +47,7 @@ const CoverLetterGenerator = () => {
   const [pages, setPages] = useState<1 | 2 | 3>(1);
   const [generating, setGenerating] = useState(false);
   const [hasLetter, setHasLetter] = useState(false);
+  const [matchScore, setMatchScore] = useState<number | null>(null);
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
