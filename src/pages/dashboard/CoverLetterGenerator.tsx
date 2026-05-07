@@ -154,6 +154,31 @@ const CoverLetterGenerator = () => {
           };
         }
       }
+      // Fallbacks for name/email when resume parsing didn't find them — use the
+      // signed-in user's profile/auth metadata so the letter never starts with
+      // contact details and a missing name.
+      if (!senderFill.senderName) {
+        const meta = (user.user_metadata ?? {}) as Record<string, unknown>;
+        const metaName =
+          (typeof meta.full_name === "string" && meta.full_name) ||
+          (typeof meta.name === "string" && meta.name) ||
+          "";
+        if (metaName) {
+          senderFill.senderName = metaName;
+        } else {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("display_name")
+            .eq("user_id", user.id)
+            .maybeSingle();
+          if (profile?.display_name && !/@/.test(profile.display_name)) {
+            senderFill.senderName = profile.display_name;
+          }
+        }
+      }
+      if (!senderFill.senderEmail && user.email) {
+        senderFill.senderEmail = user.email;
+      }
       const jdParsed = parseJobDescription(jd);
       const companyForRequest = (doc.companyName.trim() || jdParsed.company || "").trim();
       // Extract role from JD using common patterns; fall back to "this role".
