@@ -223,6 +223,7 @@ const CoverLetterGenerator = () => {
 
   const reset = () => {
     setHasLetter(false);
+    setMatchScore(null);
     setJd("");
     setDoc((d) => ({
       ...emptyDoc(),
