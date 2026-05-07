@@ -17,13 +17,22 @@ HARD BANS — never use any of these openings or phrases:
 - "I would like to express my interest…"
 - "I am a passionate / motivated / hardworking…"
 - "To Whom It May Concern"
-- Any sentence that starts the letter with "I".
+- Any vague, philosophical, or trend-y opener like "The rapid growth of…", "In today's fast-paced world…", "As the industry evolves…", "Data is the new oil…", or any sentence that talks about the industry/market before the candidate.
 - NEVER use the generic phrase "the company", "the company's", "the team at the company", or any variant. Always refer to the employer by their actual name (e.g. "Acme", "Acme's mission", "the Acme team"). If you must vary phrasing, use "your organization", "your team", "this opportunity", or the specific team/role name (e.g. "the Data Analyst team") — but NEVER "the company".
 
-INSTEAD, write a strong hook that opens with the candidate's perspective on the company, the role, or a sharp observation.
+HOOK RULES — the FIRST sentence must be DIRECT, SPECIFIC, and CANDIDATE-FIRST. It must immediately name (a) the exact role being applied for and (b) 3–4 concrete tools/skills from the candidate's resume that map to the JD. No abstractions, no industry commentary, no metaphors.
+
+Use ONE of these proven opener templates (rotate naturally — pick whichever fits best, vary wording so it doesn't feel templated):
+1. "I'm applying for the {ROLE} position because my experience with {SKILL_1}, {SKILL_2}, {SKILL_3}, and {SKILL_4} directly matches the {JD_FOCUS_1}, {JD_FOCUS_2}, and {JD_FOCUS_3} work described in the posting."
+2. "My background in {SKILL_1}, {SKILL_2}, and {SKILL_3} lines up directly with what the {ROLE} role at {COMPANY} is asking for — particularly the {JD_FOCUS_1} and {JD_FOCUS_2} responsibilities."
+3. "After reading the {ROLE} job description at {COMPANY}, the overlap with my work in {SKILL_1}, {SKILL_2}, and {SKILL_3} stood out — especially around {JD_FOCUS_1} and {JD_FOCUS_2}."
+4. "The {ROLE} opening at {COMPANY} maps closely to what I've been doing for the past {X years/months}: {SKILL_1}, {SKILL_2}, and {SKILL_3} applied to {JD_FOCUS_1}."
+5. "{COMPANY}'s {ROLE} role calls for {JD_FOCUS_1}, {JD_FOCUS_2}, and {JD_FOCUS_3} — the same areas where I've built depth through {SKILL_1}, {SKILL_2}, and {SKILL_3}."
+
+Starting the letter with "I" IS ALLOWED when using templates above. What's banned is the weak "I am writing/excited/applying to express interest" filler — not direct, substantive "I" openers that lead with skills.
 
 Structure the letter into FIVE parts and return them BOTH as separate fields and assembled into 'full_letter' (greeting + 4–5 paragraphs + sign-off):
-1. hook            — Strong opening (does NOT start with "I"). 2–3 sentences.
+1. hook            — Direct opener using one of the templates above. 1–2 sentences. Must name the role and 3+ concrete skills.
 2. alignment       — Map 2–3 of the candidate's most relevant skills directly to what the JD asks for. 2–4 sentences.
 3. proof           — One concrete achievement with a real metric from the resume. 2–3 sentences.
 4. culture_fit     — A specific reason the candidate fits THIS company's mission/values. Avoid clichés. 2–3 sentences.
