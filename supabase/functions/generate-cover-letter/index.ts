@@ -504,7 +504,17 @@ JD keywords: ${jdKeywords.join(", ") || "(none)"}
 Candidate's real skills: ${resumeSkills.join(", ") || "(none)"}
 must_use_keywords (use ≥70%, exact wording, naturally embedded): ${mustUse.join(", ") || "(none)"}
 
-Now call generate_cover_letter. The hook must NOT start with "I". Respect the length target strictly.`;
+Now call generate_cover_letter. The hook must NOT start with "I". Respect the length target strictly.
+
+STRUCTURE CHECKLIST (must pass before you return):
+[ ] Exactly 4 paragraphs (or 5–7 for two_page / 8–10 for three_page), separated by ONE blank line.
+[ ] Para 1 = Hook. Para 2 = Skills-match (JD ask → my proof pairs). Para 3 = ONE proof story with a number. Para 4 = Close with a specific reason + next step.
+[ ] No paragraph starts with a transition word ("Furthermore", "Moreover", "Additionally") or "I am/I'm a".
+[ ] Every paragraph contains at least one concrete noun from the resume (tool, project, number, employer).
+[ ] Para 2 contains at least 2 explicit JD-requirement → resume-skill pairs.
+[ ] Para 3 names the employer/project and includes a real metric.
+[ ] Para 4 references the exact role title and proposes a concrete next step.
+If any box fails, REWRITE before returning.`;
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
