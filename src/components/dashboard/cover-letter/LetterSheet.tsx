@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import {
   FONT_STACKS,
+  toTitleCaseName,
   type LetterDoc,
   type TypoSettings,
 } from "@/lib/coverLetter/types";
@@ -10,16 +11,23 @@ const EditableLine = ({
   onChange,
   placeholder,
   accentBold,
+  onBlurTransform,
 }: {
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   accentBold?: boolean;
+  onBlurTransform?: (v: string) => string;
 }) => (
   <input
     type="text"
     value={value}
     onChange={(e) => onChange(e.target.value)}
+    onBlur={(e) => {
+      if (!onBlurTransform) return;
+      const next = onBlurTransform(e.target.value);
+      if (next !== e.target.value) onChange(next);
+    }}
     placeholder={placeholder}
     className={cn(
       "block w-full bg-transparent border-0 outline-none px-0 py-0.5 text-foreground placeholder:text-foreground/35 focus:bg-foreground/[0.03] rounded-sm transition-colors",
@@ -98,6 +106,7 @@ export const LetterSheet = ({
         <EditableLine
           value={doc.senderName}
           onChange={(v) => update("senderName", v)}
+          onBlurTransform={toTitleCaseName}
           placeholder="Your full name"
           accentBold
         />
@@ -130,6 +139,7 @@ export const LetterSheet = ({
         <EditableLine
           value={doc.hiringManager}
           onChange={(v) => update("hiringManager", v)}
+          onBlurTransform={toTitleCaseName}
           placeholder="Hiring manager"
         />
         <EditableLine
@@ -181,6 +191,7 @@ export const LetterSheet = ({
         <EditableLine
           value={doc.senderName}
           onChange={(v) => update("senderName", v)}
+          onBlurTransform={toTitleCaseName}
           placeholder="Your full name"
           accentBold
         />

@@ -178,3 +178,45 @@ export function guessSalutation(hiringManager: string) {
   const name = hiringManager.trim();
   return name ? `Dear ${name},` : "Dear Hiring Manager,";
 }
+
+/**
+ * Properly capitalize a person's full name.
+ * - "aarav sharma"        -> "Aarav Sharma"
+ * - "AARAV SHARMA"        -> "Aarav Sharma"
+ * - "mary-jane o'neil"    -> "Mary-Jane O'Neil"
+ * - "john mcdonald"       -> "John McDonald"
+ * - Particles ("de", "van", "von", "del", "della", "la") stay lowercase
+ *   when not the first word.
+ */
+export function toTitleCaseName(input: string): string {
+  if (!input) return "";
+  const trimmed = input.replace(/\s+/g, " ").trim();
+  if (!trimmed) return "";
+  const particles = new Set(["de", "del", "della", "der", "di", "da", "do", "dos", "du", "la", "le", "van", "von", "bin", "ibn", "y"]);
+  const capWord = (w: string) => {
+    if (!w) return w;
+    // Hyphenated parts (Mary-Jane), apostrophes (O'Neil), and "Mc"/"Mac" prefixes.
+    return w
+      .split("-")
+      .map((part) => {
+        const lower = part.toLowerCase();
+        // Keep apostrophe-aware capitalization: O'Neil, D'Angelo
+        const apostropheCapped = lower.replace(/(^|['’])([a-zà-ÿ])/g, (_m, sep, ch) => sep + ch.toUpperCase());
+        // Mc/Mac prefix → capitalize the next letter too (McDonald, MacArthur)
+        return apostropheCapped.replace(/^(mc|mac)([a-zà-ÿ])/i, (_m, pre, ch) => {
+          const fixedPre = pre[0].toUpperCase() + pre.slice(1).toLowerCase();
+          return fixedPre + ch.toUpperCase();
+        });
+      })
+      .join("-");
+  };
+  const words = trimmed.split(" ");
+  return words
+    .map((w, i) => {
+      const lower = w.toLowerCase();
+      if (i > 0 && particles.has(lower)) return lower;
+      return capWord(w);
+    })
+    .join(" ");
+}
+

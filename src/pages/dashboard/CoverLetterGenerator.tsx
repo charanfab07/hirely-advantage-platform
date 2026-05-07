@@ -25,6 +25,7 @@ import {
   extractBody,
   guessSalutation,
   todayLong,
+  toTitleCaseName,
   TONES,
   type LetterDoc,
   type Tone,
@@ -201,12 +202,12 @@ const CoverLetterGenerator = () => {
 
       setDoc((d) => ({
         ...d,
-        senderName: d.senderName || senderFill.senderName,
+        senderName: toTitleCaseName(d.senderName || senderFill.senderName),
         senderEmail: d.senderEmail || senderFill.senderEmail,
         senderPhone: d.senderPhone || senderFill.senderPhone,
         senderLocation: d.senderLocation || senderFill.senderLocation,
         companyName: d.companyName || jdParsed.company || "",
-        hiringManager: d.hiringManager || jdParsed.hiringManager || "",
+        hiringManager: toTitleCaseName(d.hiringManager || jdParsed.hiringManager || ""),
         salutation,
         body,
         signOff: d.signOff || "Sincerely,",
