@@ -109,10 +109,10 @@ const MockupCard = () => {
 
 export const Hero = () => {
   return (
-    <section className="relative pt-24 pb-10 px-4 lg:px-12 overflow-hidden">
-      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-10 lg:gap-8 items-center">
+    <section className="relative pt-32 pb-24 px-4 lg:px-12 overflow-hidden">
+      <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-14 lg:gap-10 items-center">
         {/* Left: copy */}
-        <div className="flex flex-col gap-6 text-center lg:text-left">
+        <div className="flex flex-col gap-9 text-center lg:text-left">
           <Reveal delay={120}>
             <div className="inline-flex items-center gap-2 self-center lg:self-start px-3 py-1.5 rounded-full bg-white/60 backdrop-blur-md border border-foreground/10 text-[11px] font-medium text-foreground/70 tracking-wide uppercase">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -161,7 +161,7 @@ export const Hero = () => {
           </Reveal>
 
           <Reveal delay={480}>
-            <div className="pt-4 mt-1 border-t border-foreground/5 grid sm:grid-cols-3 gap-3 text-left">
+            <div className="pt-6 mt-2 border-t border-foreground/5 grid sm:grid-cols-3 gap-3 text-left">
               <div className="flex items-start gap-2.5">
                 <GraduationCap className="w-4 h-4 mt-0.5 text-foreground/70 shrink-0" />
                 <p className="text-xs text-foreground/65 leading-snug">

@@ -44,22 +44,13 @@ const CoverLetterGenerator = () => {
   const canGenerate = ent.can("cover_letters");
   const [jd, setJd] = useState("");
   const [tone, setTone] = useState<Tone>("confident");
-  const [length, setLength] = useState<"short" | "medium" | "detailed">("medium");
-  const [experienceLevel, setExperienceLevel] = useState<
-    "fresher" | "intern" | "junior" | "experienced"
-  >("junior");
-  const [companyStyle, setCompanyStyle] = useState<"startup" | "corporate" | "formal">(
-    "corporate",
-  );
-  const [avoidGeneric, setAvoidGeneric] = useState(true);
+  const [pages, setPages] = useState<1 | 2 | 3>(1);
   const [generating, setGenerating] = useState(false);
   const [hasLetter, setHasLetter] = useState(false);
   const [doc, setDoc] = useState<LetterDoc>(emptyDoc());
   const [copied, setCopied] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [resumeStrengths, setResumeStrengths] = useState<string[]>([]);
-  const [personalizationScore, setPersonalizationScore] = useState<number | null>(null);
   const [typo, setTypo] = useState<TypoSettings>({
     font: "times",
     fontSize: 14,
@@ -170,10 +161,7 @@ const CoverLetterGenerator = () => {
           company: doc.companyName.trim() || jdParsed.company || "the company",
           role: "this role",
           tone,
-          length,
-          experience_level: experienceLevel,
-          letter_style: companyStyle,
-          avoid_generic: avoidGeneric,
+          length: pages === 3 ? "three_page" : pages === 2 ? "two_page" : "one_page",
           job_description: jd.trim(),
           hiring_manager: doc.hiringManager.trim() || jdParsed.hiringManager || undefined,
           resume_id: resumeId ?? undefined,
@@ -190,17 +178,8 @@ const CoverLetterGenerator = () => {
       if (error) throw new Error(error.message || "Generation failed");
       const errMsg = (data as { error?: string })?.error;
       if (errMsg) throw new Error(errMsg);
-      const payload = data as {
-        letter?: { full_letter?: string };
-        resume_strengths?: string[];
-        personalization_score?: number;
-      };
-      const full = payload?.letter?.full_letter ?? "";
+      const full = (data as { letter?: { full_letter?: string } })?.letter?.full_letter ?? "";
       if (!full) throw new Error("No letter returned");
-      setResumeStrengths(payload.resume_strengths ?? []);
-      setPersonalizationScore(
-        typeof payload.personalization_score === "number" ? payload.personalization_score : null,
-      );
 
       const hiringManager = doc.hiringManager || jdParsed.hiringManager || "";
       const salutation = guessSalutation(hiringManager);
@@ -232,8 +211,6 @@ const CoverLetterGenerator = () => {
   const reset = () => {
     setHasLetter(false);
     setJd("");
-    setResumeStrengths([]);
-    setPersonalizationScore(null);
     setDoc((d) => ({
       ...emptyDoc(),
       senderName: d.senderName,
@@ -376,158 +353,37 @@ const CoverLetterGenerator = () => {
 
             <div>
               <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                Hiring manager <span className="text-foreground/30 normal-case tracking-normal">(optional)</span>
-              </label>
-              <input
-                type="text"
-                value={doc.hiringManager}
-                onChange={(e) => update("hiringManager", e.target.value)}
-                disabled={generating}
-                placeholder="e.g. Priya Sharma"
-                className="mt-1.5 w-full bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg px-3 py-2 text-[13px] text-foreground placeholder:text-foreground/35 outline-none focus:border-foreground/20 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                Letter length
+                Length
               </label>
               <div className="mt-1.5 grid grid-cols-3 gap-1.5">
-                {(
-                  [
-                    { v: "short", label: "Short", hint: "~150 words" },
-                    { v: "medium", label: "Medium", hint: "~250 words" },
-                    { v: "detailed", label: "Detailed", hint: "~330 words" },
-                  ] as const
-                ).map((opt) => (
+                {([1, 2, 3] as const).map((n) => (
                   <button
-                    key={opt.v}
+                    key={n}
                     type="button"
                     disabled={generating}
-                    onClick={() => setLength(opt.v)}
+                    onClick={() => setPages(n)}
                     className={cn(
                       "rounded-lg px-2.5 py-2 text-left transition-colors border",
-                      length === opt.v
+                      pages === n
                         ? "bg-foreground text-background border-foreground"
                         : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
                     )}
                   >
-                    <p className="text-[12.5px] font-medium tracking-tight">{opt.label}</p>
+                    <p className="text-[12.5px] font-medium tracking-tight">
+                      {n === 1 ? "1 page" : n === 2 ? "2 pages" : "3 pages"}
+                    </p>
                     <p
                       className={cn(
                         "text-[11px] tracking-tight",
-                        length === opt.v ? "text-background/60" : "text-foreground/50",
+                        pages === n ? "text-background/60" : "text-foreground/50",
                       )}
                     >
-                      {opt.hint}
+                      {n === 1 ? "~350 words" : n === 2 ? "~700 words" : "~1050 words"}
                     </p>
                   </button>
                 ))}
               </div>
             </div>
-
-            <div>
-              <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                Experience level
-              </label>
-              <div className="mt-1.5 grid grid-cols-4 gap-1.5">
-                {(
-                  [
-                    { v: "fresher", label: "Fresher" },
-                    { v: "intern", label: "Intern" },
-                    { v: "junior", label: "Junior" },
-                    { v: "experienced", label: "Experienced" },
-                  ] as const
-                ).map((opt) => (
-                  <button
-                    key={opt.v}
-                    type="button"
-                    disabled={generating}
-                    onClick={() => setExperienceLevel(opt.v)}
-                    className={cn(
-                      "rounded-lg px-2 py-1.5 text-center transition-colors border text-[12px] font-medium tracking-tight",
-                      experienceLevel === opt.v
-                        ? "bg-foreground text-background border-foreground"
-                        : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
-                    )}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                Company style
-              </label>
-              <div className="mt-1.5 grid grid-cols-3 gap-1.5">
-                {(
-                  [
-                    { v: "startup", label: "Startup", hint: "Punchy, scrappy" },
-                    { v: "corporate", label: "Corporate", hint: "Polished" },
-                    { v: "formal", label: "Formal", hint: "Traditional" },
-                  ] as const
-                ).map((opt) => (
-                  <button
-                    key={opt.v}
-                    type="button"
-                    disabled={generating}
-                    onClick={() => setCompanyStyle(opt.v)}
-                    className={cn(
-                      "rounded-lg px-2.5 py-2 text-left transition-colors border",
-                      companyStyle === opt.v
-                        ? "bg-foreground text-background border-foreground"
-                        : "bg-foreground/[0.03] border-foreground/[0.06] hover:bg-foreground/[0.06]",
-                    )}
-                  >
-                    <p className="text-[12.5px] font-medium tracking-tight">{opt.label}</p>
-                    <p
-                      className={cn(
-                        "text-[11px] tracking-tight",
-                        companyStyle === opt.v ? "text-background/60" : "text-foreground/50",
-                      )}
-                    >
-                      {opt.hint}
-                    </p>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setAvoidGeneric((v) => !v)}
-              disabled={generating}
-              className={cn(
-                "w-full flex items-center justify-between gap-3 rounded-lg border px-3 py-2 text-left transition-colors",
-                avoidGeneric
-                  ? "border-foreground/20 bg-foreground/[0.04]"
-                  : "border-foreground/[0.06] bg-foreground/[0.02] hover:bg-foreground/[0.04]",
-              )}
-            >
-              <div className="min-w-0">
-                <p className="text-[12.5px] font-medium tracking-tight text-foreground">
-                  Avoid generic AI phrases
-                </p>
-                <p className="text-[11px] text-foreground/50 tracking-tight">
-                  Bans "passionate", "team player", "results-driven", and 20+ more.
-                </p>
-              </div>
-              <span
-                className={cn(
-                  "shrink-0 inline-flex h-5 w-9 items-center rounded-full transition-colors",
-                  avoidGeneric ? "bg-foreground" : "bg-foreground/15",
-                )}
-              >
-                <span
-                  className={cn(
-                    "h-4 w-4 rounded-full bg-background shadow transition-transform",
-                    avoidGeneric ? "translate-x-4" : "translate-x-0.5",
-                  )}
-                />
-              </span>
-            </button>
 
             {ent.plan === "pro" && (
               <div className="flex items-center justify-between gap-2 rounded-lg bg-foreground/[0.03] border border-foreground/[0.06] px-3 py-1.5 text-[11.5px] tracking-tight text-foreground/65">
@@ -608,70 +464,6 @@ const CoverLetterGenerator = () => {
               )}
             </div>
           </div>
-
-          {hasLetter && (personalizationScore !== null || resumeStrengths.length > 0) && (
-            <div className="border-t border-foreground/[0.06] px-5 sm:px-6 py-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-              {personalizationScore !== null && (
-                <div className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.02] p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                      Personalization score
-                    </p>
-                    <p
-                      className={cn(
-                        "text-[13px] font-semibold tracking-tight",
-                        personalizationScore >= 75
-                          ? "text-emerald-600"
-                          : personalizationScore >= 50
-                            ? "text-foreground"
-                            : "text-amber-600",
-                      )}
-                    >
-                      {personalizationScore}/100
-                    </p>
-                  </div>
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-foreground/[0.08] overflow-hidden">
-                    <div
-                      className={cn(
-                        "h-full rounded-full transition-all",
-                        personalizationScore >= 75
-                          ? "bg-emerald-500"
-                          : personalizationScore >= 50
-                            ? "bg-foreground/70"
-                            : "bg-amber-500",
-                      )}
-                      style={{ width: `${personalizationScore}%` }}
-                    />
-                  </div>
-                  <p className="mt-1.5 text-[11px] text-foreground/50 tracking-tight">
-                    {personalizationScore >= 75
-                      ? "Strong fit — JD keywords, mission, and your strengths are woven in."
-                      : personalizationScore >= 50
-                        ? "Decent — try adding a hiring manager name or company URL for more lift."
-                        : "Generic — paste a richer JD or upload a resume to personalize further."}
-                  </p>
-                </div>
-              )}
-              {resumeStrengths.length > 0 && (
-                <div className="rounded-lg border border-foreground/[0.08] bg-foreground/[0.02] p-3">
-                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                    Resume strengths detected
-                  </p>
-                  <ul className="mt-2 space-y-1">
-                    {resumeStrengths.map((s, i) => (
-                      <li
-                        key={i}
-                        className="text-[12px] text-foreground/75 tracking-tight leading-snug flex gap-2"
-                      >
-                        <span className="text-foreground/35 shrink-0">•</span>
-                        <span>{s}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
 
           <div className="border-t border-foreground/[0.06] bg-foreground/[0.015] p-3 sm:p-4">
             <LetterSheet

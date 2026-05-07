@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText, Lightbulb, ListOrdered } from "lucide-react";
+import { Mic, Sparkles, Loader2, Copy, Check, Trash2, Shuffle, Wand2, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import MockInterviewPanel from "@/components/dashboard/MockInterviewPanel";
 import { ResumeUploadCard } from "@/components/dashboard/ResumeUploadCard";
 import { toast } from "sonner";
@@ -14,8 +14,6 @@ import { cn } from "@/lib/utils";
 
 type QuestionType = "behavioral" | "technical" | "case" | "general";
 type GenerableType = "behavioral" | "technical" | "case";
-type RoundType = "hr" | "technical" | "manager" | "case";
-type Difficulty = "easy" | "medium" | "hard";
 
 type GeneratedQuestion = {
   id: string;
@@ -63,19 +61,6 @@ const QUESTION_TYPES: { type: GenerableType; label: string }[] = [
   { type: "case", label: "Case / PM" },
 ];
 
-const ROUND_TYPES: { value: RoundType; label: string }[] = [
-  { value: "hr", label: "HR" },
-  { value: "technical", label: "Technical" },
-  { value: "manager", label: "Manager" },
-  { value: "case", label: "Case" },
-];
-
-const DIFFICULTIES: { value: Difficulty; label: string }[] = [
-  { value: "easy", label: "Easy" },
-  { value: "medium", label: "Medium" },
-  { value: "hard", label: "Hard" },
-];
-
 const tabs = [
   { value: "practice", label: "Practice" },
   { value: "mock", label: "Mock interview" },
@@ -99,8 +84,6 @@ const InterviewPrep = () => {
 
   // form
   const [qType, setQType] = useState<GenerableType>("behavioral");
-  const [roundType, setRoundType] = useState<RoundType>("hr");
-  const [difficulty, setDifficulty] = useState<Difficulty>("medium");
   const [question, setQuestion] = useState<string>("");
   const [questionMeta, setQuestionMeta] = useState<{ rationale: string | null; focus_area: string | null; difficulty: string | null } | null>(null);
   const [answer, setAnswer] = useState("");
@@ -193,8 +176,6 @@ const InterviewPrep = () => {
           body: {
             resume_id: resumeId,
             question_type: type,
-            round_type: roundType,
-            difficulty,
             target_role: targetRole.trim() || undefined,
             count: 1,
           },
@@ -408,53 +389,6 @@ const InterviewPrep = () => {
                 </div>
               </div>
 
-              <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                    Round
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {ROUND_TYPES.map((r) => (
-                      <button
-                        key={r.value}
-                        type="button"
-                        onClick={() => setRoundType(r.value)}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight transition-colors border",
-                          roundType === r.value
-                            ? "bg-foreground text-background border-foreground"
-                            : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
-                        )}
-                      >
-                        {r.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
-                    Difficulty
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    {DIFFICULTIES.map((d) => (
-                      <button
-                        key={d.value}
-                        type="button"
-                        onClick={() => setDifficulty(d.value)}
-                        className={cn(
-                          "px-3 py-1.5 rounded-full text-[12px] font-medium tracking-tight transition-colors border",
-                          difficulty === d.value
-                            ? "bg-foreground text-background border-foreground"
-                            : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/70 hover:bg-foreground/[0.06]",
-                        )}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
               <div className="mt-5">
                 <label className="text-[10.5px] tracking-[0.18em] uppercase text-foreground/45 font-medium">
                   Target role (optional)
@@ -543,56 +477,6 @@ const InterviewPrep = () => {
                 </button>
               </div>
 
-              {/* Round + Difficulty — auto-regenerate when changed */}
-              <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                <span className="text-[10px] tracking-[0.18em] uppercase text-foreground/40 font-medium">Round</span>
-                <div className="flex flex-wrap gap-1">
-                  {ROUND_TYPES.map((r) => (
-                    <button
-                      key={r.value}
-                      type="button"
-                      onClick={async () => {
-                        if (r.value === roundType) return;
-                        setRoundType(r.value);
-                        if (resumeId) await generateQuestion(qType);
-                      }}
-                      disabled={analyzing || generatingQ}
-                      className={cn(
-                        "px-2 py-0.5 rounded-full text-[11px] font-medium tracking-tight transition-colors border",
-                        roundType === r.value
-                          ? "bg-foreground text-background border-foreground"
-                          : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/65 hover:bg-foreground/[0.06]",
-                      )}
-                    >
-                      {r.label}
-                    </button>
-                  ))}
-                </div>
-                <span className="text-[10px] tracking-[0.18em] uppercase text-foreground/40 font-medium ml-1">Difficulty</span>
-                <div className="flex flex-wrap gap-1">
-                  {DIFFICULTIES.map((d) => (
-                    <button
-                      key={d.value}
-                      type="button"
-                      onClick={async () => {
-                        if (d.value === difficulty) return;
-                        setDifficulty(d.value);
-                        if (resumeId) await generateQuestion(qType);
-                      }}
-                      disabled={analyzing || generatingQ}
-                      className={cn(
-                        "px-2 py-0.5 rounded-full text-[11px] font-medium tracking-tight transition-colors border",
-                        difficulty === d.value
-                          ? "bg-foreground text-background border-foreground"
-                          : "bg-foreground/[0.03] border-foreground/[0.06] text-foreground/65 hover:bg-foreground/[0.06]",
-                      )}
-                    >
-                      {d.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <textarea
                 ref={questionRef}
                 value={generatingQ && !question ? "" : question}
@@ -615,7 +499,7 @@ const InterviewPrep = () => {
                 </div>
               )}
 
-              {questionMeta && (questionMeta.focus_area || questionMeta.difficulty) && (
+              {questionMeta && (questionMeta.focus_area || questionMeta.difficulty || questionMeta.rationale) && (
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   {questionMeta.focus_area && (
                     <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight">
@@ -627,25 +511,11 @@ const InterviewPrep = () => {
                       {questionMeta.difficulty}
                     </span>
                   )}
-                  <span className="px-2 py-0.5 rounded-full bg-foreground/[0.05] text-foreground/65 text-[10.5px] tracking-tight capitalize">
-                    {roundType} round
-                  </span>
-                </div>
-              )}
-
-              {questionMeta?.rationale && (
-                <div className="mt-3 rounded-lg border border-primary/20 bg-primary/[0.04] px-3.5 py-2.5 flex items-start gap-2.5">
-                  <span className="mt-0.5 size-6 rounded-md bg-primary/10 grid place-items-center shrink-0">
-                    <Lightbulb className="w-3.5 h-3.5 text-primary" />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[10.5px] tracking-[0.18em] uppercase text-primary/80 font-semibold">
-                      Why this question?
-                    </p>
-                    <p className="mt-1 text-[12.5px] text-foreground/80 tracking-tight leading-snug">
-                      {questionMeta.rationale}
-                    </p>
-                  </div>
+                  {questionMeta.rationale && (
+                    <span className="text-[11px] text-foreground/55 tracking-tight leading-snug w-full mt-1">
+                      Why this: {questionMeta.rationale}
+                    </span>
+                  )}
                 </div>
               )}
             </div>
@@ -852,9 +722,9 @@ const AnalysisView = ({
     { label: "Length", value: analysis.length_score },
   ];
 
-  // Local override of the improved answer so restyle buttons can update in place.
+  // Local override of the improved answer so "Make shorter / more confident" can update in place.
   const [improved, setImproved] = useState<string | null>(analysis.improved_answer ?? null);
-  const [styleLoading, setStyleLoading] = useState<null | "shorter" | "confident" | "star">(null);
+  const [styleLoading, setStyleLoading] = useState<null | "shorter" | "confident">(null);
 
   // Reset when analysis changes.
   useEffect(() => {
@@ -862,7 +732,7 @@ const AnalysisView = ({
     setStyleLoading(null);
   }, [analysis.id, analysis.improved_answer]);
 
-  const restyle = async (style: "shorter" | "confident" | "star") => {
+  const restyle = async (style: "shorter" | "confident") => {
     if (!improved) return;
     setStyleLoading(style);
     try {
@@ -875,13 +745,7 @@ const AnalysisView = ({
       const next = (data as { answer?: string }).answer;
       if (!next) throw new Error("No rewrite returned");
       setImproved(next);
-      toast.success(
-        style === "shorter"
-          ? "Tightened up."
-          : style === "confident"
-            ? "More confident tone."
-            : "Restructured in STAR format.",
-      );
+      toast.success(style === "shorter" ? "Tightened up." : "More confident tone.");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't rewrite");
     } finally {
@@ -1009,19 +873,6 @@ const AnalysisView = ({
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : null}
               More confident
-            </button>
-            <button
-              type="button"
-              onClick={() => restyle("star")}
-              disabled={!!styleLoading}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/[0.08] hover:bg-foreground/[0.05] text-foreground/75 text-[11.5px] font-medium tracking-tight transition-colors disabled:opacity-50"
-            >
-              {styleLoading === "star" ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <ListOrdered className="w-3 h-3" />
-              )}
-              Use STAR
             </button>
 
             <button
