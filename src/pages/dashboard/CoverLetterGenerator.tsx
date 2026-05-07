@@ -417,6 +417,7 @@ const CoverLetterGenerator = () => {
                   generating || jd.trim().length < 40
                     ? "bg-foreground/10 text-foreground/40 cursor-not-allowed"
                     : "bg-foreground text-background hover:bg-foreground/90",
+                  generating && "shine-button",
                 )}
               >
                 {generating ? (
