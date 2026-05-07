@@ -121,6 +121,7 @@ const ResumeAnalyzer = () => {
   const [loading, setLoading] = useState(true);
   const [latestCached, setLatestCached] = useState(false);
   const [reanalyzing, setReanalyzing] = useState(false);
+  const [showUploader, setShowUploader] = useState(false);
 
   const latest = analyses[0];
 
