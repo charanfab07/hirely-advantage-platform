@@ -25,6 +25,7 @@ import {
   extractBody,
   guessSalutation,
   todayLong,
+  toTitleCaseName,
   TONES,
   type LetterDoc,
   type Tone,
