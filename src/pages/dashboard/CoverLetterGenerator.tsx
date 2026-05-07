@@ -186,8 +186,12 @@ const CoverLetterGenerator = () => {
       if (error) throw new Error(error.message || "Generation failed");
       const errMsg = (data as { error?: string })?.error;
       if (errMsg) throw new Error(errMsg);
-      const full = (data as { letter?: { full_letter?: string } })?.letter?.full_letter ?? "";
+      const letterPayload = (data as {
+        letter?: { full_letter?: string; match_score?: number | null };
+      })?.letter;
+      const full = letterPayload?.full_letter ?? "";
       if (!full) throw new Error("No letter returned");
+      setMatchScore(typeof letterPayload?.match_score === "number" ? letterPayload.match_score : null);
 
       const hiringManager = doc.hiringManager || jdParsed.hiringManager || "";
       const salutation = guessSalutation(hiringManager);
