@@ -307,7 +307,7 @@ Deno.serve(async (req) => {
     if (!gate.ok) return json({ error: gate.error, plan: gate.plan, upgrade_required: true, code: "OVER_QUOTA", feature: "cover_letters" }, gate.status);
 
     const body = await req.json();
-    const {
+    let {
       company,
       role,
       job_description,
