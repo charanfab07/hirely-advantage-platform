@@ -878,6 +878,13 @@ const ResumeAnalyzer = () => {
         lastSync={latest?.created_at}
         analysesCount={analyses.length}
       />
+
+      <UpgradePlanDialog
+        open={showUpgrade}
+        onOpenChange={setShowUpgrade}
+        currentPlan={ent.plan}
+        feature={!ent.can("analyses") ? "analyses" : "resume_uploads"}
+      />
     </div>
   );
 };
