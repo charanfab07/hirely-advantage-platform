@@ -8,11 +8,11 @@ export const FinalCTA = () => {
         <Reveal>
           <div className="glass-strong rounded-[2rem] p-10 md:p-16 text-center relative overflow-hidden">
             <h2 className="font-display text-4xl md:text-6xl font-semibold text-foreground leading-[1.05]">
-              Get a clearer picture of your <span className="text-gradient">resume in minutes.</span>
+              Your next role is <span className="text-gradient">closer than you think.</span>
             </h2>
             <p className="mt-6 text-lg text-foreground/65 max-w-xl mx-auto">
-              Upload your resume, pick a target role, and see your AI-generated ATS score,
-              missing keywords, and rewrite suggestions. Free to try — no credit card.
+              Start with a free Market Readiness Score. No credit card. Real, actionable rewrites in
+              under 60 seconds.
             </p>
 
             <form
@@ -37,7 +37,7 @@ export const FinalCTA = () => {
             </form>
 
             <p className="mt-6 text-xs text-foreground/45">
-              Beta · Resume scores are AI-generated · Always verify final claims before applying
+              Free forever for analysis · Premium plans from $19/mo
             </p>
           </div>
         </Reveal>
