@@ -670,15 +670,16 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       return out;
     };
 
-    const scrub = (text: string, minRole = 1) => scrubVague(ensureRoleAnchored(scrubCompany(text), minRole));
+    const scrub = (text: string, minRole = 1) =>
+      fixRoleArtifacts(scrubVague(ensureRoleAnchored(scrubCompany(text), minRole)));
 
     parsed.hook = scrub(parsed.hook ?? "", 1);
     parsed.alignment = scrub(parsed.alignment ?? "", 1);
     parsed.proof = scrub(parsed.proof ?? "", 1);
-    parsed.culture_fit = scrubVague(scrubCompany(parsed.culture_fit ?? ""));
+    parsed.culture_fit = fixRoleArtifacts(scrubVague(scrubCompany(parsed.culture_fit ?? "")));
     parsed.closing = scrub(parsed.closing ?? "", 1);
     // Reassemble full letter scrub (covers greeting/sign-off too) with broader anchoring.
-    fullLetter = scrubVague(ensureRoleAnchored(scrubCompany(fullLetter), 3));
+    fullLetter = fixRoleArtifacts(scrubVague(ensureRoleAnchored(scrubCompany(fullLetter), 3)));
 
     // Normalize paragraph spacing: collapse 3+ newlines, ensure double-newline between paragraphs.
     fullLetter = fullLetter.replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
