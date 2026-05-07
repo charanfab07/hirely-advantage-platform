@@ -557,15 +557,67 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
       });
     };
 
-    const scrub = (text: string, minRole = 1) => ensureRoleAnchored(scrubCompany(text), minRole);
+    // Vague-language scrubber: rewrite filler phrases into more concrete language.
+    const scrubVague = (text: string) => {
+      if (!text) return text;
+      const replacements: Array<[RegExp, string]> = [
+        [/\bimmense opportunity\b/gi, "opportunity"],
+        [/\bincredible opportunity\b/gi, "opportunity"],
+        [/\bexciting opportunity\b/gi, "opportunity"],
+        [/\bgreat opportunity\b/gi, "opportunity"],
+        [/\bbudding (data professional|professional|analyst|engineer|developer|designer)\b/gi, "$1"],
+        [/\b(deeply|truly) resonates with me\b/gi, "matches my focus"],
+        [/\b(deeply|truly) resonates\b/gi, "matches my focus"],
+        [/\bresonates with me\b/gi, "matches my focus"],
+        [/\bresonates deeply\b/gi, "matches my focus"],
+        [/\bcontinued success\b/gi, "next stage of growth"],
+        [/\bcontinued growth\b/gi, "next stage of growth"],
+        [/\bongoing success\b/gi, "next stage of growth"],
+        [/\binnovative data solutions\b/gi, "data work"],
+        [/\binnovative solutions\b/gi, "the work"],
+        [/\bcutting-edge solutions\b/gi, "the work"],
+        [/\bstate-of-the-art solutions\b/gi, "the work"],
+        [/\b(deeply|extremely|truly) passionate about\b/gi, "focused on"],
+        [/\bpassionate about\b/gi, "focused on"],
+        [/\bdynamic (environment|team)\b/gi, "$1"],
+        [/\bfast-paced environment\b/gi, "environment"],
+        [/\bsynergies\b/gi, "overlap"],
+        [/\bsynergy\b/gi, "overlap"],
+        [/\bleverage\b/gi, "use"],
+        [/\bspearheaded\b/gi, "led"],
+        [/\bspearhead\b/gi, "lead"],
+        [/\bI am eager to contribute\b/gi, "I want to contribute"],
+        [/\beager to learn and grow\b/gi, "ready to take on the work"],
+        [/\beager to (learn|grow|contribute)\b/gi, "ready to $1"],
+        [/\bmake a meaningful impact\b/gi, "deliver measurable results"],
+        [/\bmake a real difference\b/gi, "deliver measurable results"],
+        [/\bstrong fit\b/gi, "match"],
+        [/\bperfect fit\b/gi, "match"],
+        [/\bideal candidate\b/gi, "candidate"],
+        [/\buniquely positioned\b/gi, "positioned"],
+        [/\b(robust|holistic|seamless) /gi, ""],
+        [/\bwealth of experience\b/gi, "experience"],
+        [/\bproven track record\b/gi, "track record"],
+        [/\bindustry-leading\b/gi, ""],
+        [/\bbest-in-class\b/gi, ""],
+        [/\bworld-class\b/gi, ""],
+      ];
+      let out = text;
+      for (const [re, rep] of replacements) out = out.replace(re, rep);
+      // Collapse double spaces produced by deletions and tidy spacing before punctuation.
+      out = out.replace(/ {2,}/g, " ").replace(/ ([,.;:!?])/g, "$1");
+      return out;
+    };
+
+    const scrub = (text: string, minRole = 1) => scrubVague(ensureRoleAnchored(scrubCompany(text), minRole));
 
     parsed.hook = scrub(parsed.hook ?? "", 1);
     parsed.alignment = scrub(parsed.alignment ?? "", 1);
     parsed.proof = scrub(parsed.proof ?? "", 1);
-    parsed.culture_fit = scrubCompany(parsed.culture_fit ?? "");
+    parsed.culture_fit = scrubVague(scrubCompany(parsed.culture_fit ?? ""));
     parsed.closing = scrub(parsed.closing ?? "", 1);
     // Reassemble full letter scrub (covers greeting/sign-off too) with broader anchoring.
-    fullLetter = ensureRoleAnchored(scrubCompany(fullLetter), 3);
+    fullLetter = scrubVague(ensureRoleAnchored(scrubCompany(fullLetter), 3));
 
     const { matched, missing } = jdKeywords.length
       ? findMatches(fullLetter, jdKeywords)
