@@ -513,18 +513,39 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
     // ---- Personalization step 4: compute keyword coverage of the final letter ----
     let fullLetter: string = parsed.full_letter ?? "";
     const companyName = company.trim();
+    const roleTitle = role.trim();
     // Safety net: scrub any "the company" phrasing the model slipped through.
-    const scrub = (text: string) => text
+    const scrubCompany = (text: string) => text
       .replace(/\bthe team at the company\b/gi, `the ${companyName} team`)
       .replace(/\bteam at the company\b/gi, `${companyName} team`)
       .replace(/\bthe company['’]s\b/gi, `${companyName}'s`)
       .replace(/\bthe company\b/gi, companyName);
-    fullLetter = scrub(fullLetter);
-    parsed.hook = scrub(parsed.hook ?? "");
-    parsed.alignment = scrub(parsed.alignment ?? "");
-    parsed.proof = scrub(parsed.proof ?? "");
-    parsed.culture_fit = scrub(parsed.culture_fit ?? "");
-    parsed.closing = scrub(parsed.closing ?? "");
+
+    // Role anchoring: ensure the exact role title appears enough times.
+    // Replace generic "this role / the role / this position / the position"
+    // with the real title until we hit a healthy count, then leave the rest.
+    const ensureRoleAnchored = (text: string, minOccurrences = 2) => {
+      if (!roleTitle) return text;
+      const titleRe = new RegExp(`\\b${roleTitle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "gi");
+      let current = (text.match(titleRe) ?? []).length;
+      const generics = /\b(?:this|the)\s+(?:role|position|opening|opportunity)\b/gi;
+      return text.replace(generics, (match) => {
+        if (current >= minOccurrences) return match;
+        current += 1;
+        // Preserve leading capitalization of the matched phrase.
+        return /^[A-Z]/.test(match) ? roleTitle : roleTitle;
+      });
+    };
+
+    const scrub = (text: string, minRole = 1) => ensureRoleAnchored(scrubCompany(text), minRole);
+
+    parsed.hook = scrub(parsed.hook ?? "", 1);
+    parsed.alignment = scrub(parsed.alignment ?? "", 1);
+    parsed.proof = scrub(parsed.proof ?? "", 1);
+    parsed.culture_fit = scrubCompany(parsed.culture_fit ?? "");
+    parsed.closing = scrub(parsed.closing ?? "", 1);
+    // Reassemble full letter scrub (covers greeting/sign-off too) with broader anchoring.
+    fullLetter = ensureRoleAnchored(scrubCompany(fullLetter), 3);
 
     const { matched, missing } = jdKeywords.length
       ? findMatches(fullLetter, jdKeywords)
