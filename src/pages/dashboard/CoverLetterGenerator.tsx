@@ -130,11 +130,8 @@ const CoverLetterGenerator = () => {
     setGenerating(true);
     try {
       let senderFill = {
-        senderName:
-          (user.user_metadata?.full_name as string | undefined) ||
-          (user.user_metadata?.name as string | undefined) ||
-          "",
-        senderEmail: user.email || "",
+        senderName: "",
+        senderEmail: "",
         senderPhone: "",
         senderLocation: "",
       };
@@ -147,8 +144,8 @@ const CoverLetterGenerator = () => {
         if (resumeRow?.raw_text) {
           const parsed = parseResumeContact(resumeRow.raw_text);
           senderFill = {
-            senderName: senderFill.senderName || parsed.name || "",
-            senderEmail: senderFill.senderEmail || parsed.email || "",
+            senderName: parsed.name || "",
+            senderEmail: parsed.email || "",
             senderPhone: parsed.phone || "",
             senderLocation: parsed.location || "",
           };
