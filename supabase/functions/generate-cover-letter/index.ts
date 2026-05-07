@@ -642,6 +642,9 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
     // Reassemble full letter scrub (covers greeting/sign-off too) with broader anchoring.
     fullLetter = scrubVague(ensureRoleAnchored(scrubCompany(fullLetter), 3));
 
+    // Normalize paragraph spacing: collapse 3+ newlines, ensure double-newline between paragraphs.
+    fullLetter = fullLetter.replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+
     const { matched, missing } = jdKeywords.length
       ? findMatches(fullLetter, jdKeywords)
       : { matched: [] as string[], missing: [] as string[] };
