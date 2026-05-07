@@ -28,11 +28,7 @@ export function parseResumeContact(raw: string): {
     if (words.length < 2 || words.length > 5) continue;
     const ok = words.every((w) => /^[A-Za-zÀ-ÿ'’.\-]{1,}$/.test(w));
     if (!ok) continue;
-    name = words
-      .map((w) =>
-        w.length <= 2 ? w : w[0].toUpperCase() + w.slice(1).toLowerCase(),
-      )
-      .join(" ");
+    name = toTitleCaseName(words.join(" "));
     break;
   }
 
