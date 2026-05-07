@@ -153,7 +153,16 @@ const CoverLetterGenerator = () => {
       }
       const jdParsed = parseJobDescription(jd);
       const companyForRequest = (doc.companyName.trim() || jdParsed.company || "").trim();
-      const roleForRequest = (jdParsed.role || "this role").trim();
+      // Extract role from JD using common patterns; fall back to "this role".
+      const roleFromJd =
+        jd.match(/\b(?:hiring|seeking|looking for|recruiting|the position of|role of|position:|title:)\s+(?:a |an |our )?([A-Z][A-Za-z0-9 /+\-]{2,60}?)(?:\s+(?:to|who|with|at|in|for|role|position)\b|[.\n])/)
+          ?.[1]
+          ?.trim() ||
+        jd.split("\n").map((l) => l.trim()).find((l) =>
+          /^[A-Z][A-Za-z0-9 /+\-]{2,60}$/.test(l) &&
+          /(engineer|developer|analyst|manager|designer|scientist|intern|consultant|architect|lead|director|specialist|associate)/i.test(l),
+        );
+      const roleForRequest = (roleFromJd || "this role").trim();
 
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
         body: {
