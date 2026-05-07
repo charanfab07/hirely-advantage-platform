@@ -542,14 +542,28 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
 
     // ---- Personalization step 4: compute keyword coverage of the final letter ----
     let fullLetter: string = parsed.full_letter ?? "";
-    const companyName = company.trim();
     const roleTitle = role.trim();
-    // Safety net: scrub any "the company" phrasing the model slipped through.
-    const scrubCompany = (text: string) => text
-      .replace(/\bthe team at the company\b/gi, `the ${companyName} team`)
-      .replace(/\bteam at the company\b/gi, `${companyName} team`)
-      .replace(/\bthe company['’]s\b/gi, `${companyName}'s`)
-      .replace(/\bthe company\b/gi, companyName);
+    // Safety net: scrub any "the company" / placeholder phrasing the model slipped through.
+    // If we have a real company name, replace with it; otherwise replace with neutral phrasing.
+    const scrubCompany = (text: string) => {
+      if (hasCompany) {
+        return text
+          .replace(/\bthe team at the company\b/gi, `the ${companyName} team`)
+          .replace(/\bteam at the company\b/gi, `${companyName} team`)
+          .replace(/\bthe company['’]s\b/gi, `${companyName}'s`)
+          .replace(/\bthe company\b/gi, companyName)
+          .replace(/\byour company['’]s\b/gi, `${companyName}'s`)
+          .replace(/\byour company\b/gi, companyName);
+      }
+      return text
+        .replace(/\bthe team at the company\b/gi, "your team")
+        .replace(/\bteam at the company\b/gi, "your team")
+        .replace(/\bthe company['’]s\b/gi, "your team's")
+        .replace(/\bthe company\b/gi, "your team")
+        .replace(/\byour company['’]s\b/gi, "your team's")
+        .replace(/\byour company\b/gi, "your team");
+    };
+    const companyName = hasCompany ? rawCompany : "";
 
     // Role anchoring: ensure the exact role title appears enough times.
     // Replace generic "this role / the role / this position / the position"
