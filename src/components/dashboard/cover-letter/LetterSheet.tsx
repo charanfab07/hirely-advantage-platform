@@ -94,67 +94,6 @@ export const LetterSheet = ({
       )}
       style={sheetStyle}
     >
-      <div>
-        <EditableLine
-          value={doc.senderName}
-          onChange={(v) => update("senderName", v)}
-          placeholder="Your full name"
-          accentBold
-        />
-        <EditableLine
-          value={doc.senderEmail}
-          onChange={(v) => update("senderEmail", v)}
-          placeholder="you@email.com"
-        />
-        <EditableLine
-          value={doc.senderPhone}
-          onChange={(v) => update("senderPhone", v)}
-          placeholder="Phone"
-        />
-        <EditableLine
-          value={doc.senderLocation}
-          onChange={(v) => update("senderLocation", v)}
-          placeholder="City, Country"
-        />
-      </div>
-
-      <div className="mt-3">
-        <EditableLine
-          value={doc.date}
-          onChange={(v) => update("date", v)}
-          placeholder="Date"
-        />
-      </div>
-
-      <div className="mt-3">
-        <EditableLine
-          value={doc.hiringManager}
-          onChange={(v) => update("hiringManager", v)}
-          placeholder="Hiring manager"
-        />
-        <EditableLine
-          value={doc.companyName}
-          onChange={(v) => update("companyName", v)}
-          placeholder="Company name"
-          accentBold
-        />
-        <EditableLine
-          value={doc.companyAddress}
-          onChange={(v) => update("companyAddress", v)}
-          placeholder="Company address"
-        />
-      </div>
-
-      <div className="mt-3">
-        <EditableLine
-          value={doc.salutation}
-          onChange={(v) => update("salutation", v)}
-          placeholder={
-            doc.hiringManager ? `Dear ${doc.hiringManager},` : "Dear Hiring Manager,"
-          }
-        />
-      </div>
-
       <textarea
         value={doc.body}
         onChange={(e) => update("body", e.target.value)}
@@ -162,29 +101,14 @@ export const LetterSheet = ({
         placeholder={
           hasLetter
             ? ""
-            : "Your generated letter body will appear here.\n\nEach paragraph is separated by a blank line. Click Generate after pasting the JD."
+            : "Your generated letter will appear here.\n\nPaste a job description on the left, then click Generate."
         }
-        className="mt-3 w-full bg-transparent border-0 outline-none resize-none text-foreground placeholder:text-foreground/35"
+        className="w-full bg-transparent border-0 outline-none resize-none text-foreground placeholder:text-foreground/35"
         style={{
           ...sheetStyle,
-          minHeight: hasLetter ? undefined : compact ? 110 : 360,
+          minHeight: hasLetter ? undefined : compact ? 240 : 480,
         }}
       />
-
-      <div className="mt-2">
-        <EditableLine
-          value={doc.signOff}
-          onChange={(v) => update("signOff", v)}
-          placeholder="Sincerely,"
-        />
-        <div className="h-3" />
-        <EditableLine
-          value={doc.senderName}
-          onChange={(v) => update("senderName", v)}
-          placeholder="Your full name"
-          accentBold
-        />
-      </div>
     </div>
   );
 };
