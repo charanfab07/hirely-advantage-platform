@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -62,6 +62,11 @@ export function useEntitlements(): Entitlements {
     setLoading(false);
   }, [user?.id]);
 
+  const refreshRef = useRef(refresh);
+  useEffect(() => {
+    refreshRef.current = refresh;
+  }, [refresh]);
+
   useEffect(() => {
     refresh();
   }, [refresh]);
@@ -71,24 +76,25 @@ export function useEntitlements(): Entitlements {
   // edge-function callers can dispatch right after they know usage changed.
   useEffect(() => {
     if (!user?.id) return;
+    const call = () => refreshRef.current();
     const channel = supabase
       .channel(`entitlements:${user.id}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "profiles", filter: `user_id=eq.${user.id}` },
-        () => refresh(),
+        call,
       )
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "usage_counters", filter: `user_id=eq.${user.id}` },
-        () => refresh(),
+        call,
       )
       .subscribe();
 
-    const onLocal = () => refresh();
+    const onLocal = () => call();
     window.addEventListener("entitlements:refresh", onLocal);
     const onVisible = () => {
-      if (document.visibilityState === "visible") refresh();
+      if (document.visibilityState === "visible") call();
     };
     document.addEventListener("visibilitychange", onVisible);
 
@@ -97,7 +103,7 @@ export function useEntitlements(): Entitlements {
       window.removeEventListener("entitlements:refresh", onLocal);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [user?.id, refresh]);
+  }, [user?.id]);
 
   return {
     plan,
