@@ -66,6 +66,39 @@ export function useEntitlements(): Entitlements {
     refresh();
   }, [refresh]);
 
+  // Realtime: react instantly to plan upgrades or usage increments without
+  // requiring a page refresh. Also listen for a same-tab custom event that
+  // edge-function callers can dispatch right after they know usage changed.
+  useEffect(() => {
+    if (!user?.id) return;
+    const channel = supabase
+      .channel(`entitlements:${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "profiles", filter: `user_id=eq.${user.id}` },
+        () => refresh(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "usage_counters", filter: `user_id=eq.${user.id}` },
+        () => refresh(),
+      )
+      .subscribe();
+
+    const onLocal = () => refresh();
+    window.addEventListener("entitlements:refresh", onLocal);
+    const onVisible = () => {
+      if (document.visibilityState === "visible") refresh();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener("entitlements:refresh", onLocal);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [user?.id, refresh]);
+
   return {
     plan,
     usage,
