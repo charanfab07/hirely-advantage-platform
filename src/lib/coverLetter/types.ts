@@ -151,24 +151,59 @@ export const emptyDoc = (): LetterDoc => ({
 export function extractBody(full: string, _salutationGuess: string): string {
   if (!full) return "";
   let text = full.replace(/\r\n/g, "\n").trim();
+
+  // Pre-empt single-line signatures like "Sincerely, Aarav Sharma" at the very end.
+  text = text.replace(
+    /\n\s*(sincerely|regards|best regards|kind regards|best|warmly|thank you|thanks|yours truly|respectfully)[,]?\s+[A-Za-zÀ-ÿ]+(?:[ '-][A-Za-zÀ-ÿ]+){0,3}\s*$/i,
+    "",
+  );
+
   const lines = text.split("\n");
+
+  // Strip greeting
   while (lines.length && /^\s*(dear|hello|hi|to whom)\b/i.test(lines[0])) {
     lines.shift();
     if (lines.length && lines[0].trim() === "") lines.shift();
   }
+
+  // Strip trailing signature block: sign-off word + optional blanks + sender name
+  const signOffRe = /^(sincerely|regards|best regards|kind regards|best|warmly|thank you|thanks|yours truly|respectfully)[,.]?$/i;
+  const isShortName = (s: string) => {
+    const t = s.trim();
+    if (!t || t.length > 60) return false;
+    const words = t.split(/\s+/);
+    if (words.length === 0 || words.length > 4) return false;
+    return /^[A-Za-zÀ-ÿ]+([. '-][A-Za-zÀ-ÿ]+)*\.?$/i.test(t);
+  };
+
   while (lines.length) {
     const last = lines[lines.length - 1].trim();
-    if (
-      last === "" ||
-      /^(sincerely|regards|best regards|kind regards|best|warmly|thank you|thanks|yours truly|respectfully)[,.]?$/i.test(
-        last,
-      )
-    ) {
+    if (last === "") {
       lines.pop();
       continue;
     }
+    if (signOffRe.test(last)) {
+      lines.pop();
+      continue;
+    }
+    // If the last line looks like a sender's name and a sign-off appears
+    // earlier (with only blanks between), it's part of the signature block.
+    if (isShortName(last)) {
+      let foundSignOff = false;
+      for (let i = lines.length - 2; i >= 0; i--) {
+        const t = lines[i].trim();
+        if (t === "") continue;
+        if (signOffRe.test(t)) foundSignOff = true;
+        break;
+      }
+      if (foundSignOff) {
+        lines.pop();
+        continue;
+      }
+    }
     break;
   }
+
   text = lines.join("\n").trim();
   text = text.replace(/\n{3,}/g, "\n\n");
   return text;
