@@ -543,8 +543,8 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
     // ---- Personalization step 4: compute keyword coverage of the final letter ----
     let fullLetter: string = parsed.full_letter ?? "";
     const roleTitle = role.trim();
+    const companyName = hasCompany ? rawCompany : "";
     // Safety net: scrub any "the company" / placeholder phrasing the model slipped through.
-    // If we have a real company name, replace with it; otherwise replace with neutral phrasing.
     const scrubCompany = (text: string) => {
       if (hasCompany) {
         return text
@@ -563,7 +563,6 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
         .replace(/\byour company['’]s\b/gi, "your team's")
         .replace(/\byour company\b/gi, "your team");
     };
-    const companyName = hasCompany ? rawCompany : "";
 
     // Role anchoring: ensure the exact role title appears enough times.
     // Replace generic "this role / the role / this position / the position"
