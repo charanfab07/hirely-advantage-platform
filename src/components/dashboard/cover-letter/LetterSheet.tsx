@@ -139,6 +139,7 @@ export const LetterSheet = ({
         <EditableLine
           value={doc.hiringManager}
           onChange={(v) => update("hiringManager", v)}
+          onBlurTransform={toTitleCaseName}
           placeholder="Hiring manager"
         />
         <EditableLine
