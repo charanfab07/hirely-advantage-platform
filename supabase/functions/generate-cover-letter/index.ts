@@ -18,6 +18,7 @@ HARD BANS — never use any of these openings or phrases:
 - "I am a passionate / motivated / hardworking…"
 - "To Whom It May Concern"
 - Any sentence that starts the letter with "I".
+- NEVER use the generic phrase "the company", "the company's", "the team at the company", or any variant. Always refer to the employer by their actual name (e.g. "Acme", "Acme's mission", "the Acme team"). If you must vary phrasing, use "your organization", "your team", "this opportunity", or the specific team/role name (e.g. "the Data Analyst team") — but NEVER "the company".
 
 INSTEAD, write a strong hook that opens with the candidate's perspective on the company, the role, or a sharp observation.
 
@@ -499,7 +500,21 @@ Now call generate_cover_letter. The hook must NOT start with "I". Respect the le
     }
 
     // ---- Personalization step 4: compute keyword coverage of the final letter ----
-    const fullLetter: string = parsed.full_letter ?? "";
+    let fullLetter: string = parsed.full_letter ?? "";
+    const companyName = company.trim();
+    // Safety net: scrub any "the company" phrasing the model slipped through.
+    const scrub = (text: string) => text
+      .replace(/\bthe team at the company\b/gi, `the ${companyName} team`)
+      .replace(/\bteam at the company\b/gi, `${companyName} team`)
+      .replace(/\bthe company['’]s\b/gi, `${companyName}'s`)
+      .replace(/\bthe company\b/gi, companyName);
+    fullLetter = scrub(fullLetter);
+    parsed.hook = scrub(parsed.hook ?? "");
+    parsed.alignment = scrub(parsed.alignment ?? "");
+    parsed.proof = scrub(parsed.proof ?? "");
+    parsed.culture_fit = scrub(parsed.culture_fit ?? "");
+    parsed.closing = scrub(parsed.closing ?? "");
+
     const { matched, missing } = jdKeywords.length
       ? findMatches(fullLetter, jdKeywords)
       : { matched: [] as string[], missing: [] as string[] };
