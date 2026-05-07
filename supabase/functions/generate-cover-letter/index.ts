@@ -325,9 +325,11 @@ Deno.serve(async (req) => {
       relocation_preference,
     } = body ?? {};
 
-    if (typeof role !== "string" || role.trim().length < 2) {
-      return json({ error: "role is required" }, 400);
+    // Role is optional from the client — default to a neutral phrase the prompt can use safely.
+    if (typeof role !== "string") {
+      return json({ error: "role must be a string" }, 400);
     }
+    if (!role.trim()) role = "this role";
     // Company is OPTIONAL — if missing or a placeholder, treat as "no company".
     const PLACEHOLDER_COMPANY = /^(the\s+company|company|n\/a|none|tbd|unknown)$/i;
     const rawCompany = typeof company === "string" ? company.trim() : "";
