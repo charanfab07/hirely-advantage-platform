@@ -164,7 +164,7 @@ const CoverLetterGenerator = () => {
           /^[A-Z][A-Za-z0-9 /+\-]{2,60}$/.test(l) &&
           /(engineer|developer|analyst|manager|designer|scientist|intern|consultant|architect|lead|director|specialist|associate)/i.test(l),
         );
-      const roleForRequest = (roleFromJd || "this role").trim();
+      const roleForRequest = (roleFromJd || "").trim();
 
       const { data, error } = await supabase.functions.invoke("generate-cover-letter", {
         body: {
