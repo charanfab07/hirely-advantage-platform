@@ -148,6 +148,7 @@ const ResumeAnalyzer = () => {
 
   const handleAnalyzed = async (_id: string, meta?: { cached?: boolean }) => {
     setLatestCached(!!meta?.cached);
+    setShowUploader(false);
     await refresh();
     setTab("score");
   };
