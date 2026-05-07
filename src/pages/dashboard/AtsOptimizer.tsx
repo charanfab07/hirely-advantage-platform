@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, Lock } from "lucide-react";
+import { Loader2, Upload, FileText, X, Target, Check, AlertTriangle, Sparkles, Lock, ShieldCheck, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -306,6 +306,14 @@ function ResultsView({ result }: { result: Result }) {
   const found = result.jd_keywords.filter((k) => k.found_in_resume).length;
   const missing = result.jd_keywords.filter((k) => !k.found_in_resume);
 
+  // Keyword Safety Score — % of suggested keywords backed by real resume evidence.
+  const sugTotal = result.suggestions.length;
+  const sugAdd = result.suggestions.filter((s) => s.recommendation === "add").length;
+  const sugSkip = sugTotal - sugAdd;
+  const safety = sugTotal === 0 ? 100 : Math.round((sugAdd / sugTotal) * 100);
+  const safetyTone: "good" | "warn" | "risk" =
+    safety >= 85 ? "good" : safety >= 60 ? "warn" : "risk";
+
   return (
     <div className="space-y-5">
       {/* Score before/after */}
@@ -326,6 +334,15 @@ function ResultsView({ result }: { result: Result }) {
           <Stat label="Missing" value={`${missing.length}`} />
         </div>
       </SectionCard>
+
+      {/* Keyword Safety Score */}
+      <SafetyCard
+        score={safety}
+        tone={safetyTone}
+        addCount={sugAdd}
+        skipCount={sugSkip}
+        total={sugTotal}
+      />
 
       {/* Keyword grid */}
       <SectionCard>
@@ -435,6 +452,114 @@ function ResultsView({ result }: { result: Result }) {
         </SectionCard>
       )}
     </div>
+  );
+}
+
+function SafetyCard({
+  score,
+  tone,
+  addCount,
+  skipCount,
+  total,
+}: {
+  score: number;
+  tone: "good" | "warn" | "risk";
+  addCount: number;
+  skipCount: number;
+  total: number;
+}) {
+  const palette = {
+    good: {
+      ring: "text-emerald-600",
+      track: "text-emerald-500/15",
+      chip: "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+      icon: ShieldCheck,
+      headline: "Most suggested keywords are supported by your resume content.",
+    },
+    warn: {
+      ring: "text-amber-600",
+      track: "text-amber-500/15",
+      chip: "bg-amber-500/10 text-amber-700 border-amber-500/20",
+      icon: ShieldAlert,
+      headline: "Some suggested keywords need a closer look before you add them.",
+    },
+    risk: {
+      ring: "text-rose-600",
+      track: "text-rose-500/15",
+      chip: "bg-rose-500/10 text-rose-700 border-rose-500/20",
+      icon: ShieldAlert,
+      headline: "Several suggested keywords aren't backed by your current resume.",
+    },
+  }[tone];
+
+  const Icon = palette.icon;
+  const r = 28;
+  const c = 2 * Math.PI * r;
+  const dash = (score / 100) * c;
+
+  return (
+    <SectionCard>
+      <div className="flex items-start gap-5 flex-wrap">
+        {/* Ring */}
+        <div className="relative w-[76px] h-[76px] shrink-0">
+          <svg viewBox="0 0 64 64" className="w-full h-full -rotate-90">
+            <circle
+              cx="32"
+              cy="32"
+              r={r}
+              fill="none"
+              strokeWidth="6"
+              className={cn("stroke-current", palette.track)}
+            />
+            <circle
+              cx="32"
+              cy="32"
+              r={r}
+              fill="none"
+              strokeWidth="6"
+              strokeLinecap="round"
+              strokeDasharray={`${dash} ${c}`}
+              className={cn("stroke-current transition-all", palette.ring)}
+            />
+          </svg>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-[16px] font-medium tracking-tight text-foreground">
+              {score}
+              <span className="text-[10px] text-foreground/45 ml-0.5">%</span>
+            </span>
+          </div>
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <Icon className={cn("w-4 h-4", palette.ring)} />
+            <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/55 font-medium">
+              Keyword Safety Score
+            </p>
+          </div>
+          <p className="mt-1.5 text-[15px] leading-snug font-medium tracking-tight text-foreground">
+            {total === 0
+              ? "No keywords flagged — your resume already covers the role."
+              : palette.headline}
+          </p>
+          {skipCount > 0 && (
+            <div
+              className={cn(
+                "mt-3 inline-flex items-center gap-2 text-[12px] px-2.5 py-1 rounded-full border",
+                palette.chip,
+              )}
+            >
+              <AlertTriangle className="w-3.5 h-3.5" />
+              Warning: {skipCount} keyword{skipCount === 1 ? "" : "s"} need
+              {skipCount === 1 ? "s" : ""} your confirmation before adding.
+            </div>
+          )}
+          <p className="mt-2 text-[11.5px] text-foreground/55">
+            {addCount} of {total} suggested keywords are backed by real evidence in your resume.
+          </p>
+        </div>
+      </div>
+    </SectionCard>
   );
 }
 
