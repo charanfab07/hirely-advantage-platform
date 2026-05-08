@@ -680,6 +680,13 @@ If any box fails, REWRITE before returning.`;
         [/\bindustry-leading\b/gi, ""],
         [/\bbest-in-class\b/gi, ""],
         [/\bworld-class\b/gi, ""],
+        // Artifact: model writes "this {role} opportunity" / "the role opportunity" — collapse to "this opportunity".
+        [/\b(role|position)\s+(opportunity|opening)\b/gi, "$2"],
+        [/\b(opportunity|opening)\s+(role|position)\b/gi, "$1"],
+        // "especially/particularly compelling" — vague AI filler.
+        [/\b(especially|particularly|truly|really)\s+compelling\b/gi, "a strong fit"],
+        [/\bis\s+compelling\b/gi, "is a strong fit"],
+        [/\bcompelling\s+opportunity\b/gi, "strong fit"],
       ];
       let out = text;
       for (const [re, rep] of replacements) out = out.replace(re, rep);
