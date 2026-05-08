@@ -315,41 +315,51 @@ function ResultsView({ result }: { result: Result }) {
     safety >= 85 ? "good" : safety >= 60 ? "warn" : "risk";
 
   return (
-    <div className="space-y-5">
-      {/* Score before/after */}
-      <SectionCard tone="dark" className="p-7">
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/55 font-medium">
-          Match score
-        </p>
-        <div className="mt-3 flex items-end gap-6 flex-wrap">
-          <ScorePill label="Now" value={result.match_before} tone="muted" />
-          <ScorePill label="After fixes" value={result.match_after} tone="bright" />
-          <p className="text-[13px] text-white/75 max-w-md">
-            {result.summary}
-          </p>
-        </div>
-        <div className="mt-5 grid grid-cols-3 gap-4 text-[12px]">
-          <Stat label="Keywords scanned" value={String(total)} />
-          <Stat label="Found in resume" value={`${found}`} />
-          <Stat label="Missing" value={`${missing.length}`} />
-        </div>
-      </SectionCard>
+    <div className="space-y-4">
+      {/* Top row: score + safety side-by-side */}
+      <div className="grid lg:grid-cols-[1.4fr_1fr] gap-4">
+        {/* Score before/after */}
+        <SectionCard tone="dark" className="p-6 sm:p-7 relative overflow-hidden">
+          <div
+            className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full opacity-60"
+            style={{ background: "radial-gradient(closest-side, rgba(140,110,220,0.35), transparent)" }}
+          />
+          <div className="relative">
+            <p className="text-[10.5px] tracking-[0.22em] uppercase text-white/60 font-medium">
+              Match score
+            </p>
+            <div className="mt-3 flex items-end gap-8 flex-wrap">
+              <ScorePill label="Now" value={result.match_before} tone="muted" />
+              <div className="flex items-end pb-3 text-white/35 text-[22px]">→</div>
+              <ScorePill label="After fixes" value={result.match_after} tone="bright" />
+            </div>
+            <p className="mt-4 text-[13px] text-white/80 leading-relaxed max-w-xl">
+              {result.summary}
+            </p>
+            <div className="mt-5 grid grid-cols-3 gap-3 text-[12px]">
+              <Stat label="Scanned" value={String(total)} />
+              <Stat label="Found" value={`${found}`} accent="ok" />
+              <Stat label="Missing" value={`${missing.length}`} accent={missing.length ? "warn" : "ok"} />
+            </div>
+          </div>
+        </SectionCard>
 
-      {/* Keyword Safety Score */}
-      <SafetyCard
-        score={safety}
-        tone={safetyTone}
-        addCount={sugAdd}
-        skipCount={sugSkip}
-        total={sugTotal}
-      />
+        {/* Safety */}
+        <SafetyCard
+          score={safety}
+          tone={safetyTone}
+          addCount={sugAdd}
+          skipCount={sugSkip}
+          total={sugTotal}
+        />
+      </div>
 
       {/* Keyword grid */}
-      <SectionCard>
-        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium">
+      <SectionCard className="p-6 sm:p-7">
+        <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/55 font-medium">
           Resume vs job description
         </p>
-        <div className="mt-4 grid sm:grid-cols-2 gap-4">
+        <div className="mt-4 grid sm:grid-cols-2 gap-3">
           <KeywordColumn title="Found in your resume" tone="ok"
             items={result.jd_keywords.filter((k) => k.found_in_resume)} />
           <KeywordColumn title="Missing keywords" tone="warn"
