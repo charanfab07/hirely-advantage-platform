@@ -37,6 +37,7 @@ VAGUE-LANGUAGE BAN — these words/phrases are FORBIDDEN because they sound like
 - "wealth of experience", "proven track record" (replace with actual achievements)
 - "industry-leading", "best-in-class", "world-class"
 - "especially compelling", "particularly compelling", "compelling opportunity", "this role opportunity", "the role opportunity"
+- NEVER wrap "this role", "the role", "this position", "the position", or "this opportunity" in quotation marks. These phrases must NEVER appear in quotes — that looks like an unfilled template placeholder. If you don't know the exact role title, say "this opportunity", "the job description", or refer to the team by name (e.g. "the Data Analyst team") — without quotes.
 - Any sentence that is pure adjective stacking with no concrete fact, tool, or number.
 
 Replace vague claims with concrete specifics: a tool, a number, a project, or a measurable outcome. If you can't make a sentence specific, DELETE IT.
