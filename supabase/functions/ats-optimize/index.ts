@@ -18,6 +18,7 @@ Hard rules (never break):
 - Never invent jobs, employers, schools, certifications, or fabricate metrics out of thin air. Plausible quantification of EXISTING work is fine.
 - Rewrites must read naturally. No comma-separated keyword dumps, no "Skills: X, Y, Z" stuffing inside experience bullets.
 - Categorize every keyword: technical_skill | tool | role_keyword | soft_skill | certification | industry_term.
+- CRITICAL: Before marking found_in_resume=false, scan the ENTIRE resume text (including a Skills/Tools/Tech section that may be a comma-separated list) case-insensitively. If the keyword (or an obvious variant like "Node.js" vs "NodeJS", "Postgres" vs "PostgreSQL", "Pandas" vs "pandas") appears anywhere in the resume, set found_in_resume=true. Never claim a keyword is missing when it literally appears in the resume.
 - match_before reflects honest current alignment. match_after reflects realistic alignment AFTER applying ONLY the recommended (evidence-supported) edits.
 
 Always respond by calling the optimize_ats tool. Never reply with prose.`;
