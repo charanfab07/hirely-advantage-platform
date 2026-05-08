@@ -21,13 +21,18 @@ export function parseResumeContact(raw: string): {
   const phone = phoneMatch?.[1]?.replace(/\s+/g, " ").trim();
 
   let name: string | undefined;
+  const contactLineIndex = head.findIndex((line) => /@|(?:phone|mobile|email)/i.test(line) || phoneMatch?.[1]?.includes(line));
   for (const line of head.slice(0, 8)) {
     if (/[@\d]/.test(line)) continue;
     if (line.length > 60) continue;
     const words = line.split(/\s+/);
-    if (words.length < 2 || words.length > 5) continue;
+    if (words.length > 5) continue;
     const ok = words.every((w) => /^[A-Za-zÀ-ÿ'’.\-]{1,}$/.test(w));
     if (!ok) continue;
+    if (words.length < 2) {
+      const lineIndex = head.indexOf(line);
+      if (lineIndex < 0 || contactLineIndex < 0 || lineIndex > contactLineIndex) continue;
+    }
     name = toTitleCaseName(words.join(" "));
     break;
   }
