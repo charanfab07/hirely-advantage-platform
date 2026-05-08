@@ -209,9 +209,8 @@ const ResumeBuilder = () => {
       <UpgradePlanDialog
         open={upgradeOpen}
         onOpenChange={setUpgradeOpen}
+        currentPlan={ent.plan}
         feature="resume_export"
-        title="Clean PDF & DOCX export is a Pro feature."
-        description="Upgrade to Pro to download ATS-safe PDF and DOCX resumes without watermarks."
       />
     </div>
   );
