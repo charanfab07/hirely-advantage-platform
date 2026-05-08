@@ -36,6 +36,7 @@ VAGUE-LANGUAGE BAN — these words/phrases are FORBIDDEN because they sound like
 - "robust", "holistic", "seamless" (as filler adjectives)
 - "wealth of experience", "proven track record" (replace with actual achievements)
 - "industry-leading", "best-in-class", "world-class"
+- "especially compelling", "particularly compelling", "compelling opportunity", "this role opportunity", "the role opportunity"
 - Any sentence that is pure adjective stacking with no concrete fact, tool, or number.
 
 Replace vague claims with concrete specifics: a tool, a number, a project, or a measurable outcome. If you can't make a sentence specific, DELETE IT.
