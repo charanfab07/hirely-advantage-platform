@@ -369,52 +369,57 @@ function ResultsView({ result }: { result: Result }) {
 
       {/* Suggestions */}
       {result.suggestions.length > 0 && (
-        <SectionCard>
-          <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/45 font-medium">
+        <SectionCard className="p-6 sm:p-7">
+          <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/55 font-medium">
             What to do about each missing keyword
           </p>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-4 space-y-2.5">
             {result.suggestions.map((s, i) => {
               const add = s.recommendation === "add";
               return (
                 <li
                   key={i}
-                  className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.02] p-4"
+                  className={cn(
+                    "rounded-xl border p-4 transition-colors",
+                    add
+                      ? "border-emerald-500/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.07]"
+                      : "border-amber-500/25 bg-amber-500/[0.05] hover:bg-amber-500/[0.08]",
+                  )}
                 >
                   <div className="flex items-start gap-3">
                     <span
                       className={cn(
-                        "shrink-0 w-7 h-7 rounded-full flex items-center justify-center mt-0.5",
+                        "shrink-0 w-8 h-8 rounded-xl flex items-center justify-center mt-0.5",
                         add
-                          ? "bg-emerald-500/10 text-emerald-600"
-                          : "bg-amber-500/10 text-amber-600",
+                          ? "bg-emerald-500/15 text-emerald-700"
+                          : "bg-amber-500/15 text-amber-700",
                       )}
                     >
-                      {add ? <Check className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+                      {add ? <Check className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
                     </span>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[13.5px] font-medium tracking-tight text-foreground">
+                        <span className="text-[14px] font-semibold tracking-tight text-foreground">
                           {s.keyword}
                         </span>
                         <span
                           className={cn(
-                            "text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 rounded-full font-medium",
+                            "text-[10px] tracking-[0.14em] uppercase px-2 py-0.5 rounded-full font-semibold",
                             add
-                              ? "bg-emerald-500/10 text-emerald-700"
-                              : "bg-amber-500/10 text-amber-700",
+                              ? "bg-emerald-500/15 text-emerald-800"
+                              : "bg-amber-500/15 text-amber-800",
                           )}
                         >
                           {add ? "Add naturally" : "Skip — no real evidence"}
                         </span>
                       </div>
                       {add && (
-                        <p className="mt-1 text-[12px] text-foreground/65">
-                          <span className="font-medium text-foreground/80">Where:</span>{" "}
+                        <p className="mt-1.5 text-[12.5px] text-foreground/75">
+                          <span className="font-semibold text-foreground/90">Where:</span>{" "}
                           {s.where_to_add}
                         </p>
                       )}
-                      <p className="mt-1 text-[12.5px] text-foreground/70">{s.reason}</p>
+                      <p className="mt-1 text-[12.5px] text-foreground/75 leading-relaxed">{s.reason}</p>
                     </div>
                   </div>
                 </li>
