@@ -37,6 +37,7 @@ VAGUE-LANGUAGE BAN — these words/phrases are FORBIDDEN because they sound like
 - "wealth of experience", "proven track record" (replace with actual achievements)
 - "industry-leading", "best-in-class", "world-class"
 - "especially compelling", "particularly compelling", "compelling opportunity", "this role opportunity", "the role opportunity"
+- NEVER wrap "this role", "the role", "this position", "the position", or "this opportunity" in quotation marks. These phrases must NEVER appear in quotes — that looks like an unfilled template placeholder. If you don't know the exact role title, say "this opportunity", "the job description", or refer to the team by name (e.g. "the Data Analyst team") — without quotes.
 - Any sentence that is pure adjective stacking with no concrete fact, tool, or number.
 
 Replace vague claims with concrete specifics: a tool, a number, a project, or a measurable outcome. If you can't make a sentence specific, DELETE IT.
@@ -339,7 +340,7 @@ Deno.serve(async (req) => {
     if (typeof role !== "string") {
       return json({ error: "role must be a string" }, 400);
     }
-    if (!role.trim()) role = "this role";
+    if (!role.trim()) role = "";
     // Company is OPTIONAL — if missing or a placeholder, treat as "no company".
     const PLACEHOLDER_COMPANY = /^(the\s+company|company|n\/a|none|tbd|unknown)$/i;
     const rawCompany = typeof company === "string" ? company.trim() : "";
@@ -483,7 +484,7 @@ Deno.serve(async (req) => {
 
     const userPrompt = `Write a cover letter for:
 Company: ${companyForPrompt}${hasCompany ? "" : " — IMPORTANT: do NOT use \"the company\" or invent a name. Use \"your team\" / \"your organization\" / the team name instead."}
-Role: ${role.trim()}
+Role: ${role.trim() || "(role title not provided — refer to it as \"this opportunity\" or by the team name; NEVER write the literal phrase \"this role\" in quotes or as a placeholder)"}
 Tone: ${safeTone}
 Letter style: ${safeStyle}
 Length target: ${wordTargets[safeLength]} (this is a HARD cap — do not exceed)
@@ -620,6 +621,32 @@ If any box fails, REWRITE before returning.`;
     const fixRoleArtifacts = (text: string) => {
       if (!text) return text;
       let out = text;
+      // 0. Strip quotes around placeholder role/position phrases — recruiters
+      //    instantly notice when a letter contains literal "this role" in quotes,
+      //    as it looks like an unfilled template variable.
+      //    Examples we've seen:
+      //      what "this role" is asking for      -> what this role is asking for
+      //      in the "this role" job description  -> in the job description
+      //      The "this role" opening             -> this opportunity
+      const quotedPlaceholder =
+        /["“”'‘’]\s*(this|the)\s+(role|position|opening|opportunity)\s*["“”'‘’]/gi;
+      out = out.replace(quotedPlaceholder, (_m, det, noun) => `${det} ${noun}`);
+      // After unquoting, collapse the resulting redundant phrasings:
+      //   "the {det} {noun} job description" -> "the job description"
+      //   "the {det} {noun} opening"         -> "this opportunity"
+      out = out.replace(
+        /\b(the|a|an)\s+(this|the)\s+(role|position|opening|opportunity)\s+(job\s+description|posting|listing|JD)\b/gi,
+        (_m, _art, _det, _noun, tail) => `the ${tail}`,
+      );
+      out = out.replace(
+        /\b(this|the)\s+(role|position|opening|opportunity)\s+(job\s+description|posting|listing|JD)\b/gi,
+        (_m, _det, _noun, tail) => `the ${tail}`,
+      );
+      // "The this role opening" -> "this opportunity"
+      out = out.replace(
+        /\b(the|a|an)\s+(this|the)\s+(role|position)\s+(opening|opportunity)\b/gi,
+        () => "this opportunity",
+      );
       // 1. Collapse "the this role" / "a this role" produced when the model wrote
       //    "the {ROLE}" while role itself was the placeholder "this role".
       out = out.replace(/\b(the|a|an)\s+(this|the)\s+(role|position|opening|opportunity)\b/gi,
