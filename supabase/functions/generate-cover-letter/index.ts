@@ -483,7 +483,7 @@ Deno.serve(async (req) => {
 
     const userPrompt = `Write a cover letter for:
 Company: ${companyForPrompt}${hasCompany ? "" : " — IMPORTANT: do NOT use \"the company\" or invent a name. Use \"your team\" / \"your organization\" / the team name instead."}
-Role: ${role.trim()}
+Role: ${role.trim() || "(role title not provided — refer to it as \"this opportunity\" or by the team name; NEVER write the literal phrase \"this role\" in quotes or as a placeholder)"}
 Tone: ${safeTone}
 Letter style: ${safeStyle}
 Length target: ${wordTargets[safeLength]} (this is a HARD cap — do not exceed)
