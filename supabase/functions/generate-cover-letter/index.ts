@@ -620,6 +620,32 @@ If any box fails, REWRITE before returning.`;
     const fixRoleArtifacts = (text: string) => {
       if (!text) return text;
       let out = text;
+      // 0. Strip quotes around placeholder role/position phrases — recruiters
+      //    instantly notice when a letter contains literal "this role" in quotes,
+      //    as it looks like an unfilled template variable.
+      //    Examples we've seen:
+      //      what "this role" is asking for      -> what this role is asking for
+      //      in the "this role" job description  -> in the job description
+      //      The "this role" opening             -> this opportunity
+      const quotedPlaceholder =
+        /["“”'‘’]\s*(this|the)\s+(role|position|opening|opportunity)\s*["“”'‘’]/gi;
+      out = out.replace(quotedPlaceholder, (_m, det, noun) => `${det} ${noun}`);
+      // After unquoting, collapse the resulting redundant phrasings:
+      //   "the {det} {noun} job description" -> "the job description"
+      //   "the {det} {noun} opening"         -> "this opportunity"
+      out = out.replace(
+        /\b(the|a|an)\s+(this|the)\s+(role|position|opening|opportunity)\s+(job\s+description|posting|listing|JD)\b/gi,
+        (_m, _art, _det, _noun, tail) => `the ${tail}`,
+      );
+      out = out.replace(
+        /\b(this|the)\s+(role|position|opening|opportunity)\s+(job\s+description|posting|listing|JD)\b/gi,
+        (_m, _det, _noun, tail) => `the ${tail}`,
+      );
+      // "The this role opening" -> "this opportunity"
+      out = out.replace(
+        /\b(the|a|an)\s+(this|the)\s+(role|position)\s+(opening|opportunity)\b/gi,
+        () => "this opportunity",
+      );
       // 1. Collapse "the this role" / "a this role" produced when the model wrote
       //    "the {ROLE}" while role itself was the placeholder "this role".
       out = out.replace(/\b(the|a|an)\s+(this|the)\s+(role|position|opening|opportunity)\b/gi,
