@@ -339,7 +339,7 @@ Deno.serve(async (req) => {
     if (typeof role !== "string") {
       return json({ error: "role must be a string" }, 400);
     }
-    if (!role.trim()) role = "this role";
+    if (!role.trim()) role = "";
     // Company is OPTIONAL — if missing or a placeholder, treat as "no company".
     const PLACEHOLDER_COMPANY = /^(the\s+company|company|n\/a|none|tbd|unknown)$/i;
     const rawCompany = typeof company === "string" ? company.trim() : "";
