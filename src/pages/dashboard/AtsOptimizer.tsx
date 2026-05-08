@@ -587,22 +587,38 @@ function ScorePill({
       <p className="text-[10px] tracking-[0.18em] uppercase text-white/55 font-medium">{label}</p>
       <p
         className={cn(
-          "mt-1 text-[40px] leading-none font-medium tracking-tight",
-          tone === "bright" ? "text-white" : "text-white/55",
+          "mt-1 text-[44px] leading-none font-semibold tracking-tight",
+          tone === "bright"
+            ? "bg-gradient-to-br from-white to-violet-200 bg-clip-text text-transparent drop-shadow-[0_2px_12px_rgba(180,150,255,0.35)]"
+            : "text-white/55",
         )}
       >
         {Math.round(value)}
-        <span className="text-[16px] text-white/45 ml-0.5">%</span>
+        <span className="text-[16px] text-white/45 ml-0.5 font-medium">%</span>
       </p>
     </div>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: string;
+  accent?: "ok" | "warn";
+}) {
+  const accentClass =
+    accent === "ok"
+      ? "text-emerald-300"
+      : accent === "warn"
+      ? "text-amber-300"
+      : "text-white";
   return (
-    <div className="rounded-xl bg-white/5 border border-white/5 px-3 py-2.5">
+    <div className="rounded-xl bg-white/[0.06] border border-white/10 px-3.5 py-2.5 backdrop-blur-sm">
       <p className="text-[10px] tracking-[0.18em] uppercase text-white/55 font-medium">{label}</p>
-      <p className="mt-0.5 text-[16px] font-medium tracking-tight text-white">{value}</p>
+      <p className={cn("mt-0.5 text-[18px] font-semibold tracking-tight", accentClass)}>{value}</p>
     </div>
   );
 }
@@ -616,13 +632,39 @@ function KeywordColumn({
   tone: "ok" | "warn";
   items: Keyword[];
 }) {
+  const isOk = tone === "ok";
   return (
-    <div className="rounded-xl border border-foreground/[0.06] p-4 bg-foreground/[0.02]">
-      <p className="text-[11.5px] font-medium tracking-tight text-foreground/75 mb-2.5">
-        {title} <span className="text-foreground/40">· {items.length}</span>
-      </p>
+    <div
+      className={cn(
+        "rounded-2xl border p-4 sm:p-5",
+        isOk
+          ? "border-emerald-500/25 bg-gradient-to-br from-emerald-500/[0.07] to-emerald-500/[0.02]"
+          : "border-amber-500/25 bg-gradient-to-br from-amber-500/[0.08] to-amber-500/[0.02]",
+      )}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span
+          className={cn(
+            "w-6 h-6 rounded-lg flex items-center justify-center",
+            isOk ? "bg-emerald-500/15 text-emerald-700" : "bg-amber-500/15 text-amber-700",
+          )}
+        >
+          {isOk ? <Check className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+        </span>
+        <p className="text-[12px] font-semibold tracking-tight text-foreground">
+          {title}
+        </p>
+        <span
+          className={cn(
+            "ml-auto text-[11px] font-medium px-2 py-0.5 rounded-full",
+            isOk ? "bg-emerald-500/15 text-emerald-700" : "bg-amber-500/15 text-amber-700",
+          )}
+        >
+          {items.length}
+        </span>
+      </div>
       {items.length === 0 ? (
-        <p className="text-[12px] text-foreground/45">None.</p>
+        <p className="text-[12px] text-foreground/50">None.</p>
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {items.map((k) => (
@@ -630,11 +672,12 @@ function KeywordColumn({
               key={k.keyword}
               title={`${CATEGORY_LABEL[k.category]} · ${k.importance.replace("_", " ")}`}
               className={cn(
-                "text-[11.5px] px-2.5 py-1 rounded-full border",
-                tone === "ok"
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700"
-                  : "bg-amber-500/10 border-amber-500/20 text-amber-700",
-                k.importance === "must_have" && "font-medium",
+                "text-[11.5px] px-2.5 py-1 rounded-full border transition-colors",
+                isOk
+                  ? "bg-emerald-500/12 border-emerald-500/30 text-emerald-800"
+                  : "bg-amber-500/12 border-amber-500/30 text-amber-800",
+                k.importance === "must_have" && "font-semibold ring-1 ring-inset",
+                k.importance === "must_have" && (isOk ? "ring-emerald-500/30" : "ring-amber-500/30"),
               )}
             >
               {k.keyword}
