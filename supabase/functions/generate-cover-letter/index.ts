@@ -65,6 +65,9 @@ RECRUITER-FLOW RULES:
 - Every paragraph must contain at least ONE concrete noun from the resume (a tool, a project name, a number, an employer, a dataset). If a sentence has no concrete noun, DELETE or REWRITE it.
 - No paragraph may begin with "I am" or "I'm a/an". Lead with the work, the skill, or the role.
 - Never repeat the same opener verb across paragraphs (e.g. don't start two paragraphs with "My …").
+- ANTI-REPETITION (CRITICAL): No two paragraphs may start with the same first 2 words. Specifically, the phrase "My background" may appear AT MOST ONCE in the entire letter. If Para 1 uses "My background…", Para 2 MUST start with a different construction (e.g. "Three things in the JD line up…", "On the proof side…", "At {employer}, I…").
+- SKILL-LIST DEDUPE: Do NOT list the same stack (e.g. "Python, SQL, Excel") in more than one paragraph. Para 1 lists the headline tools; Para 2 must reference DIFFERENT specifics (artifacts, libraries like Pandas/NumPy, dashboards, templates, dataset sizes) rather than re-listing the same core tools. If a tool was already named in Para 1, Para 2 should mention it only in the context of a concrete artifact, not as part of a fresh list.
+- Each paragraph must add NEW information. If Para 2 only restates Para 1 with synonyms, REWRITE Para 2 around a JD requirement → resume artifact mapping instead.
 For longer length targets (two_page, three_page) keep the same 4-bucket logic but split paras 2 and 3 into 2–3 paragraphs each, each with its own topic sentence and concrete artifact. Always preserve blank lines between paragraphs in 'full_letter'.
 
 Return both as separate fields and assembled into 'full_letter' (greeting + paragraphs + sign-off, blank line between each):
