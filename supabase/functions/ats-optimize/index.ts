@@ -182,6 +182,49 @@ Now call optimize_ats.`;
       return json({ error: "AI returned invalid JSON" }, 500);
     }
 
+    // Deterministic correction: the LLM sometimes flags keywords as "missing"
+    // even when they appear verbatim in the resume. Run a case-insensitive,
+    // punctuation-tolerant substring check on the raw resume text and override
+    // false negatives so the user never sees a keyword marked Missing when
+    // it's literally on their resume.
+    const normalizedResume = resume_text.toLowerCase().replace(/[^a-z0-9+#./\s-]/g, " ");
+    const resumeHasKeyword = (kw: string): boolean => {
+      if (!kw) return false;
+      const k = kw.trim().toLowerCase();
+      if (!k) return false;
+      // Word-boundary-ish check that tolerates punctuation around the keyword.
+      const escaped = k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = new RegExp(`(^|[^a-z0-9+#])${escaped}([^a-z0-9+#]|$)`, "i");
+      return re.test(normalizedResume);
+    };
+
+    if (Array.isArray(parsed?.jd_keywords)) {
+      let corrected = 0;
+      for (const k of parsed.jd_keywords) {
+        if (k && typeof k.keyword === "string" && resumeHasKeyword(k.keyword)) {
+          if (k.found_in_resume !== true || k.evidence_in_resume !== true) corrected++;
+          k.found_in_resume = true;
+          k.evidence_in_resume = true;
+        }
+      }
+      if (corrected > 0) {
+        // Drop AI suggestions for keywords we just confirmed are present.
+        if (Array.isArray(parsed.suggestions)) {
+          parsed.suggestions = parsed.suggestions.filter(
+            (s: any) => !(s && typeof s.keyword === "string" && resumeHasKeyword(s.keyword)),
+          );
+        }
+        // Recompute match_before honestly from the corrected list.
+        const total = parsed.jd_keywords.length;
+        const found = parsed.jd_keywords.filter((k: any) => k.found_in_resume).length;
+        if (total > 0) {
+          const honest = Math.round((found / total) * 100);
+          parsed.match_before = Math.max(parsed.match_before ?? 0, honest);
+          parsed.match_after = Math.max(parsed.match_after ?? 0, parsed.match_before);
+        }
+      }
+    }
+
     return json({ result: parsed, plan: gate.plan });
   } catch (e) {
     console.error("ats-optimize error", e);
