@@ -12,6 +12,7 @@ import CompareResumes from "./pages/dashboard/CompareResumes.tsx";
 import CoverLetterGenerator from "./pages/dashboard/CoverLetterGenerator.tsx";
 import InterviewPrep from "./pages/dashboard/InterviewPrep.tsx";
 import AtsOptimizer from "./pages/dashboard/AtsOptimizer.tsx";
+import ResumeBuilder from "./pages/dashboard/ResumeBuilder.tsx";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
 import Upgrade from "./pages/dashboard/Upgrade.tsx";
 
@@ -33,6 +34,7 @@ const App = () => (
             <Route path="cover-letter" element={<CoverLetterGenerator />} />
             <Route path="interview-prep" element={<InterviewPrep />} />
             <Route path="ats-optimizer" element={<AtsOptimizer />} />
+            <Route path="resume-builder" element={<ResumeBuilder />} />
             <Route
               path="applications"
               element={

@@ -17,6 +17,7 @@ const ROUTE_TO_FEATURE: Array<{
   { match: (p) => p.includes("/app/resume"), feature: "analyses", label: "Analyses" },
   { match: (p) => p.includes("/app/compare"), feature: "analyses", label: "Analyses" },
   { match: (p) => p.includes("/app/ats-optimizer"), feature: "analyses", label: "Analyses" },
+  { match: (p) => p.includes("/app/resume-builder"), feature: "analyses", label: "Analyses" },
   { match: (p) => p.includes("/app/cover-letter"), feature: "cover_letters", label: "Cover letters" },
   { match: (p) => p.includes("/app/interview-prep"), feature: "mock_interviews", label: "Mock interviews" },
 ];
