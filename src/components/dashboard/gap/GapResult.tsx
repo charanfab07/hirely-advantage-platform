@@ -66,6 +66,36 @@ const META: Record<string, Meta> = {
     iconColor: "text-sky-600",
     label: "Do this next",
   },
+  contact: {
+    icon: User,
+    accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
+    iconColor: "text-sky-600",
+    label: "Contact",
+  },
+  experience: {
+    icon: Briefcase,
+    accent: "bg-violet-500/10 ring-1 ring-violet-500/20",
+    iconColor: "text-violet-600",
+    label: "Experience",
+  },
+  education: {
+    icon: GraduationCap,
+    accent: "bg-indigo-500/10 ring-1 ring-indigo-500/20",
+    iconColor: "text-indigo-600",
+    label: "Education",
+  },
+  skills: {
+    icon: KeyRound,
+    accent: "bg-emerald-500/10 ring-1 ring-emerald-500/20",
+    iconColor: "text-emerald-600",
+    label: "Skills",
+  },
+  failure: {
+    icon: XOctagon,
+    accent: "bg-rose-500/10 ring-1 ring-rose-500/20",
+    iconColor: "text-rose-600",
+    label: "Parse failures",
+  },
   default: {
     icon: Sparkles,
     accent: "bg-foreground/5 ring-1 ring-foreground/10",
@@ -78,10 +108,15 @@ function classify(title: string): keyof typeof META {
   const t = title.toLowerCase();
   if (t.includes("hard requirement")) return "hard";
   if (t.includes("soft requirement")) return "soft";
+  if (t.includes("parse failure") || t.includes("failure report")) return "failure";
+  if (t.includes("contact")) return "contact";
+  if (t.includes("work experience") || t.includes("experience parse")) return "experience";
+  if (t.includes("education")) return "education";
+  if (t.includes("skill")) return "skills";
   if (t.includes("keyword")) return "keyword";
   if (t.includes("strength")) return "strength";
-  if (t.includes("score") || t.includes("match score") || t.includes("overall")) return "score";
-  if (t.includes("action") || t.includes("priority")) return "action";
+  if (t.includes("score") || t.includes("readability") || t.includes("parseability") || t.includes("overall")) return "score";
+  if (t.includes("action") || t.includes("priority") || t.includes("fix")) return "action";
   return "default";
 }
 
