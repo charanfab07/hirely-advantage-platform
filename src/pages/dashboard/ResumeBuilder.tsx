@@ -80,7 +80,7 @@ const ResumeBuilder = () => {
 
   const startOver = () => {
     if (!confirm("Start a new resume? Your current draft will be replaced.")) return;
-    localStorage.removeItem(STORAGE_KEY);
+    if (storageKey) localStorage.removeItem(storageKey);
     setDoc(null);
     setRole("");
     setPicking(true);
