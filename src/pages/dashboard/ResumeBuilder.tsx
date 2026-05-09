@@ -14,21 +14,43 @@ import { useEntitlements } from "@/hooks/useEntitlements";
 import { UpgradePlanDialog } from "@/components/dashboard/UpgradePlanDialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
 
-const STORAGE_KEY = "hirely.resumeBuilder.draft.v1";
+const LEGACY_KEY = "hirely.resumeBuilder.draft.v1";
+const storageKeyFor = (uid?: string) =>
+  uid ? `hirely.resumeBuilder.draft.v2.${uid}` : null;
 
 const ResumeBuilder = () => {
   const ent = useEntitlements();
+  const { user } = useAuth();
+  const storageKey = storageKeyFor(user?.id);
   const [doc, setDoc] = useState<ResumeDocument | null>(null);
   const [picking, setPicking] = useState(true);
   const [role, setRole] = useState("");
   const [exporting, setExporting] = useState<"pdf" | "docx" | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  // Hydrate from localStorage so the user never loses their draft.
+  // Drop any legacy global draft from older builds (cross-user leakage).
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    try { localStorage.removeItem(LEGACY_KEY); } catch { /* ignore */ }
+  }, []);
+
+  // Hydrate from localStorage so the user never loses their draft (per-user).
+  useEffect(() => {
+    if (!storageKey) {
+      // No user yet — make sure we don't show stale state from a previous user.
+      setDoc(null);
+      setRole("");
+      setPicking(true);
+      return;
+    }
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) {
+      setDoc(null);
+      setRole("");
+      setPicking(true);
+      return;
+    }
     try {
       const parsed = JSON.parse(raw) as { doc: ResumeDocument; role?: string };
       if (parsed?.doc?.templateId) {
@@ -39,12 +61,12 @@ const ResumeBuilder = () => {
     } catch {
       /* ignore */
     }
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
-    if (!doc) return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ doc, role }));
-  }, [doc, role]);
+    if (!doc || !storageKey) return;
+    localStorage.setItem(storageKey, JSON.stringify({ doc, role }));
+  }, [doc, role, storageKey]);
 
   const templateMeta = useMemo(
     () => ATS_TEMPLATES.find((t) => t.id === doc?.templateId),
