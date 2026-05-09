@@ -315,7 +315,7 @@ function SectionBlock({ section }: { section: Section }) {
   );
 }
 
-export default function GapResult({ markdown }: { markdown: string }) {
+export default function GapResult({ markdown, preserveOrder = false }: { markdown: string; preserveOrder?: boolean }) {
   const sections = useMemo(() => parseSections(markdown), [markdown]);
 
   // Reorder: score first, then critical->soft->keyword->strength->action
@@ -326,9 +326,16 @@ export default function GapResult({ markdown }: { markdown: string }) {
     keyword: 3,
     strength: 4,
     action: 5,
-    default: 6,
+    contact: 6,
+    experience: 7,
+    education: 8,
+    skills: 9,
+    failure: 10,
+    default: 11,
   };
-  const sorted = [...sections].sort((a, b) => (order[a.key] ?? 9) - (order[b.key] ?? 9));
+  const sorted = preserveOrder
+    ? sections
+    : [...sections].sort((a, b) => (order[a.key] ?? 99) - (order[b.key] ?? 99));
 
   return (
     <div className="space-y-5">
