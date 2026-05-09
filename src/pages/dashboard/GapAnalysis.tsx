@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
 import { Loader2, Upload, FileText, X, Sparkles, ScanSearch } from "lucide-react";
+import GapResult from "@/components/dashboard/gap/GapResult";
 import { toast } from "sonner";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { supabase } from "@/integrations/supabase/client";
