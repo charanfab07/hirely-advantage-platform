@@ -8,6 +8,10 @@ import {
   Gauge,
   ListChecks,
   Sparkles,
+  User,
+  Briefcase,
+  GraduationCap,
+  XOctagon,
 } from "lucide-react";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { cn } from "@/lib/utils";
