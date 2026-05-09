@@ -14,6 +14,7 @@ import InterviewPrep from "./pages/dashboard/InterviewPrep.tsx";
 import AtsOptimizer from "./pages/dashboard/AtsOptimizer.tsx";
 import ResumeBuilder from "./pages/dashboard/ResumeBuilder.tsx";
 import GapAnalysis from "./pages/dashboard/GapAnalysis.tsx";
+import AtsParseSim from "./pages/dashboard/AtsParseSim.tsx";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage.tsx";
 import Upgrade from "./pages/dashboard/Upgrade.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="ats-optimizer" element={<AtsOptimizer />} />
             <Route path="resume-builder" element={<ResumeBuilder />} />
             <Route path="gap-analysis" element={<GapAnalysis />} />
+            <Route path="ats-parse-sim" element={<AtsParseSim />} />
             <Route
               path="applications"
               element={

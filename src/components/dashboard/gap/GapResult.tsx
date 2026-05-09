@@ -8,6 +8,10 @@ import {
   Gauge,
   ListChecks,
   Sparkles,
+  User,
+  Briefcase,
+  GraduationCap,
+  XOctagon,
 } from "lucide-react";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { cn } from "@/lib/utils";
@@ -62,6 +66,36 @@ const META: Record<string, Meta> = {
     iconColor: "text-sky-600",
     label: "Do this next",
   },
+  contact: {
+    icon: User,
+    accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
+    iconColor: "text-sky-600",
+    label: "Contact",
+  },
+  experience: {
+    icon: Briefcase,
+    accent: "bg-violet-500/10 ring-1 ring-violet-500/20",
+    iconColor: "text-violet-600",
+    label: "Experience",
+  },
+  education: {
+    icon: GraduationCap,
+    accent: "bg-indigo-500/10 ring-1 ring-indigo-500/20",
+    iconColor: "text-indigo-600",
+    label: "Education",
+  },
+  skills: {
+    icon: KeyRound,
+    accent: "bg-emerald-500/10 ring-1 ring-emerald-500/20",
+    iconColor: "text-emerald-600",
+    label: "Skills",
+  },
+  failure: {
+    icon: XOctagon,
+    accent: "bg-rose-500/10 ring-1 ring-rose-500/20",
+    iconColor: "text-rose-600",
+    label: "Parse failures",
+  },
   default: {
     icon: Sparkles,
     accent: "bg-foreground/5 ring-1 ring-foreground/10",
@@ -74,10 +108,15 @@ function classify(title: string): keyof typeof META {
   const t = title.toLowerCase();
   if (t.includes("hard requirement")) return "hard";
   if (t.includes("soft requirement")) return "soft";
+  if (t.includes("parse failure") || t.includes("failure report")) return "failure";
+  if (t.includes("contact")) return "contact";
+  if (t.includes("work experience") || t.includes("experience parse")) return "experience";
+  if (t.includes("education")) return "education";
+  if (t.includes("skill")) return "skills";
   if (t.includes("keyword")) return "keyword";
   if (t.includes("strength")) return "strength";
-  if (t.includes("score") || t.includes("match score") || t.includes("overall")) return "score";
-  if (t.includes("action") || t.includes("priority")) return "action";
+  if (t.includes("score") || t.includes("readability") || t.includes("parseability") || t.includes("overall")) return "score";
+  if (t.includes("action") || t.includes("priority") || t.includes("fix")) return "action";
   return "default";
 }
 
@@ -276,7 +315,7 @@ function SectionBlock({ section }: { section: Section }) {
   );
 }
 
-export default function GapResult({ markdown }: { markdown: string }) {
+export default function GapResult({ markdown, preserveOrder = false }: { markdown: string; preserveOrder?: boolean }) {
   const sections = useMemo(() => parseSections(markdown), [markdown]);
 
   // Reorder: score first, then critical->soft->keyword->strength->action
@@ -287,9 +326,16 @@ export default function GapResult({ markdown }: { markdown: string }) {
     keyword: 3,
     strength: 4,
     action: 5,
-    default: 6,
+    contact: 6,
+    experience: 7,
+    education: 8,
+    skills: 9,
+    failure: 10,
+    default: 11,
   };
-  const sorted = [...sections].sort((a, b) => (order[a.key] ?? 9) - (order[b.key] ?? 9));
+  const sorted = preserveOrder
+    ? sections
+    : [...sections].sort((a, b) => (order[a.key] ?? 99) - (order[b.key] ?? 99));
 
   return (
     <div className="space-y-5">
