@@ -226,6 +226,12 @@ const ResumeAnalyzer = () => {
     }));
   }, [latest, isFree]);
   const handleSignOut = async () => {
+    // Wipe any client-side drafts so the next user on this device starts fresh.
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith("hirely."))
+        .forEach((k) => localStorage.removeItem(k));
+    } catch { /* ignore */ }
     await supabase.auth.signOut();
   };
 
