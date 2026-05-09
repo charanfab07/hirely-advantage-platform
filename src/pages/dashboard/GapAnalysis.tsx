@@ -197,24 +197,7 @@ export default function GapAnalysis() {
         )}
       </div>
 
-      {markdown && (
-        <SectionCard className="p-6 sm:p-8">
-          <article
-            className={cn(
-              "prose prose-sm max-w-none",
-              "prose-headings:font-medium prose-headings:tracking-tight prose-headings:text-foreground",
-              "prose-h2:mt-7 prose-h2:mb-3 prose-h2:text-[18px]",
-              "prose-h3:text-[15px] prose-h3:mt-4 prose-h3:mb-2",
-              "prose-p:text-foreground/80 prose-p:leading-relaxed",
-              "prose-li:text-foreground/80 prose-li:leading-relaxed",
-              "prose-strong:text-foreground prose-strong:font-semibold",
-              "prose-code:text-foreground prose-code:bg-foreground/[0.06] prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none",
-            )}
-          >
-            <ReactMarkdown>{markdown}</ReactMarkdown>
-          </article>
-        </SectionCard>
-      )}
+      {markdown && <GapResult markdown={markdown} />}
     </div>
   );
 }
