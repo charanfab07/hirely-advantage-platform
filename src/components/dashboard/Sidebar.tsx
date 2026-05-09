@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch } from "lucide-react";
+import { FileText, Mail, Mic, Briefcase, Send, Bookmark, X, GitCompare, Sparkles, Target, FilePlus2, ScanSearch, ScanLine } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { LogoLockup } from "@/components/landing/Logo";
@@ -11,6 +11,7 @@ const suite = [
   { to: "/app/compare", label: "Compare Resumes", icon: GitCompare },
   { to: "/app/ats-optimizer", label: "ATS Keyword Optimizer", icon: Target },
   { to: "/app/gap-analysis", label: "Job Gap Analysis", icon: ScanSearch },
+  { to: "/app/ats-parse-sim", label: "ATS Parse Simulator", icon: ScanLine },
   { to: "/app/cover-letter", label: "Cover Letter Generator", icon: Mail },
   { to: "/app/interview-prep", label: "Interview Prep", icon: Mic },
 ];
