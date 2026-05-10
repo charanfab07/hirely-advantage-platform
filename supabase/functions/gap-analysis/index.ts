@@ -86,12 +86,20 @@ YOUR ANALYSIS MUST INCLUDE:
    - Format: "✅ STRONG MATCH: [JD requirement] ← [resume evidence]"
 
 7. OVERALL MATCH SCORE
-   - Score out of 100 broken into:
-     * Hard Requirements Met: X/100
-     * Keyword Alignment: X/100
-     * Experience Level Match: X/100
-     * Overall Fit: X/100
-   - One sentence verdict: "You meet X of Y hard requirements. [Honest assessment of interview likelihood]."
+   - Render the score breakdown as a markdown table with EXACTLY these two columns and rows, in this order:
+     | Metric | Score |
+     | Hard Requirements Met | X / Y |
+     | Keywords Present | X% |
+     | Seniority Alignment | X/10 |
+     | Evidence Quality | X/10 |
+     | **OVERALL MATCH** | **X%** |
+   - Score rules:
+     * Hard Requirements Met: integer X out of total Y must-haves you extracted in section 1.
+     * Keywords Present: percentage of JD keywords (across all categories in section 5) present in the resume as ✅ Yes or ⚠️ Partial. Round to whole number.
+     * Seniority Alignment: 1–10 score based on how closely the resume reads at the level the JD expects (use section 3's verdict).
+     * Evidence Quality: 1–10 score based on how strong/specific the evidence is for the must-haves (use section 4).
+     * OVERALL MATCH: weighted blend — Hard Requirements 40%, Keywords 25%, Seniority 20%, Evidence 15%. Render as a percentage.
+   - After the table, write ONE honest verdict paragraph (no header, no bullet) of 2–3 sentences. It MUST: state how many hard requirements they meet out of how many, name the 2–3 biggest specific gaps, and end with a candid call on interview likelihood ("becomes a strong application", "still a long shot", "competitive as-is", etc.). No filler praise.
 
 8. PRIORITY ACTION LIST
    - Numbered list of the top 5 changes to make, ordered by impact
