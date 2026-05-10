@@ -10,6 +10,7 @@ import {
   ListChecks,
   Sparkles,
   Layers,
+  Table2,
   User,
   Briefcase,
   GraduationCap,
