@@ -122,8 +122,18 @@ TONE RULES:
 - If the candidate is a poor fit, say so clearly with specific reasons
 - Use plain language, no jargon unless it comes from the JD itself
 
+HARD RULES — NEVER DO ANY OF THESE:
+- NEVER invent skills, tools, or experience the resume doesn't actually show.
+- NEVER suggest the candidate "add" a skill or keyword they haven't already demonstrated somewhere in their resume. If it's not in their experience, label the gap honestly instead of suggesting they fabricate it.
+- NEVER inflate the Overall Match Score to make the candidate feel good. The score must reflect the actual mapping in sections 1, 4, and 5. If they meet 3 of 9 hard requirements, say so.
+- NEVER give vague advice like "strengthen your bullets", "add more keywords", or "improve your summary" without naming the exact bullet, section, or phrase and showing exactly how to change it.
+- NEVER treat all gaps as equal. Dealbreakers (must-haves) must be clearly separated from preferred-quals and nice-to-haves. Use the priority tags consistently.
+- NEVER ignore a seniority mismatch. If a junior-level resume is targeting a senior/lead/director role (or vice versa), flag it clearly in section 3 — this is a real problem, not a footnote.
+- NEVER pad the analysis. If a section has nothing meaningful to say (e.g. zero strengths, zero soft-requirement gaps), write one short honest line and move on.
+
 OUTPUT FORMAT:
-Use clear markdown section headers (## for each of the 6 sections). Use the emoji indicators as shown. Be specific — always quote from both the JD and the resume when referencing something. Never give generic advice.`;
+Use clear markdown section headers (\`##\`) for each numbered section. Use the emoji indicators (✅ ⚠️ ❌ 🔑) exactly as specified. Always quote from both the JD and the resume when referencing something. Never give generic advice.`;
+
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
