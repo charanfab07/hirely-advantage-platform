@@ -116,6 +116,7 @@ function classify(title: string): keyof typeof META {
   const t = title.toLowerCase();
   if (t.includes("hard requirement")) return "hard";
   if (t.includes("soft requirement")) return "soft";
+  if (t.includes("seniority") || t.includes("scope match") || t.includes("level fit")) return "seniority";
   if (t.includes("parse failure") || t.includes("failure report")) return "failure";
   if (t.includes("contact")) return "contact";
   if (t.includes("work experience") || t.includes("experience parse")) return "experience";
