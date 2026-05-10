@@ -68,6 +68,12 @@ const META: Record<string, Meta> = {
     iconColor: "text-sky-600",
     label: "Do this next",
   },
+  seniority: {
+    icon: Layers,
+    accent: "bg-indigo-500/10 ring-1 ring-indigo-500/20",
+    iconColor: "text-indigo-600",
+    label: "Level fit",
+  },
   contact: {
     icon: User,
     accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
