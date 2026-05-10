@@ -336,16 +336,17 @@ export default function GapResult({ markdown, preserveOrder = false }: { markdow
   const order: Record<string, number> = {
     score: 0,
     hard: 1,
-    soft: 2,
-    keyword: 3,
-    strength: 4,
-    action: 5,
-    contact: 6,
-    experience: 7,
-    education: 8,
-    skills: 9,
-    failure: 10,
-    default: 11,
+    seniority: 2,
+    soft: 3,
+    keyword: 4,
+    strength: 5,
+    action: 6,
+    contact: 7,
+    experience: 8,
+    education: 9,
+    skills: 10,
+    failure: 11,
+    default: 12,
   };
   const sorted = preserveOrder
     ? sections
