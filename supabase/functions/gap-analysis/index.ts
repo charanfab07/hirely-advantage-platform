@@ -102,10 +102,16 @@ YOUR ANALYSIS MUST INCLUDE:
    - After the table, write ONE honest verdict paragraph (no header, no bullet) of 2–3 sentences. It MUST: state how many hard requirements they meet out of how many, name the 2–3 biggest specific gaps, and end with a candid call on interview likelihood ("becomes a strong application", "still a long shot", "competitive as-is", etc.). No filler praise.
 
 8. PRIORITY ACTION LIST
-   - Numbered list of the top 5 changes to make, ordered by impact
-   - Each action must be specific and actionable, not generic
-   - Bad: "Add more keywords"
-   - Good: "Add 'stakeholder management' to your Q3 2022 bullet where you coordinated with the design and engineering teams"
+   - Numbered markdown list (1., 2., 3., …) of 5–8 actions, ordered strictly by impact (highest first).
+   - Every item MUST start with a bracketed priority tag, then the action, then a tight time estimate. Format:
+     1. [CRITICAL] [Action that references the actual bullet, section, or job in their resume]. [One short sentence on why it matters or what the signal change is.] Takes ~X minutes.
+   - Priority tags: [CRITICAL] / [HIGH] / [MEDIUM] / [LOW]. Order items by these tags (CRITICAL → LOW), then by impact within each tier.
+   - Rules for every item:
+     * Specific: reference the actual bullet, job, section, or phrase in their resume (e.g. "your Q3 2022 bullet at Company X", "Job 1 summary", "Skills section"). Never generic.
+     * Actionable in under 5 minutes per item. If a fix needs more, break it down.
+     * Honest: if the candidate genuinely lacks the skill, do NOT suggest adding it. Instead write the action as "[CRITICAL] Acknowledge the gap — you don't have [X]. Either upskill before applying, or target roles that don't require it." Never suggest fabricating experience.
+     * Prefer wording fixes (rename verbs, surface keywords already implied by their work, reorder sections) over content invention.
+   - Do not exceed 8 items. Do not include items that are pure filler.
 
 
 
