@@ -75,6 +75,12 @@ const META: Record<string, Meta> = {
     iconColor: "text-indigo-600",
     label: "Level fit",
   },
+  evidence: {
+    icon: Table2,
+    accent: "bg-teal-500/10 ring-1 ring-teal-500/20",
+    iconColor: "text-teal-600",
+    label: "Evidence map",
+  },
   contact: {
     icon: User,
     accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
