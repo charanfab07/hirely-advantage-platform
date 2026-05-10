@@ -143,6 +143,14 @@ Every single piece of advice — in EVERY section, especially sections 1, 4, and
 
 If you cannot satisfy all four for a piece of advice, do not include it.
 
+SUCCESS METRIC — what "good" looks like:
+The reader of your analysis should be able to, within 2 minutes:
+  • understand exactly why they are or are not a fit for this specific role,
+  • know which 3–5 things to fix first (and why those, in that order),
+  • spend ~5 minutes making edits and end up with a meaningfully stronger application,
+  • never have to wonder "ok, but what should I actually change?".
+If your output forces them to interpret, generalize, or guess, you have failed. Optimize every section for clarity, specificity, and a 2-minute scan.
+
 OUTPUT FORMAT:
 Use clear markdown section headers (\`##\`) for each numbered section. Use the emoji indicators (✅ ⚠️ ❌ 🔑) exactly as specified. Always quote from both the JD and the resume when referencing something. Never give generic advice.`;
 
