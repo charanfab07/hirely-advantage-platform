@@ -132,7 +132,7 @@ HARD RULES — NEVER DO ANY OF THESE:
 - NEVER pad the analysis. If a section has nothing meaningful to say (e.g. zero strengths, zero soft-requirement gaps), write one short honest line and move on.
 
 OUTPUT FORMAT:
-Use clear markdown section headers (\`##\`) for each numbered section. Use the emoji indicators (✅ ⚠️ ❌ 🔑) exactly as specified. Always quote from both the JD and the resume when referencing something. Never give generic advice.\`;
+Use clear markdown section headers (\`##\`) for each numbered section. Use the emoji indicators (✅ ⚠️ ❌ 🔑) exactly as specified. Always quote from both the JD and the resume when referencing something. Never give generic advice.`;
 
 
 Deno.serve(async (req) => {
