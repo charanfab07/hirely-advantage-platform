@@ -34,10 +34,24 @@ YOUR ANALYSIS MUST INCLUDE:
    - List preferred qualifications mentioned in JD that are weak or absent in the resume
    - Format: "⚠️ WEAK: [requirement] — The JD mentions [quote]. Your resume touches on this but insufficiently at [location]."
 
-3. KEYWORD GAPS (ATS risk)
-   - List exact keywords and phrases from the JD not present in resume
-   - Group by category: Technical Skills / Soft Skills / Tools / Certifications / Industry Terms
-   - For each: "🔑 [keyword] — appears [X] times in JD, 0 times in your resume"
+3. KEYWORD GAP ANALYSIS (ATS risk)
+   - Extract EVERY important keyword and phrase from the JD. Group them under these exact subheadings (use \`###\`), in this order. Skip a category only if the JD has zero keywords for it:
+     ### Technical Skills (tools, languages, platforms)
+     ### Soft Skills (leadership, communication, etc.)
+     ### Industry Terms
+     ### Certifications / Qualifications
+     ### Methodologies (Agile, SCRUM, OKRs, etc.)
+   - Under each subheading render a markdown table with EXACTLY these columns:
+     | Keyword | In Resume | JD Mentions | Priority | Add Honestly? |
+   - Column rules:
+     * Keyword: the exact phrase from the JD.
+     * In Resume: ✅ Yes / ⚠️ Partial / ❌ No.
+     * JD Mentions: integer count of how many times it appears in the JD.
+     * Priority: Critical / Important / Nice-to-Have — based on whether it's a hard requirement, a preferred qualification, or just a "nice to have".
+     * Add Honestly?: For ❌ No / ⚠️ Partial only. Answer "Yes — [where in their existing experience they can credibly surface it]" OR "No — would be dishonest" OR "—" if In Resume is ✅. Never invent experience.
+   - Sort each table: Critical first, then Important, then Nice-to-Have. Within a tier, missing/partial before present.
+   - Do not list the same keyword twice across categories — pick its best-fit category.
+
 
 4. STRENGTHS MATCH (What's working)
    - List 3–5 things the candidate has that strongly match the JD
