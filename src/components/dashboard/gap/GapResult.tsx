@@ -10,6 +10,7 @@ import {
   ListChecks,
   Sparkles,
   Layers,
+  Table2,
   User,
   Briefcase,
   GraduationCap,
@@ -74,6 +75,12 @@ const META: Record<string, Meta> = {
     iconColor: "text-indigo-600",
     label: "Level fit",
   },
+  evidence: {
+    icon: Table2,
+    accent: "bg-teal-500/10 ring-1 ring-teal-500/20",
+    iconColor: "text-teal-600",
+    label: "Evidence map",
+  },
   contact: {
     icon: User,
     accent: "bg-sky-500/10 ring-1 ring-sky-500/20",
@@ -117,6 +124,7 @@ function classify(title: string): keyof typeof META {
   if (t.includes("hard requirement")) return "hard";
   if (t.includes("soft requirement")) return "soft";
   if (t.includes("seniority") || t.includes("scope match") || t.includes("level fit")) return "seniority";
+  if (t.includes("evidence map") || t.includes("evidence mapping")) return "evidence";
   if (t.includes("parse failure") || t.includes("failure report")) return "failure";
   if (t.includes("contact")) return "contact";
   if (t.includes("work experience") || t.includes("experience parse")) return "experience";
@@ -337,16 +345,17 @@ export default function GapResult({ markdown, preserveOrder = false }: { markdow
     score: 0,
     hard: 1,
     seniority: 2,
-    soft: 3,
-    keyword: 4,
-    strength: 5,
-    action: 6,
-    contact: 7,
-    experience: 8,
-    education: 9,
-    skills: 10,
-    failure: 11,
-    default: 12,
+    evidence: 3,
+    soft: 4,
+    keyword: 5,
+    strength: 6,
+    action: 7,
+    contact: 8,
+    experience: 9,
+    education: 10,
+    skills: 11,
+    failure: 12,
+    default: 13,
   };
   const sorted = preserveOrder
     ? sections

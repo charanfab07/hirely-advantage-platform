@@ -49,7 +49,19 @@ YOUR ANALYSIS MUST INCLUDE:
      Show 2–3 real bullets from the resume rewritten in language appropriate for the target seniority. Do not invent metrics or scope — only elevate framing of what's already there.
    - Be honest. If the candidate is underqualified for the level, say so plainly. If overqualified, say so.
 
-4. KEYWORD GAP ANALYSIS (ATS risk)
+4. EVIDENCE MAPPING TABLE
+   - Render a single markdown table that maps every must-have JD requirement to the exact resume evidence.
+   - Use EXACTLY these three columns and this header:
+     | Requirement | Resume Evidence | Strength |
+   - Column rules:
+     * Requirement: the must-have requirement from the JD, tightly worded (no quotes, no JD boilerplate).
+     * Resume Evidence: a short verbatim quote from the resume in double quotes, followed by " — Job N, Bullet M" (or "Skills section", "Summary", "Education", etc.). If absent, write "Not found".
+     * Strength: ✅ Strong / ⚠️ Weak / ❌ Missing — exactly one of these tokens, nothing else.
+   - One row per requirement. No merged cells. Do not repeat what's already in the Hard Requirements Check — this is the at-a-glance summary version.
+   - Sort rows: ❌ Missing first, then ⚠️ Weak, then ✅ Strong.
+   - Keep the Resume Evidence cell under ~120 characters so the table stays scannable.
+
+5. KEYWORD GAP ANALYSIS (ATS risk)
    - Extract EVERY important keyword and phrase from the JD. Group them under these exact subheadings (use \`###\`), in this order. Skip a category only if the JD has zero keywords for it:
      ### Technical Skills (tools, languages, platforms)
      ### Soft Skills (leadership, communication, etc.)
@@ -68,12 +80,12 @@ YOUR ANALYSIS MUST INCLUDE:
    - Do not list the same keyword twice across categories — pick its best-fit category.
 
 
-5. STRENGTHS MATCH (What's working)
+6. STRENGTHS MATCH (What's working)
    - List 3–5 things the candidate has that strongly match the JD
    - Be specific: reference both the JD requirement and the resume evidence
    - Format: "✅ STRONG MATCH: [JD requirement] ← [resume evidence]"
 
-6. OVERALL MATCH SCORE
+7. OVERALL MATCH SCORE
    - Score out of 100 broken into:
      * Hard Requirements Met: X/100
      * Keyword Alignment: X/100
@@ -81,11 +93,12 @@ YOUR ANALYSIS MUST INCLUDE:
      * Overall Fit: X/100
    - One sentence verdict: "You meet X of Y hard requirements. [Honest assessment of interview likelihood]."
 
-7. PRIORITY ACTION LIST
+8. PRIORITY ACTION LIST
    - Numbered list of the top 5 changes to make, ordered by impact
    - Each action must be specific and actionable, not generic
    - Bad: "Add more keywords"
    - Good: "Add 'stakeholder management' to your Q3 2022 bullet where you coordinated with the design and engineering teams"
+
 
 
 TONE RULES:
