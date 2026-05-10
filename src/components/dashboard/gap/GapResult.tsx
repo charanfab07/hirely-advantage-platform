@@ -9,6 +9,7 @@ import {
   Gauge,
   ListChecks,
   Sparkles,
+  Layers,
   User,
   Briefcase,
   GraduationCap,
