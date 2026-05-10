@@ -34,7 +34,22 @@ YOUR ANALYSIS MUST INCLUDE:
    - List preferred qualifications mentioned in JD that are weak or absent in the resume
    - Format: "⚠️ WEAK: [requirement] — The JD mentions [quote]. Your resume touches on this but insufficiently at [location]."
 
-3. KEYWORD GAP ANALYSIS (ATS risk)
+3. SENIORITY & SCOPE MATCH
+   - Calibrate against the TARGET ROLE and YEARS OF EXPERIENCE provided in the candidate context (if absent, infer from the JD title and resume).
+   - Output EXACTLY these labeled lines (one per line, in this order):
+     ROLE EXPECTS: [one sentence describing the level the JD is hiring for — IC vs lead vs manager vs director vs exec; scope; team size if implied]
+     YOUR RESUME READS: [one sentence describing the level the resume actually communicates, based on titles, verbs, scope, and outcomes]
+     TITLE ALIGNMENT: [How the candidate's most recent title compares to the role being hired for — aligned / one level below / one level above / lateral / mismatched]
+     SCOPE OF BULLETS: [Are bullets written at the right scope? Quote 1–2 actual verbs/phrases from the resume as evidence, e.g. "I built", "I designed" vs "Led a team of 8", "Set the vision for".]
+     SPECIFIC ISSUE: [The single biggest seniority/scope mismatch in plain language. If none, write "None — bullets are written at the right level."]
+     VERDICT: [Overqualified / Underqualified / Well-matched / Qualified but underselling] — [one sentence explaining]
+   - Then, if (and only if) there is a real mismatch, add a short subsection:
+     ### Rewrite examples
+     A markdown table with columns: | Current bullet | Rewritten at the right level |
+     Show 2–3 real bullets from the resume rewritten in language appropriate for the target seniority. Do not invent metrics or scope — only elevate framing of what's already there.
+   - Be honest. If the candidate is underqualified for the level, say so plainly. If overqualified, say so.
+
+4. KEYWORD GAP ANALYSIS (ATS risk)
    - Extract EVERY important keyword and phrase from the JD. Group them under these exact subheadings (use \`###\`), in this order. Skip a category only if the JD has zero keywords for it:
      ### Technical Skills (tools, languages, platforms)
      ### Soft Skills (leadership, communication, etc.)
@@ -53,12 +68,12 @@ YOUR ANALYSIS MUST INCLUDE:
    - Do not list the same keyword twice across categories — pick its best-fit category.
 
 
-4. STRENGTHS MATCH (What's working)
+5. STRENGTHS MATCH (What's working)
    - List 3–5 things the candidate has that strongly match the JD
    - Be specific: reference both the JD requirement and the resume evidence
    - Format: "✅ STRONG MATCH: [JD requirement] ← [resume evidence]"
 
-5. OVERALL MATCH SCORE
+6. OVERALL MATCH SCORE
    - Score out of 100 broken into:
      * Hard Requirements Met: X/100
      * Keyword Alignment: X/100
@@ -66,11 +81,12 @@ YOUR ANALYSIS MUST INCLUDE:
      * Overall Fit: X/100
    - One sentence verdict: "You meet X of Y hard requirements. [Honest assessment of interview likelihood]."
 
-6. PRIORITY ACTION LIST
+7. PRIORITY ACTION LIST
    - Numbered list of the top 5 changes to make, ordered by impact
    - Each action must be specific and actionable, not generic
    - Bad: "Add more keywords"
    - Good: "Add 'stakeholder management' to your Q3 2022 bullet where you coordinated with the design and engineering teams"
+
 
 TONE RULES:
 - Be direct and honest, not encouraging or padded
