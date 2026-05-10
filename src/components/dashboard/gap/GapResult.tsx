@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   AlertOctagon,
   AlertTriangle,
@@ -306,9 +307,14 @@ function SectionBlock({ section }: { section: Section }) {
             "prose-headings:hidden",
             "prose-code:text-foreground prose-code:bg-foreground/[0.06] prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:text-[12px] prose-code:before:content-none prose-code:after:content-none",
             "prose-hr:border-foreground/10",
+            "[&_table]:w-full [&_table]:my-4 [&_table]:text-[12.5px] [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:rounded-xl [&_table]:overflow-hidden [&_table]:border [&_table]:border-foreground/[0.08]",
+            "[&_thead]:bg-foreground/[0.04]",
+            "[&_th]:text-left [&_th]:font-medium [&_th]:text-foreground/70 [&_th]:px-3 [&_th]:py-2 [&_th]:text-[11px] [&_th]:uppercase [&_th]:tracking-[0.1em] [&_th]:border-b [&_th]:border-foreground/[0.08]",
+            "[&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td]:border-b [&_td]:border-foreground/[0.05] [&_td]:text-foreground/80",
+            "[&_tbody_tr:last-child_td]:border-b-0",
           )}
         >
-          <ReactMarkdown>{section.body}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{section.body}</ReactMarkdown>
         </article>
       </div>
     </SectionCard>
