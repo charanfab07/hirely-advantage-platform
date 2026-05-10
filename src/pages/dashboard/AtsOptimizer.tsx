@@ -70,7 +70,15 @@ export default function AtsOptimizer() {
   const [resumeText, setResumeText] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const [extracting, setExtracting] = useState(false);
-  const [jd, setJd] = useState("");
+  const [jd, setJdState] = useState<string>(() => {
+    try { return sessionStorage.getItem("lovable.shared_jd") ?? ""; } catch { return ""; }
+  });
+  const setJd = (next: string) => {
+    setJdState(next);
+    try {
+      if (next.trim()) sessionStorage.setItem("lovable.shared_jd", next);
+    } catch {}
+  };
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState<Result | null>(null);
   const [showUpgrade, setShowUpgrade] = useState(false);

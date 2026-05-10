@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { resume_text, job_description } = await req.json();
+    const { resume_text, job_description, target_role, years_experience } = await req.json();
     if (!resume_text || !job_description) {
       return new Response(JSON.stringify({ error: "resume_text and job_description required" }), {
         status: 400,
@@ -74,7 +74,18 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const userPrompt = `RESUME:\n${resume_text}\n\n---\n\nJOB DESCRIPTION:\n${job_description}\n\nPerform the full gap analysis as instructed.`;
+    const role = typeof target_role === "string" ? target_role.trim() : "";
+    const yoeRaw = typeof years_experience === "number" ? years_experience : Number(years_experience);
+    const yoe = Number.isFinite(yoeRaw) ? Math.max(0, Math.min(60, Math.floor(yoeRaw))) : null;
+
+    const contextLines: string[] = [];
+    if (role) contextLines.push(`TARGET ROLE: ${role}`);
+    if (yoe !== null) contextLines.push(`YEARS OF EXPERIENCE: ${yoe}`);
+    const contextBlock = contextLines.length
+      ? `CANDIDATE CONTEXT:\n${contextLines.join("\n")}\n\nCalibrate the seniority bar to this target role and years of experience. If the JD seniority does not match the candidate's stated years of experience, call out the level mismatch explicitly in the verdict.\n\n---\n\n`
+      : "";
+
+    const userPrompt = `${contextBlock}RESUME:\n${resume_text}\n\n---\n\nJOB DESCRIPTION:\n${job_description}\n\nPerform the full gap analysis as instructed.`;
 
     const resp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
