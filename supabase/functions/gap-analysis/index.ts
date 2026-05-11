@@ -18,16 +18,16 @@ YOUR ANALYSIS MUST INCLUDE:
 
 1. HARD REQUIREMENTS CHECK (Critical — will likely auto-reject)
    - Extract EVERY non-negotiable requirement from the JD (must-haves, "required", "minimum qualifications", explicit years, certifications, mandatory tools/skills).
-   - For each requirement, evaluate against the resume and report it as a separate block using EXACTLY this 4-line format:
-     JD SAYS: "[verbatim quote or tightly paraphrased requirement]"
-     RESUME EVIDENCE: [specific evidence from the resume, OR "Not found anywhere in resume"]
-     LOCATION: [Page X, Job/Section name, Bullet N — or "—" if missing]
-     STATUS: [✅ PROVEN / ⚠️ WEAK / ❌ MISSING] — [one short sentence explaining why and, if WEAK/MISSING, what would make it strong]
-   - Use ✅ PROVEN only when the resume clearly and concretely demonstrates the requirement (with scope, seniority, or outcome).
-   - Use ⚠️ WEAK when present but unconvincing (mentioned in passing, no scope, no outcome, wrong seniority).
-   - Use ❌ MISSING when there is no evidence at all.
-   - Render each requirement as a fenced code block (\`\`\`) so the four lines stay aligned. Leave a blank line between blocks.
-   - Do NOT collapse multiple requirements into one block. One requirement per block.
+   - For each requirement, evaluate against the resume and report it as a separate block using EXACTLY this 4-line markdown format (bold labels, plain prose — NEVER wrap in code fences or backticks):
+     **JD says:** "[verbatim quote or tightly paraphrased requirement]"
+     **Resume evidence:** [specific evidence from the resume, OR "Not found anywhere in resume"]
+     **Location:** [Page X, Job/Section name, Bullet N — or "—" if missing]
+     **Status:** [✅ Proven / ⚠️ Weak / ❌ Missing] — [one short sentence explaining why and, if Weak/Missing, what would make it strong]
+   - Separate each requirement block with a blank line followed by `---` and another blank line (markdown horizontal rule), so each requirement reads as its own clean card.
+   - Use ✅ Proven only when the resume clearly and concretely demonstrates the requirement (with scope, seniority, or outcome).
+   - Use ⚠️ Weak when present but unconvincing (mentioned in passing, no scope, no outcome, wrong seniority).
+   - Use ❌ Missing when there is no evidence at all.
+   - Do NOT use fenced code blocks (\`\`\`) or backticks anywhere in this section. Do NOT collapse multiple requirements into one block. One requirement per block.
 
 
 2. SOFT REQUIREMENTS GAPS (Important — weakens candidacy)
