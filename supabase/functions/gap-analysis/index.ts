@@ -23,7 +23,7 @@ YOUR ANALYSIS MUST INCLUDE:
      **Resume evidence:** [specific evidence from the resume, OR "Not found anywhere in resume"]
      **Location:** [Page X, Job/Section name, Bullet N — or "—" if missing]
      **Status:** [✅ Proven / ⚠️ Weak / ❌ Missing] — [one short sentence explaining why and, if Weak/Missing, what would make it strong]
-   - Separate each requirement block with a blank line followed by `---` and another blank line (markdown horizontal rule), so each requirement reads as its own clean card.
+   - Separate each requirement block with a blank line followed by \`---\` and another blank line (markdown horizontal rule), so each requirement reads as its own clean card.
    - Use ✅ Proven only when the resume clearly and concretely demonstrates the requirement (with scope, seniority, or outcome).
    - Use ⚠️ Weak when present but unconvincing (mentioned in passing, no scope, no outcome, wrong seniority).
    - Use ❌ Missing when there is no evidence at all.
