@@ -306,30 +306,30 @@ function SectionBlock({ section }: { section: Section }) {
             <Icon className={cn("w-[18px] h-[18px]", meta.iconColor)} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] tracking-[0.22em] uppercase text-foreground/45 font-medium">
+            <p className="text-[11px] tracking-[0.22em] uppercase text-foreground/50 font-semibold">
               {meta.label}
             </p>
-            <h2 className="mt-1 text-[18px] leading-snug font-medium tracking-tight text-foreground">
+            <h2 className="mt-1.5 text-[22px] sm:text-[24px] leading-tight font-semibold tracking-tight text-foreground">
               {section.title}
             </h2>
           </div>
         </div>
         <article
           className={cn(
-            "prose prose-sm max-w-none",
-            "prose-p:text-foreground/80 prose-p:leading-[1.7] prose-p:my-3",
-            "prose-li:text-foreground/80 prose-li:leading-[1.7] prose-li:my-1.5",
-            "prose-ul:my-2 prose-ol:my-2 prose-ol:pl-5 prose-ul:pl-5",
+            "prose prose-base max-w-none",
+            "prose-p:text-foreground/85 prose-p:text-[15.5px] prose-p:leading-[1.75] prose-p:my-3.5",
+            "prose-li:text-foreground/85 prose-li:text-[15.5px] prose-li:leading-[1.75] prose-li:my-2",
+            "prose-ul:my-3 prose-ol:my-3 prose-ol:pl-6 prose-ul:pl-6",
             "prose-strong:text-foreground prose-strong:font-semibold",
             "prose-headings:hidden",
-            "prose-code:text-foreground prose-code:bg-foreground/[0.06] prose-code:rounded prose-code:px-1 prose-code:py-0.5 prose-code:text-[12.5px] prose-code:font-normal prose-code:before:content-none prose-code:after:content-none",
-            "[&_pre]:bg-foreground/[0.04] [&_pre]:border [&_pre]:border-foreground/[0.08] [&_pre]:rounded-xl [&_pre]:p-4 [&_pre]:my-3 [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:text-[13px] [&_pre]:leading-[1.7] [&_pre]:text-foreground/85 [&_pre]:font-sans",
-            "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-[13px] [&_pre_code]:font-sans [&_pre_code]:text-foreground/85",
-            "prose-hr:border-foreground/10 prose-hr:my-5",
-            "[&_table]:w-full [&_table]:my-4 [&_table]:text-[12.5px] [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:rounded-xl [&_table]:overflow-hidden [&_table]:border [&_table]:border-foreground/[0.08]",
+            "prose-code:text-foreground prose-code:bg-foreground/[0.06] prose-code:rounded prose-code:px-1.5 prose-code:py-0.5 prose-code:text-[14px] prose-code:font-normal prose-code:before:content-none prose-code:after:content-none",
+            "[&_pre]:bg-foreground/[0.04] [&_pre]:border [&_pre]:border-foreground/[0.08] [&_pre]:rounded-xl [&_pre]:p-5 [&_pre]:my-4 [&_pre]:whitespace-pre-wrap [&_pre]:break-words [&_pre]:text-[15px] [&_pre]:leading-[1.75] [&_pre]:text-foreground/90 [&_pre]:font-sans",
+            "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:text-[15px] [&_pre_code]:font-sans [&_pre_code]:text-foreground/90",
+            "prose-hr:border-foreground/10 prose-hr:my-6",
+            "[&_table]:w-full [&_table]:my-5 [&_table]:text-[14.5px] [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:rounded-xl [&_table]:overflow-hidden [&_table]:border [&_table]:border-foreground/[0.08]",
             "[&_thead]:bg-foreground/[0.04]",
-            "[&_th]:text-left [&_th]:font-medium [&_th]:text-foreground/70 [&_th]:px-3 [&_th]:py-2 [&_th]:text-[11px] [&_th]:uppercase [&_th]:tracking-[0.1em] [&_th]:border-b [&_th]:border-foreground/[0.08]",
-            "[&_td]:px-3 [&_td]:py-2 [&_td]:align-top [&_td]:border-b [&_td]:border-foreground/[0.05] [&_td]:text-foreground/80",
+            "[&_th]:text-left [&_th]:font-semibold [&_th]:text-foreground/75 [&_th]:px-4 [&_th]:py-2.5 [&_th]:text-[12px] [&_th]:uppercase [&_th]:tracking-[0.1em] [&_th]:border-b [&_th]:border-foreground/[0.08]",
+            "[&_td]:px-4 [&_td]:py-3 [&_td]:align-top [&_td]:border-b [&_td]:border-foreground/[0.05] [&_td]:text-foreground/85 [&_td]:leading-[1.65]",
             "[&_tbody_tr:last-child_td]:border-b-0",
           )}
         >
