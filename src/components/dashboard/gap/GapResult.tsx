@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import {
@@ -15,6 +15,7 @@ import {
   Briefcase,
   GraduationCap,
   XOctagon,
+  ArrowDown,
 } from "lucide-react";
 import { SectionCard } from "@/components/dashboard/SectionCard";
 import { cn } from "@/lib/utils";
@@ -339,6 +340,7 @@ function SectionBlock({ section }: { section: Section }) {
 
 export default function GapResult({ markdown, preserveOrder = false }: { markdown: string; preserveOrder?: boolean }) {
   const sections = useMemo(() => parseSections(markdown), [markdown]);
+  const anchorRef = useRef<HTMLDivElement>(null);
 
   // Reorder: score first, then critical->soft->keyword->strength->action
   const order: Record<string, number> = {
@@ -361,8 +363,37 @@ export default function GapResult({ markdown, preserveOrder = false }: { markdow
     ? sections
     : [...sections].sort((a, b) => (order[a.key] ?? 99) - (order[b.key] ?? 99));
 
+  // Auto-scroll into view when results arrive — so they can't be missed.
+  useEffect(() => {
+    if (!markdown) return;
+    const t = setTimeout(() => {
+      anchorRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
+    return () => clearTimeout(t);
+  }, [markdown]);
+
   return (
-    <div className="space-y-5">
+    <div ref={anchorRef} className="space-y-5 scroll-mt-6 animate-fade-up">
+      {/* Prominent results banner so the output never feels buried. */}
+      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.08] bg-gradient-to-br from-foreground/[0.04] via-foreground/[0.02] to-transparent px-5 py-4 sm:px-6 sm:py-5">
+        <div className="flex items-center gap-3">
+          <div className="shrink-0 w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center">
+            <ArrowDown className="w-4 h-4" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/50 font-medium">
+              Results
+            </p>
+            <h2 className="mt-0.5 text-[17px] sm:text-[18px] font-semibold tracking-tight text-foreground leading-snug">
+              Your report is ready — review every section below.
+            </h2>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] tracking-[0.14em] uppercase font-medium text-foreground/55 bg-foreground/[0.05] border border-foreground/[0.08] px-2.5 py-1 rounded-full">
+            {sorted.length} sections
+          </span>
+        </div>
+      </div>
+
       {sorted.map((s, i) => (
         <SectionBlock key={`${s.key}-${i}`} section={s} />
       ))}
