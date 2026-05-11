@@ -373,25 +373,19 @@ export default function GapResult({ markdown, preserveOrder = false }: { markdow
   }, [markdown]);
 
   return (
-    <div ref={anchorRef} className="space-y-5 scroll-mt-6 animate-fade-up">
-      {/* Prominent results banner so the output never feels buried. */}
-      <div className="relative overflow-hidden rounded-2xl border border-foreground/[0.08] bg-gradient-to-br from-foreground/[0.04] via-foreground/[0.02] to-transparent px-5 py-4 sm:px-6 sm:py-5">
-        <div className="flex items-center gap-3">
-          <div className="shrink-0 w-9 h-9 rounded-xl bg-foreground text-background flex items-center justify-center">
-            <ArrowDown className="w-4 h-4" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[10.5px] tracking-[0.22em] uppercase text-foreground/50 font-medium">
-              Results
-            </p>
-            <h2 className="mt-0.5 text-[17px] sm:text-[18px] font-semibold tracking-tight text-foreground leading-snug">
-              Your report is ready — review every section below.
-            </h2>
-          </div>
-          <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] tracking-[0.14em] uppercase font-medium text-foreground/55 bg-foreground/[0.05] border border-foreground/[0.08] px-2.5 py-1 rounded-full">
-            {sorted.length} sections
+    <div ref={anchorRef} className="space-y-4 scroll-mt-6 animate-fade-up">
+      {/* Compact, unmissable results header */}
+      <div className="flex items-center justify-between gap-4 pb-3 border-b border-foreground/[0.08]">
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/15" />
+          <h2 className="text-[15px] font-semibold tracking-tight text-foreground truncate">
+            Your report is ready
+          </h2>
+          <span className="text-[12px] text-foreground/50 hidden sm:inline">
+            · {sorted.length} sections · scroll to review
           </span>
         </div>
+        <ArrowDown className="w-4 h-4 text-foreground/40 shrink-0" />
       </div>
 
       {sorted.map((s, i) => (
