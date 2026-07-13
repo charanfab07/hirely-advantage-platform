@@ -15,6 +15,13 @@ const passwordSchema = z
   .min(8, "At least 8 characters")
   .max(72, "Too long");
 
+const getSafeReturnPath = (value: string | null) => {
+  if (!value) return "/app/resume";
+  if (!value.startsWith("/") || value.startsWith("//")) return "/app/resume";
+  if (value.startsWith("/auth")) return "/app/resume";
+  return value;
+};
+
 const Auth = () => {
   const navigate = useNavigate();
   const [params] = useSearchParams();
@@ -25,6 +32,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const returnPath = getSafeReturnPath(params.get("next"));
 
   useEffect(() => {
     const applyPendingAndGo = async (userId: string) => {
@@ -50,7 +58,7 @@ const Auth = () => {
             : `You're now on ${pending[0].toUpperCase()}${pending.slice(1)}.`,
         );
       }
-      navigate("/app/resume", { replace: true });
+      navigate(returnPath, { replace: true });
     };
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -60,7 +68,7 @@ const Auth = () => {
       if (sess) applyPendingAndGo(sess.user.id);
     });
     return () => sub.subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, returnPath]);
 
   const handleEmail = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +84,7 @@ const Auth = () => {
           email: emailParsed.data,
           password: passParsed.data,
           options: {
-            emailRedirectTo: `${window.location.origin}/app/resume`,
+            emailRedirectTo: `${window.location.origin}/auth?next=${encodeURIComponent(returnPath)}`,
             data: { full_name: name.trim() || emailParsed.data },
           },
         });
@@ -100,8 +108,14 @@ const Auth = () => {
   const handleGoogle = async () => {
     setLoading(true);
     try {
+      const redirectUrl = new URL("/auth", window.location.origin);
+      redirectUrl.searchParams.set("next", returnPath);
+
       const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: `${window.location.origin}/app/resume`,
+        redirect_uri: redirectUrl.toString(),
+        extraParams: {
+          prompt: "select_account",
+        },
       });
       if (result.error) {
         toast.error("Google sign-in failed");
@@ -109,6 +123,13 @@ const Auth = () => {
         return;
       }
       if (result.redirected) return;
+
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate(returnPath, { replace: true });
+        return;
+      }
+      setLoading(false);
     } catch {
       setLoading(false);
       toast.error("Google sign-in failed");
