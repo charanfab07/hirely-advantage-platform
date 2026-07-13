@@ -108,7 +108,13 @@ const Auth = () => {
   const handleGoogle = async () => {
     setLoading(true);
     try {
-      const redirectUrl = new URL("/auth", window.location.origin);
+      try {
+        sessionStorage.setItem("auth:returnPath", returnPath);
+      } catch {
+        /* ignore */
+      }
+
+      const redirectUrl = new URL("/auth/callback", window.location.origin);
       redirectUrl.searchParams.set("next", returnPath);
 
       const result = await lovable.auth.signInWithOAuth("google", {
