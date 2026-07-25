@@ -11,7 +11,7 @@ export default defineConfig(({ mode }) => ({
     ),
     "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": JSON.stringify(
       process.env.VITE_SUPABASE_PUBLISHABLE_KEY ??
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6InFhbHd3bHlpcm9mbnlieXljbmFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODQyNzksImV4cCI6MjA5Mjg2MDI3OX0.8KR-35ghHfX7ay91nTNN4XmSQs3AuoOd5qHpoyP7VaA",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFhbHd3bHlpcm9mbnlieXljbmFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODQyNzksImV4cCI6MjA5Mjg2MDI3OX0.8KR-35ghHfX7ay91nTNN4XmSQs3AuoOd5qHpoyP7VaA",
     ),
   },
   server: {
